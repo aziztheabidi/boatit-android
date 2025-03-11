@@ -17,6 +17,9 @@ cache:
 # Build Stage
 build-job:
   stage: build
+  before_script:
+    # Make gradlew executable
+    - chmod +x ./gradlew
   script:
     # Print the Android SDK location for verification
     - echo "ANDROID_HOME=$ANDROID_HOME"
