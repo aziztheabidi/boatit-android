@@ -31,7 +31,7 @@
     <string name="voyager">Voyager</string>
     <string name="voyager_onboarding_text">Share a ride, make a memory - discover new horizons\nwith our boat riding</string>
 
-   <string name="add_your_info">Add Your Info</string>
+    <string name="add_your_info">Add Your Info</string>
     <string name="continue_button_text">Continue</string>
     <string name="email_verification_text">We just send 5 digit code to\nexample@example.com, enter it below:</string>
     <string name="code_text">Code</string>
@@ -169,9 +169,48 @@
     <string name="add_business_logo_label">Add Logo</string>
     <string name="add_business_logo_h2">Add your business logo</string>
 
+    <string name="find_destination_button_text">Find Destination</string>
+    <string name="destination_location_h1">Destination Location</string>
+    <string name="pickup_location_h1">PickUp Location</string>
+
+    <string name="next">Next</string>
+
 
     <string name="location_permission_text">Location Permission Needed</string>
     <string name="location_permission_alert_text"> This app requires location access to function correctly.</string>
+    <string name="try_again">Try Again</string>
+    <string name="cancel">Cancel</string>
+    <string name="location_service_disabled_title">Location Services Disabled</string>
+    <string name="location_service_disabled_message">Please enable location services to use this feature.</string>
+    <string name="enable_location">Enable Location</string>
+
+    <string name="location_services_disabled">Location Services Disabled</string>
+    <string name="enable_location_services">Please enable location services to continue using the app.</string>
+    <string name="enable">Enable</string>
+
+    <string name="pickup_location_text">Pickup location required</string>
+    <string name="pickup_location_lbl">Pickup location</string>
 
 
+    <string name="drop_off_location_text">Drop off location required</string>
+    <string name="drop_off_location_lbl">Drop off location</string>
+
+    <string name="num_off_voyagers_text">add number of passengers</string>
+    <string name="num_off_voyagers_lbl">No. of voyagers</string>
+
+    <string name="find_boat_button_text">Find Boat</string>
+    <string name="title_activity_rotating_wheel_view">RotatingWheelView</string>
+    <string name="booking_date">Booking Date:</string>
+    <string name="pay_now_text">Pay Now</string>
+    <string name="pick_up_notes">ANy pick up Notes?</string>
+    <string name="voyage_start_text">"Meet at “Pickup Point” for your\n“destination point” in…</string>
+    <string name="enter_pin_text">PIN for the Voyage is:"</string>
+    <string name="welcome_text">Welcome!</string>
+    <string name="update_captain_status_text">Tap the wheel to go online and start getting voyage requests</string>
+    <string name="online_text">you are Online!</string>
+    <string name="online_status_text">Start accepting  voyager and help voyagers reach there destinations</string>
+    <string name="voyages_screen">Voyages Requests</string>
+    <string name="accept_text">Accept</string>
+    <string name="start_text">Start</string>
+    <string name="decline_text">decline</string>
 </resources>

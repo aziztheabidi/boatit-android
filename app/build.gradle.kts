@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -42,6 +44,17 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes.add("META-INF/gradle/incremental.annotation.processors")
+            excludes.add("META-INF/DEPENDENCIES")
+            excludes.add("META-INF/LICENSE")
+            excludes.add("META-INF/LICENSE.txt")
+            excludes.add("META-INF/NOTICE")
+        }
+    }
+
 }
 
 dependencies {
@@ -57,6 +70,10 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.espresso.core)
+    implementation(libs.places)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.cronet.embedded)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,7 +85,35 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.coil.compose)
     implementation(libs.googleMapsCompose)
+    implementation(libs.play.services.location)
 
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.livedata.ktx)
 
-    // implementation(libs.androidx.core.splashscreen)
+    implementation(libs.okhttp)
+    implementation(libs.gson)
+
+    // Ktor Core
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.cio) // Use CIO as HTTP engine
+    implementation(libs.ktor.negotiation) // Content negotiation
+    implementation(libs.ktor.json) // JSON serialization
+    implementation(libs.ktor.logging)
+    implementation(libs.ktor.auth)// Logging support
+
+    // Serialization
+    implementation(libs.kotlinx.serialization)
+    implementation(libs.kotlin.parcelize.runtime)
+
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.android.compose)
+
+    // Import the Firebase BoM
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.messaging)
+
 }

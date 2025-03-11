@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "646590213589",
+    "project_id": "boatsharing-2660b",
+    "storage_bucket": "boatsharing-2660b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646590213589:android:017130a181a0e9c324a15c",
+        "android_client_info": {
+          "package_name": "com.boatit.boatsharing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLeIbfR1HjYHxxODYzWIYWPJ6PtgKsaJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

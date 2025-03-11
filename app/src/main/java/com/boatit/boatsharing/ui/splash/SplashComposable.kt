@@ -18,17 +18,23 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
+import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.HandleSystemDefaultBars
 import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun SplashComposable(navController: NavController) {
+fun SplashComposable(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
 
     HandleSystemDefaultBars(
         statusBarColor = colorResource(R.color.bars_colour),
         navigationBarColor = colorResource(R.color.bars_colour),
     )
+
     Box(modifier = Modifier.fillMaxSize()){
         Image(
             painter = painterResource(id = R.drawable.splash_bg),
@@ -46,12 +52,23 @@ fun SplashComposable(navController: NavController) {
         )
     }
 
-
+    val userData = viewModel.getUserData()
+    AppConstants.USER_ID = userData?.UserId
+    println("userid" + AppConstants.USER_ID)
     LaunchedEffect(Unit) {
-
-        delay(3000)
-
-        navController.navigate(NavigationManager.VOYAGER_ONBOARDING_SCREEN)
+        delay(5000)
+        if (userData != null) {
+            if(userData.Role.equals("Voyager")){
+                navController.navigate(route = "$DASHBOARD_SCREEN/null")
+            }else if(userData.Role.equals("Captain")){
+                navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
+//                navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)
+            }else{
+                navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
+            }
+        } else {
+            navController.navigate(NavigationManager.VOYAGER_ONBOARDING_SCREEN)
+        }
     }
 }
 

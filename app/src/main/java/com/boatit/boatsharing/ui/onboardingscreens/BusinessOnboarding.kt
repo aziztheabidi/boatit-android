@@ -130,7 +130,7 @@ fun BusinessOnboarding(navController: NavController) {
 
                          navController.navigate(NavigationManager.CREATE_ACCOUNT_STEP_ONE_SCREEN)
 
-                       // navController.navigate(NavigationManager.DASHBOARD_SCREEN)
+
                     },
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -167,7 +167,7 @@ fun BusinessOnboarding(navController: NavController) {
                     ),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp).clickable {
-                        navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
+                        navController.navigate(NavigationManager.LOGIN_SCREEN)
                     },
 
 

@@ -27,7 +27,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
+import com.boatit.boatsharing.ui.chat.view.CaptainRequests
+import com.boatit.boatsharing.utils.AppConstants
 
 
 @Composable
@@ -107,7 +110,11 @@ fun VoyagerOnboarding(navController: NavController) {
             },
             onSkipClick = {
                 println("skip")
-                navController.navigateWithClearStack(NavigationManager.SELECT_ROLE_SCREEN, clearStack = true)
+
+              // navController.navigateWithClearStack(NavigationManager.SELECT_ROLE_SCREEN, clearStack = true)
+
+                navController.navigate(route = "$CHAT_SCREEN/456/123/tab/tab")
+
 
             },
             R.drawable.onboarding_step_one,

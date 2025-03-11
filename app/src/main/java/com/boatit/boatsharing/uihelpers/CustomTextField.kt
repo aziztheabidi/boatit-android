@@ -9,11 +9,15 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +55,8 @@ fun CustomTextField(
     focusRequester: FocusRequester = remember { FocusRequester() },
     singleLine: Boolean = true,
     maxLines: Int? = null,
-    minLines: Int = 1
-
+    minLines: Int = 1,
+    leadingIcon: @Composable (() -> Unit)? = null,
 
 ) {
 
@@ -103,6 +107,7 @@ fun CustomTextField(
                 }
             }
         } else null,
+        leadingIcon = leadingIcon,
         isError = isError,
         visualTransformation = inputType,
         textStyle = TextStyle(textAlign = textAlign),
@@ -126,4 +131,46 @@ fun CustomTextField(
         )
 
     }
+}
+
+@Composable
+fun ComposableUtilsTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    hint: String,
+    keyboardOptions: KeyboardOptions,
+    isError: Boolean? = false,
+    errorMessage: String
+) {
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(10.dp),
+        colors = CardDefaults.cardColors(
+            Color(0xFFF1F1F1)
+        )
+    ) {
+
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = if (isError!!) Color.Red else Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+            ),
+            placeholder = {
+                Text(text = if (isError) errorMessage else hint)
+
+            },
+            visualTransformation = VisualTransformation.None,
+            keyboardOptions = keyboardOptions,
+            isError = isError
+        )
+
+    }
+
 }

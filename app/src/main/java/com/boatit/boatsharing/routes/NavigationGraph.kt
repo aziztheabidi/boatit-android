@@ -1,13 +1,26 @@
 package com.boatit.boatsharing.routes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
-import com.boatit.boatsharing.ui.forgotpassword.ForgotPasswordScreen
-import com.boatit.boatsharing.ui.home.DashboardScreen
-import com.boatit.boatsharing.ui.login.LoginScreen
+import com.boatit.boatsharing.ui.captain.availablitystatus.CustomStatusScreen
+import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageStartedScreen
+import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageStartedScreenVoyager
+import com.boatit.boatsharing.ui.captain.dashbaord.view.CaptainDashboard
+import com.boatit.boatsharing.ui.captain.voyages.view.CaptainVoyages
+import com.boatit.boatsharing.ui.chat.view.ChatScreen
+import com.boatit.boatsharing.ui.forgotpassword.view.ForgotPasswordScreen
+import com.boatit.boatsharing.ui.login.view.LoginScreen
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.DashboardScreen
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.FindDestinationLocationScreen
+import com.boatit.boatsharing.ui.menu.MenuOptions
 import com.boatit.boatsharing.ui.onboardingscreens.BusinessOnboarding
 import com.boatit.boatsharing.ui.onboardingscreens.CaptainOnboarding
 import com.boatit.boatsharing.ui.onboardingscreens.VoyagerOnboarding
@@ -16,18 +29,22 @@ import com.boatit.boatsharing.ui.signup.business.AddBusinessLogo
 import com.boatit.boatsharing.ui.signup.business.AddGeneralBusinessInfo
 import com.boatit.boatsharing.ui.signup.captain.AddCaptainBoatInfoScreen
 import com.boatit.boatsharing.ui.signup.captain.AddCaptainDocumentInfoScreen
-import com.boatit.boatsharing.ui.signup.general.CreatePassword
-import com.boatit.boatsharing.ui.signup.general.VerifyUserEmail
-import com.boatit.boatsharing.ui.signup.general.UserAccountInfoScreen
-import com.boatit.boatsharing.ui.signup.general.UserBasicInfoScreen
+import com.boatit.boatsharing.ui.signup.captain.view.CaptainAccountInfoScreen
+import com.boatit.boatsharing.ui.signup.general.view.CreatePassword
+import com.boatit.boatsharing.ui.signup.general.view.UserAccountInfoScreen
+import com.boatit.boatsharing.ui.signup.general.view.UserBasicInfoScreen
+import com.boatit.boatsharing.ui.signup.general.view.VerifyUserEmail
 import com.boatit.boatsharing.ui.userroles.SelectRole
 import com.boatit.boatsharing.ui.splash.SplashComposable
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmBooking
+
 
 
 object NavigationManager {
     const val SPLASH_SCREEN = "splash"
     const val VOYAGER_ONBOARDING_SCREEN = "voyagerOnBoarding"
     const val CAPTAIN_ONBOARDING_SCREEN = "captainOnBoarding"
+    const val CAPTAIN_VOYAGES_SCREEN = "captainVoyages"
     const val BUSINESS_ONBOARDING_SCREEN = "businessOnBoarding"
     const val SELECT_ROLE_SCREEN = "selectRole"
     const val LOGIN_SCREEN = "loginScreen"
@@ -36,12 +53,20 @@ object NavigationManager {
     const val CREATE_ACCOUNT_STEP_TWO_SCREEN = "createAccountStepTwoScreen"
     const val CREATE_ACCOUNT_STEP_THREE_SCREEN = "createAccountStepThreeScreen"
     const val USER_ACCOUNT_INFO_SCREEN = "userAccountInfoScreen"
+    const val CAPTAIN_INFO_SCREEN = "captainInfoScreen"
     const val CAPTAIN_DOCUMENT_INFO_SCREEN = "captainDocumentInfoScreen"
     const val CAPTAIN_BOAT_INFO_SCREEN = "captainBoatInfoScreen"
     const val BUSINESS_GENERAL_INFO_SCREEN = "businessGeneralInfoScreen"
     const val BUSINESS_DESCRIPTIONS_SCREEN = "businessDescriptionsScreen"
     const val BUSINESS_LOGO_SCREEN = "businessLogoScreen"
     const val DASHBOARD_SCREEN = "dashboardScreen"
+    const val CHAT_SCREEN = "chatScreen"
+    const val CAPTAIN_DASHBOARD_SCREEN = "captaindashboardScreen"
+    const val CAPTAIN_OFFLINE_SCREEN = "captainofflineScreen"
+    const val FIND_LOCATION_SCREEN = "FindLocationScreen"
+    const val MENU_OPTIONS_SCREEN = "MenuOptionsScreen"
+    const val VOYAGE_STARTED_SCREEN = "VoyageStartedScreen"
+    const val VOYAGE_STARTED_SCREEN_Voyager = "VoyageStartedScreenVoyager"
 
 }
 
@@ -65,12 +90,11 @@ fun AppNavGraph(navController: NavHostController ) {
            }
 
            //roles screen////
-
            composable(NavigationManager.SELECT_ROLE_SCREEN) {
                SelectRole(navController)
            }
-           // login screen///
 
+           // login screen///
            composable(NavigationManager.LOGIN_SCREEN) {
                LoginScreen(navController)
            }
@@ -85,20 +109,29 @@ fun AppNavGraph(navController: NavHostController ) {
                UserBasicInfoScreen(navController)
            }
 
-           composable(NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN) {
-               VerifyUserEmail(navController)
+           composable("$CREATE_ACCOUNT_STEP_TWO_SCREEN/{value}") { backStackEntry ->
+               val comingFrom = backStackEntry.arguments?.getString("value")
+               if (comingFrom != null) {
+                   VerifyUserEmail(navController, comingFrom)
+               }
            }
 
-           composable(NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN) {
-               CreatePassword(navController)
-           }
+           composable("$CREATE_ACCOUNT_STEP_THREE_SCREEN/{value}") { backStackEntry ->
+               val comingFrom = backStackEntry.arguments?.getString("value")
+               if (comingFrom != null) {
+                   CreatePassword(navController, comingFrom)
+               }
 
+           }
 
            composable("$USER_ACCOUNT_INFO_SCREEN/{value}") { backStackEntry ->
                val comingFrom = backStackEntry.arguments?.getString("value")
                UserAccountInfoScreen(navController, comingFrom)
            }
 
+           composable(NavigationManager.CAPTAIN_INFO_SCREEN) {
+               CaptainAccountInfoScreen(navController)
+           }
            composable(NavigationManager.CAPTAIN_DOCUMENT_INFO_SCREEN) {
                AddCaptainDocumentInfoScreen(navController)
            }
@@ -117,15 +150,56 @@ fun AppNavGraph(navController: NavHostController ) {
            composable(NavigationManager.BUSINESS_LOGO_SCREEN) {
                AddBusinessLogo(navController)
            }
-           composable(NavigationManager.DASHBOARD_SCREEN) {
-               DashboardScreen(navController)
+
+           composable(NavigationManager.CAPTAIN_DASHBOARD_SCREEN) {
+               CaptainDashboard(navController)
            }
+
+           composable(NavigationManager.CAPTAIN_VOYAGES_SCREEN) {
+               CaptainVoyages(navController)
+           }
+
+           composable(NavigationManager.VOYAGE_STARTED_SCREEN) {
+               VoyageStartedScreen(navController)
+           }
+
+           composable(NavigationManager.VOYAGE_STARTED_SCREEN_Voyager) {
+               VoyageStartedScreenVoyager(navController)
+           }
+
+           composable(NavigationManager.CAPTAIN_OFFLINE_SCREEN) {
+               CustomStatusScreen(navController)
+           }
+
+           //Remove Value
+           composable("$DASHBOARD_SCREEN/{value}") { backStackEntry ->
+               val data = backStackEntry.arguments?.getString("value")
+               DashboardScreen(navController, data)
+           }
+
+           //Remove Value
+           composable("${CHAT_SCREEN}/{chatId}/{currentUserId}/{name}/{senderId}") { backStackEntry ->
+               val chatId = backStackEntry.arguments?.getString("chatId")
+               val currentUserId = backStackEntry.arguments?.getString("currentUserId")
+               val name = backStackEntry.arguments?.getString("name")
+               val senderId = backStackEntry.arguments?.getString("senderId")
+               ChatScreen(navController, chatId!!, currentUserId!!, name!!, senderId!!)
+           }
+
+           composable(NavigationManager.FIND_LOCATION_SCREEN ) {
+               FindDestinationLocationScreen(navController, onLocationSelected = { location ->
+                   println("Selected location: $location")
+               })
+           }
+
+           composable(NavigationManager.MENU_OPTIONS_SCREEN) {
+                   MenuOptions(navController)
+               }
 
 
 
     }
 }
-
 
 
 fun NavController.navigateWithClearStack(route: String, clearStack: Boolean) {
