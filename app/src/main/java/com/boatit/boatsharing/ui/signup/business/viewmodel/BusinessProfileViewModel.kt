@@ -1,0 +1,31 @@
+package com.boatit.boatsharing.ui.signup.business.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.ui.signup.business.model.BusinessProfileRequest
+import com.boatit.boatsharing.ui.signup.business.model.SaveBusinessProfileResponse
+import com.boatit.boatsharing.ui.signup.business.repository.BusinessProfileRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class BusinessProfileViewModel(private val repository: BusinessProfileRepository) : ViewModel() {
+
+    private val _registrationState = MutableStateFlow<NetworkResponse<SaveBusinessProfileResponse>>(NetworkResponse.Loading())
+    val registrationState: StateFlow<NetworkResponse<SaveBusinessProfileResponse>> = _registrationState
+
+    fun saveBusinessProfile(profile: BusinessProfileRequest) {
+        viewModelScope.launch {
+            _registrationState.value = NetworkResponse.Loading()
+            val result = repository.BusinessProfile(profile)
+            result.onSuccess { placesResponse ->
+                _registrationState.value = NetworkResponse.Success(placesResponse)
+            }.onFailure { error ->
+                _registrationState.value = NetworkResponse.Error(error.message ?: "Registration failed")
+            }
+        }
+    }
+}
+
+
