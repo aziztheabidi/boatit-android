@@ -21,6 +21,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -103,7 +105,9 @@ fun DashboardScreen(navController: NavController, value: String?,
     viewModelCurrent: GetActiveVoyageViewModel = koinViewModel(),
     viewModelN: NotificationViewModel = koinViewModel(),
     viewModelStripe: PaymentSheetConfigViewModel = koinViewModel(),
-    viewModelP: PaymentViewModel = koinViewModel()) {
+    viewModelP: PaymentViewModel = koinViewModel(), ) {
+
+
     val context = LocalContext.current
     val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -115,7 +119,7 @@ fun DashboardScreen(navController: NavController, value: String?,
     )
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-
+    val paymentSheet = rememberPaymentSheet(::onPaymentSheetResult)
     var selectedLocation by rememberSaveable { mutableStateOf<List<String>?>(null) }
     val defaultLatLng = LatLng(40.792240, -73.138260)
     var currentLatLng by rememberSaveable { mutableStateOf(defaultLatLng) }
@@ -125,7 +129,6 @@ fun DashboardScreen(navController: NavController, value: String?,
         position = CameraPosition.fromLatLngZoom(seaRoute.first(), 4f)
     }
 
-    val paymentSheet = rememberPaymentSheet(::onPaymentSheetResult)
     var customerConfig by remember { mutableStateOf<PaymentSheet.CustomerConfiguration?>(null) }
     var paymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
     var isMenuIconVisible by rememberSaveable { mutableStateOf(true) }
@@ -213,12 +216,22 @@ fun DashboardScreen(navController: NavController, value: String?,
         else -> {}
     }
 
-    when (paymentState) {
+    when (stripeState) {
         is NetworkResponse.Success -> {
             if (showWaitingResponsePrompt) {
                 showWaitingResponsePrompt = false
                 showConfirmBooking = false
                 showVoyageDetails = true
+                showFindBoat = true
+                val paymentSheet = rememberPaymentSheet(::onPaymentSheetResult)
+                paymentIntentClientSecret = "pi_3RGIXgIiYO00MT0y2JsZIk3L_secret_VQVooKaU2tZ6DcqOvoA8d6ZeG"
+                customerConfig = PaymentSheet.CustomerConfiguration(
+                    id = "cus_RuWb1Rjvzm01Nk",
+                    ephemeralKeySecret = "ephkey_1RGIXhIiYO00MT0yL2ADgNCx"
+                )
+                val publishableKey = "pk_test_51N8B6wIiYO00MT0yE2hZ0oQEf1VyHKzAtZyGuiFCRrx8eo5swxsYKzBKBNEGWuO4hzqHnHCzX9EYBJDLt1mmmsX000BtNUImoB"
+                PaymentConfiguration.init(context, publishableKey)
+                presentPaymentSheet(paymentSheet, customerConfig!!, paymentIntentClientSecret!!)
             }
         }
         is NetworkResponse.Error -> {
@@ -234,10 +247,11 @@ fun DashboardScreen(navController: NavController, value: String?,
     when (currentState) {
         is NetworkResponse.Success -> {
             if(currentState.data?.obj?.Status?.equals("Started")!!){
-                showConfirmBooking = false
-                showFindBoat = false
-                showVoyageDetails = false
-                navController.navigate(NavigationManager.VOYAGE_STARTED_SCREEN_Voyager)
+//                Toast.makeText(context, "Anni Deya", Toast.LENGTH_SHORT).show()
+//                showConfirmBooking = false
+//                showFindBoat = false
+//                showVoyageDetails = false
+//                navController.navigate(NavigationManager.VOYAGE_STARTED_SCREEN_Voyager)
             }else if(currentState.data?.obj?.Status?.equals("Accepted")!!){
                 showConfirmBooking = true
                 showFindBoat = false
@@ -258,6 +272,13 @@ fun DashboardScreen(navController: NavController, value: String?,
     LaunchedEffect(notificationState) {
         viewModel.fetchNearbyPlaces()
 //        viewModelCurrent.voyages()
+    }
+
+    LaunchedEffect(value) {
+        if (value != null && value == "True") { // You can define the condition here
+            showConfirmBooking = true
+            showFindBoat = true
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()
@@ -312,7 +333,8 @@ fun DashboardScreen(navController: NavController, value: String?,
         }
 
         Box(
-            modifier = Modifier.align(Alignment.TopStart)
+            modifier = Modifier
+                .align(Alignment.TopStart)
                 .width(80.dp)
                 .height(100.dp)
                 .padding(start = 20.dp, top = 40.dp)
@@ -332,33 +354,26 @@ fun DashboardScreen(navController: NavController, value: String?,
 
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(100.dp)
-                .padding(bottom = 16.dp), contentAlignment = Alignment.BottomCenter,) {
+        Box(modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .width(130.dp)
+            .height(130.dp)
+                , contentAlignment = Alignment.BottomCenter,) {
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-                ) {
-                Button(
-                    onClick = {
-                        navController.navigate(NavigationManager.FIND_LOCATION_SCREEN)
-                    },
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.fillMaxWidth().height(50.dp).padding(horizontal = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
-                ) {
-                    Text(
-                        text = stringResource(R.string.find_destination_button_text),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                }
+            Column {
+                Image(
+                    painter = painterResource(id = R.drawable.wheel_icon),
+                    contentDescription = "Icon Image",
+                    modifier = Modifier
+                        .size(width = 120.dp, height = 120.dp)
+                        .clickable {
+//                            presentPaymentSheet(paymentSheet, customerConfig!!, paymentIntentClientSecret!!)
+                            navController.navigate(NavigationManager.FIND_LOCATION_SCREEN)
+                        }
+                )
                 Spacer(Modifier.height(30.dp))
             }
+
         }
 
         if(showFindBoat){
@@ -406,26 +421,19 @@ fun DashboardScreen(navController: NavController, value: String?,
                         onPayNowClick = {
                             showWaitingResponsePrompt = true
                             waitingResponsePromptValue = "pay_now"
-                            stripeState.let { config ->
-                                paymentIntentClientSecret = config.data?.obj?.paymentIntentClientSecret
-                                customerConfig = PaymentSheet.CustomerConfiguration(
-                                    id = config.data?.obj?.customerId!!,
-                                    ephemeralKeySecret = config.data.obj.ephemeralKeySecret
-                                )
-                                val publishableKey = config.data.obj.publishableKey
-                                PaymentConfiguration.init(context, publishableKey)
-                                presentPaymentSheet(paymentSheet, customerConfig!!, paymentIntentClientSecret!!)
-                            }
+                            viewModelStripe.paymentConfig("67EDA486-6BF8-469A-BBF6-5EF72CC7CED1")
                         },
                     )
 
                 }
                 else if (showVoyageDetails){
-                    VoyageDetails(navController, paymentState.data?.obj?.OTP, paymentState.data?.obj?.CaptainName, paymentState.data?.obj?.BoatName, paymentState.data?.obj?.BoatModel )
+                    VoyageDetails(navController, 17890, "sassasa", "maskataza", "6969" )
                 }
                 else{
                     FindBoat(
-                        navController, modifier = Modifier.fillMaxWidth().height(screenHeight * 0.75f),
+                        navController, modifier = Modifier
+                            .fillMaxWidth()
+                            .height(screenHeight * 0.75f),
                         pickupLocation, dropOffLocation, totalPassengers,
                         onCancelClick = {
                             showFindBoat = false
@@ -473,6 +481,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                 )
         }
     }
+
 }
 
 private fun presentPaymentSheet(

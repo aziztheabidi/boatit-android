@@ -17,10 +17,10 @@ class PaymentSheetConfigViewModel(private val repository: PaymentSheetConfigRepo
     private val _loginState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
     val loginState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _loginState
 
-    fun paymentConfig(request: VoyagePaymentRequest) {
+    fun paymentConfig(id : String ) {
         viewModelScope.launch {
             _loginState.value = NetworkResponse.Loading()
-            val result = repository.SheetConfi(request)
+            val result = repository.SheetConfi(id)
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { error ->

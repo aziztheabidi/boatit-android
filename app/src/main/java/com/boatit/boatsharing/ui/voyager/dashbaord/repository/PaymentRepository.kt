@@ -24,13 +24,13 @@ import io.ktor.http.contentType
 
 class PaymentSheetConfigRepository(private val httpClient: HttpClient) {
 
-    suspend fun SheetConfi(profile: VoyagePaymentRequest): Result<PaymentSheetConfigResponse> {
+    suspend fun SheetConfi(id: String): Result<PaymentSheetConfigResponse> {
         return try {
             val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.PAYMENT}") {
                 contentType(ContentType.Application.Json)
-                setBody(profile)
+                setBody(VoyagePaymentRequest(id))
             }
-            if (response.status == HttpStatusCode.Created) {
+            if (response.status == HttpStatusCode.OK) {
                 val result: PaymentSheetConfigResponse = response.body()
                 Result.success(result)
             } else {

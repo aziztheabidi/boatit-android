@@ -31,7 +31,7 @@ kotlinxSerialization = "1.6.0"
 koin = "4.0.0"
 constraintlayoutVersion = "2.2.1"
 firebaseFirestoreKtxVersion = "25.1.2"
-stripe = "21.6.0"
+stripe = "21.10.0"
 
 
 [libraries]

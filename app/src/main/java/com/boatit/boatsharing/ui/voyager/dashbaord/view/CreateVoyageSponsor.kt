@@ -59,6 +59,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookVoyageRequest
@@ -114,7 +115,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     val findState by viewModelFind.nearbyPlaces.collectAsState()
 
     fun performLogin(){
-        navController.navigate(NavigationManager.VOYAGE_BOOKED_SCREEN )
+//        navController.navigate(NavigationManager.VOYAGE_BOOKED_SCREEN)
+        navController.navigate(route = "$DASHBOARD_SCREEN/True")
     }
 
     when (registrationState) {
@@ -131,7 +133,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = true
                 errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                performLogin()
             }
         }
         else -> {}
@@ -145,6 +148,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isNetworkError = false
                 viewModelFind.resetNearbyPlaces()
                 Toast.makeText(context, "Finding the Boat", Toast.LENGTH_SHORT).show()
+                performLogin()
             }
         }
         is NetworkResponse.Error -> {

@@ -66,8 +66,8 @@ fun SplashComposable(navController: NavController,
                 navController.navigate(route = "$DASHBOARD_SCREEN/null")
 //                navController.navigate(NavigationManager.VOYAGER_CHAT_SCREEN)
             }else if(userData.Role.equals("Captain")){
-//                if(userStatus){navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)} else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
-                navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)
+                if(userStatus){navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)} else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
+//                navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)
             }else{
                 navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
             }

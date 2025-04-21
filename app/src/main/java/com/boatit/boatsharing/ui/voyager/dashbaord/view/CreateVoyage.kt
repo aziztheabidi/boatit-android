@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,18 +12,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +54,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
@@ -61,6 +71,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun CreateVoyageScreen(navController: NavController,
@@ -96,7 +107,6 @@ fun CreateVoyageScreen(navController: NavController,
 
     var travelNowSwitchState by remember { mutableStateOf(false) }
     var spendTimeSwitchState by remember { mutableStateOf(false) }
-
 
     val isValidate =
             dob.isNotEmpty()
@@ -161,14 +171,78 @@ fun CreateVoyageScreen(navController: NavController,
                     activeViewsCount = 1
                 )
 
+//                if (showDialog.value) {
+//
+//                    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
+//                        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+//                            return utcTimeMillis <= System.currentTimeMillis()
+//                        }
+//                    })
+//
+//                    Popup(
+//                        onDismissRequest = { showDialog.value = false },
+//                        alignment = Alignment.TopStart
+//                    ) {
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .offset(y = 64.dp)
+//                                .shadow(elevation = 4.dp)
+//                                .background(MaterialTheme.colorScheme.surface)
+//                                .padding(16.dp)
+//                        ) {
+//                            DatePicker(
+//                                state = datePickerState,
+//                                showModeToggle = false
+//                            )
+//                        }
+//                    }
+//                }
+
                 if (showDialog.value) {
-                    MyDatePickerDialog(
-                        onDateSelected = {
-                            bookingDate = it
-                            dob = bookingDate },
-                        onDismiss = { showDialog.value = false }
+                    val datePickerState = rememberDatePickerState(
+                        selectableDates = object : SelectableDates {
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                                return utcTimeMillis <= System.currentTimeMillis()
+                            }
+                        }
                     )
+
+                    DatePickerDialog(
+                        onDismissRequest = { showDialog.value = false },
+                        confirmButton = {
+                            Button(onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    bookingDate = convertMillisToDate(millis)
+                                    dob = bookingDate
+                                }
+                                showDialog.value = false
+                            }) {
+                                Text("OK")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showDialog.value = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = datePickerState,
+                            showModeToggle = false
+                        )
+                    }
                 }
+
+
+//                if (showDialog.value) {
+//                    MyDatePickerDialog(
+//                        onDateSelected = {
+//                            bookingDate = it
+//                            dob = bookingDate },
+//                        onDismiss = { showDialog.value = false }
+//                    )
+//                }
 
                 if (showTimer.value) {
                     MyTimePickerDialog(
@@ -216,10 +290,6 @@ fun CreateVoyageScreen(navController: NavController,
                         )
                     )
                 }
-
-
-
-
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -315,6 +385,7 @@ fun CreateVoyageScreen(navController: NavController,
 
                     Box(
                         modifier = Modifier.clickable { showEndTimer.value = true }
+
                     ) {
                         CustomDobField(
                             textValue = endTime,
@@ -328,7 +399,8 @@ fun CreateVoyageScreen(navController: NavController,
                             imeAction = ImeAction.Next,
                             keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
                             focusRequester = dobFocusRequester,
-                        )
+
+                            )
                     }
                 }
 
@@ -376,8 +448,13 @@ fun MyTimePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
             timePickerState.minute,
         )
 
+
+
     DatePickerDialog(
+
         onDismissRequest = { onDismiss() },
+
+
         confirmButton = {
             Button(onClick = {
                 onDateSelected(formattedTime)
@@ -394,16 +471,38 @@ fun MyTimePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
             }) {
                 Text(text = "Cancel")
             }
-        }
-    ) {
-        TimePicker(
-            state = timePickerState
+        },
+
+        colors = DatePickerDefaults.colors(
+            containerColor = Color.White
+
         )
+    )
+    {
+
+
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            TimeInput(
+                state = timePickerState
+            )
+        }
+
+
     }
+
+
 }
 
 @Preview
 @Composable
 fun CreateVoyage() {
     CreateVoyageScreen(navController = rememberNavController())
+}
+fun convertMillisToDate(millis: Long): String {
+    val formatter = java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault())
+    return formatter.format(java.util.Date(millis))
 }

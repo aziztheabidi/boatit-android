@@ -20,10 +20,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -53,6 +55,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
 
@@ -63,7 +66,7 @@ fun ConfirmBooking(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Box(
 
-        modifier = Modifier.height(screenHeight * 0.6f),
+        modifier = Modifier.height(screenHeight * 0.65f),
         contentAlignment = Alignment.TopCenter
     ) {
         // Main Card
@@ -71,7 +74,7 @@ fun ConfirmBooking(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(top = 40.dp),
+                .padding(top = 20.dp),
             shape = RoundedCornerShape(
                 topStart = 45.dp,
                 topEnd = 45.dp
@@ -81,163 +84,275 @@ fun ConfirmBooking(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize().background(Color.White)
-                    .padding(top = 50.dp,
-                        start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .verticalScroll(rememberScrollState()) // Add this
+                    .padding(
+                        top = 50.dp,
+                        start = 16.dp, end = 16.dp, bottom = 16.dp
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "We’ve find the best voyage for you..",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
 
                 // Boat Info Card
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, color = colorResource(id = R.color.button_normal)),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.boatit_logo), // Replace with actual image
-                            contentDescription = "Boat Image",
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(10.dp)),
-                            contentScale = ContentScale.Crop
+                    Column() {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                style = TextStyle(
+                                    color = Color.Black,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                text = "Sunday, 12 April | 10:00 am"
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.pending),
+                                    contentDescription = "Status Icon",
+                                    modifier = Modifier
+                                        .size(25.dp) // Adjust size as needed
+                                        .padding(end = 5.dp), // Add some space between text and icon
+                                    tint = Color.Blue // Change color of the icon
+                                )
+                                Text(
+                                    style = TextStyle(
+                                        color = Color(0xFF797979),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.W500
+                                    ),
+                                    text = "Pending"
+                                )
+
+                            }
+                        }
+
+                        Spacer(Modifier.height(7.dp))
+
+                        Text(
+                            style = TextStyle(
+                                color = Color(0xFF6A6969),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.W500
+                            ),
+                            text = "Event Conference"
+                        )
+                        Spacer(Modifier.height(7.dp))
+                        Text(
+                            style = TextStyle(
+                                color = Color(0xFF6A6969),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.W500
+                            ),
+                            text = "2025"
                         )
 
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(Modifier.height(10.dp))
 
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Boat Name", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("Cabin Cruise", color = Color.Gray)
-                            Text("Capt. William Kidd", color = Color.Gray)
-                            Text("15 Seater", color = Color.Gray)
-                            Text("1379+ Voyages", color = Color.Gray)
-                        }
+                        Text(
+                            style = TextStyle(
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.W500
+                            ),
+                            text = "Voyagees details"
+                        )
+                        Spacer(Modifier.height(10.dp))
 
-                        Column(
-                            horizontalAlignment = Alignment.End
+                        Box(
+                            Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("4.8", fontWeight = FontWeight.SemiBold)
-                                Icon(
-                                    painter = painterResource(id = R.drawable.location_icon_two),
-                                    contentDescription = "Rating Icon",
-                                    tint = Color.Unspecified
-                                )
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .height(205.dp)
+                                        .width(175.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .fillMaxSize(),
+                                        verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
+                                    ) {
+                                        // First row with icon and text
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.passengers),
+                                                contentDescription = "Status Icon",
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .padding(end = 10.dp),
+                                                tint = Color.Blue
+                                            )
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.W500
+                                                ),
+                                                text = "Home"
+                                            )
+                                        }
+
+                                        Divider(
+                                            color = Color(0xFFA0A0A0),
+                                            thickness = 1.dp
+                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.money_icon),
+                                                contentDescription = "Status Icon",
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .padding(end = 10.dp),
+                                                tint = Color.Blue
+                                            )
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.W500
+                                                ),
+                                                text = AppConstants.Estimated_Cost.toString()!!
+                                            )
+                                        }
+
+                                        Divider(
+                                            color = Color(0xFFA0A0A0),
+                                            thickness = 1.dp
+                                        )
+
+                                        // Third row with icon and text
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.clock),
+                                                contentDescription = "Status Icon",
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .padding(end = 10.dp),
+                                                tint = Color.Blue
+                                            )
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.W500
+                                                ),
+                                                text = AppConstants.Event_Time!!
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(Modifier.width(5.dp))
+
+                                Card(
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .height(205.dp)
+                                        .width(175.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .fillMaxSize(),
+                                        verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
+                                    ) {
+                                        // First row with icon and text
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.location_icon),
+                                                contentDescription = "Status Icon",
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .padding(end = 10.dp),
+                                                tint = Color.Blue
+                                            )
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.W500
+                                                ),
+                                                text = AppConstants.Pick_Up_Loc!!
+                                            )
+                                        }
+
+                                        Divider(
+                                            color = Color(0xFFA0A0A0),
+                                            thickness = 1.dp
+                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.drop_off_loc_icon),
+                                                contentDescription = "Status Icon",
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .padding(end = 10.dp),
+                                                tint = Color.Red
+
+                                            )
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.W500
+                                                ),
+                                                text = AppConstants.Drop_Off_Loc!!
+                                            )
+                                        }
+
+                                        Divider(
+                                            color = Color(0xFFA0A0A0),
+                                            thickness = 1.dp
+                                        )
+
+                                        // Third row with icon and text
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.flag),
+                                                contentDescription = "Status Icon",
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .padding(end = 10.dp),
+                                                tint = Color.Blue
+                                            )
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.W500
+                                                ),
+                                                text = "Home"
+                                            )
+                                        }
+                                    }
+                                }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Read more...", color = Color.Gray, fontSize = 12.sp)
                         }
+
                     }
+
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
 
-                // Pickup & Pricing Info
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min), // Ensures both cards match the tallest one
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(
-                            1.dp,
-                            color = colorResource(id = R.color.button_normal)
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight() // Ensures card fills the available height
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.location_icon),
-                                    contentDescription = "Pickup",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "Pickup Location",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) // Changed from HorizontalDivider to Divider
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.drop_off_loc_icon),
-                                    contentDescription = "Dropoff",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "Drop Off Location",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                        }
-                    }
-
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(
-                            1.dp,
-                            color = colorResource(id = R.color.button_normal)
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight() // Ensures card fills the available height
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.passengers),
-                                    contentDescription = "Passengers",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "12 Passengers",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.money_icon),
-                                    contentDescription = "money",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("$120", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                            }
-                        }
-                    }
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

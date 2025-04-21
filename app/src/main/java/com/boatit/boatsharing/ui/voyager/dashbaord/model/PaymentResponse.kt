@@ -31,8 +31,8 @@ data class PaymentSheetConfigResponse(
 
 @Serializable
 data class PaymentSheetConfig(
-    val paymentIntentClientSecret: String,
-    val customerId: String,
-    val ephemeralKeySecret: String,
-    val publishableKey: String
+    val ClientSecret: String,
+    val CustomerId: String,
+    val EphemeralKey: String,
+    val PublishableKey: String
 )

@@ -32,7 +32,7 @@ object ApiConstants {
         const val START_VOYAGE = "/Voyage/Start"
         const val COMPLETE_VOYAGE = "/Voyage/Complete"
         const val CANCEL_VOYAGE = "/Voyage/Cancel"
-        const val PAYMENT = "/Voyage/Payment"
+        const val PAYMENT = "/Voyage/PaymentInitiate"
         const val GET_CAPTAIN_BOAT = "/CaptainBoat/GetByUserId"
         const val SAVE_CAPTAIN_DOCS = "/CaptainDocument/Save"
         const val GET_CAPTAIN_DOCS = "/CaptainDocument/GetByUserId"
