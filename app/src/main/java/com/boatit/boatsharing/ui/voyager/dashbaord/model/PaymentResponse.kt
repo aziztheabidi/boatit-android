@@ -8,6 +8,20 @@ data class VoyagePaymentRequest(
 )
 
 @Serializable
+data class SponsorVoyagePaymentRequest(
+    val Id: String,
+    val VoyagerUserId: String,
+    val SponserUserId: String
+)
+
+@Serializable
+data class PaymentConfirmationRequest(
+    val Id: String,
+    val PaymentIntentId: String,
+    val PaymentMethodId: String,
+)
+
+@Serializable
 data class VoyagePaymentResponse(
     val Status: Int,
     val Message: String,
@@ -34,5 +48,7 @@ data class PaymentSheetConfig(
     val ClientSecret: String,
     val CustomerId: String,
     val EphemeralKey: String,
-    val PublishableKey: String
+    val EphemeralKey_Secret: String,
+    val PublishableKey: String,
+    val PaymentIntentId: String
 )

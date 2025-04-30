@@ -53,6 +53,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
+import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagerProfile
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FollowedVoyagerViewModel
@@ -66,7 +67,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun SponsorScreen(navController: NavController, viewModel: FollowedVoyagerViewModel = koinViewModel()) {
+fun SponsorScreen(navController: NavController,
+                  viewModel: VoyagersListViewModel = koinViewModel()) {
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -87,8 +89,6 @@ fun SponsorScreen(navController: NavController, viewModel: FollowedVoyagerViewMo
     val showDialog = mutableStateOf(false)
     var bookingDate by remember { mutableStateOf("") }
 
-
-
     val isEmailValid = paypalEmail.contains("@") && paypalEmail.contains(".")
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -106,12 +106,12 @@ fun SponsorScreen(navController: NavController, viewModel: FollowedVoyagerViewMo
         isError = false
     }
 
-    val registrationState by viewModel.registrationState.collectAsState()
+    val registrationState by viewModel.loginState.collectAsState()
 
     fun performLogin(){}
 
     LaunchedEffect(Unit) {
-        viewModel.FollowedVoyagerFunc()
+        viewModel.voyages()
     }
 
     Scaffold(

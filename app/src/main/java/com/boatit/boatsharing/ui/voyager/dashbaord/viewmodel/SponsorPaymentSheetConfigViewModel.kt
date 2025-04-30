@@ -3,24 +3,27 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentSheetConfigResponse
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentSheetConfigRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentSheetConfigRepository
+import com.stripe.android.paymentsheet.PaymentSheetResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+class SponsorPaymentSheetConfigViewModel(private val repository: SponsorPaymentSheetConfigRepository) : ViewModel() {
 
-class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() {
+    private val _loginState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
+    val loginState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _loginState
 
-    private val _loginState = MutableStateFlow<NetworkResponse<VoyagePaymentResponse>>(NetworkResponse.Loading())
-    val loginState: StateFlow<NetworkResponse<VoyagePaymentResponse>> = _loginState
-
-    fun payment(request: PaymentConfirmationRequest) {
+    fun paymentConfig(id : SponsorVoyagePaymentRequest) {
         viewModelScope.launch {
             _loginState.value = NetworkResponse.Loading()
-            val result = repository.payment(request)
+            val result = repository.SheetConfi(id)
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { error ->
@@ -33,5 +36,3 @@ class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() 
         _loginState.value = NetworkResponse.Loading()
     }
 }
-
-

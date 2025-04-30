@@ -3,11 +3,7 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainProfileResponse
-import com.boatit.boatsharing.ui.signup.captain.repository.GetCaptainProfileRepository
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.CalculateFair
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.FollowedVoyagersResponse
-import com.boatit.boatsharing.ui.voyager.dashbaord.repository.CalculateFairRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FollowedVoyagerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

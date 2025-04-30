@@ -14,7 +14,7 @@ class FollowedVoyagerRepository(private val httpClient: HttpClient) {
     suspend fun FollowedVoyagerRepoFunc(): Result<FollowedVoyagersResponse> {
         return try {
             val userId = AppConstants.USER_ID
-            val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.FOLLOWED_VOYAGER}") {
+            val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.GET_VOYAGERS_LIST}") {
                 url {
                     parameters.append("UserId", userId.toString())
                 }

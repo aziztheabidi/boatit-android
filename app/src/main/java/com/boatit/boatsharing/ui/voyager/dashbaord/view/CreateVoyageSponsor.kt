@@ -87,6 +87,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     val firstNameFocusRequester = remember { FocusRequester() }
     val lastNameFocusRequester = remember { FocusRequester() }
     var firstName by remember { mutableStateOf("") }
+    var findBoat by remember { mutableStateOf("Find Boat") }
     var dob by remember { mutableStateOf("") }
     var paypalEmail by remember { mutableStateOf("") }
     val showDialog = mutableStateOf(false)
@@ -115,8 +116,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     val findState by viewModelFind.nearbyPlaces.collectAsState()
 
     fun performLogin(){
-//        navController.navigate(NavigationManager.VOYAGE_BOOKED_SCREEN)
-        navController.navigate(route = "$DASHBOARD_SCREEN/True")
+        navController.navigate(NavigationManager.VOYAGE_BOOKED_SCREEN)
     }
 
     when (registrationState) {
@@ -125,6 +125,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = false
                 Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                println("Message" + AppConstants.Voyage_ID)
+                AppConstants.Voyage_ID = registrationState.data?.obj
                 performLogin()
             }
         }
@@ -133,7 +135,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = true
                 errorMessage = "Network error, please try again."
-//                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                println("Message" + AppConstants.Voyage_ID)
                 performLogin()
             }
         }
@@ -148,7 +151,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isNetworkError = false
                 viewModelFind.resetNearbyPlaces()
                 Toast.makeText(context, "Finding the Boat", Toast.LENGTH_SHORT).show()
-                performLogin()
+                navController.navigate(route = "$DASHBOARD_SCREEN/True")
             }
         }
         is NetworkResponse.Error -> {
@@ -257,8 +260,13 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                         checked = splitPaymentSwitchState,
                         onCheckedChange = { splitPaymentSwitchState = it
                           if(splitPaymentSwitchState){
+                              findBoat = "Book Voyage"
                               AppConstants.sponsorList.add(Sponser(VoyagerUserId = AppConstants.USER_ID!!))
-                          }},
+                          }else{
+                              findBoat = "Find Boat"
+                          }
+
+                                          },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = colorResource(id = R.color.button_normal),
@@ -479,7 +487,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 Spacer(modifier = Modifier.height(40.dp))
 
                 CustomButton(
-                    text = "Book Voyage/Pay Now",
+                    text = findBoat,
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {
@@ -492,7 +500,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                                     NoOfVoyagers= 3,
                                     IsImmediately= false,
                                     IsSplitPayment = true,
-                                    BookingDate = "2025-04-10",
+                                    BookingDate = "2025-05-30",
                                     StartTime = "10:00:00",
                                     IsStayOnWater =  false,
                                     EndTime= "12:12:00",

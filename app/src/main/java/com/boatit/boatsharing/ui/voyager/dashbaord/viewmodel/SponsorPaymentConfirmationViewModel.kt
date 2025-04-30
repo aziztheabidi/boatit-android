@@ -7,12 +7,13 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequ
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentConfirmationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() {
+class SponsorPaymentConfirmationViewModel(private val repository: SponsorPaymentConfirmationRepository) : ViewModel() {
 
     private val _loginState = MutableStateFlow<NetworkResponse<VoyagePaymentResponse>>(NetworkResponse.Loading())
     val loginState: StateFlow<NetworkResponse<VoyagePaymentResponse>> = _loginState

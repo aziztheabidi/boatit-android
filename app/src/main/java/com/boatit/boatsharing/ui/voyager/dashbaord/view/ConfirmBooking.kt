@@ -208,7 +208,6 @@ fun ConfirmBooking(
                                                 text = "Home"
                                             )
                                         }
-
                                         Divider(
                                             color = Color(0xFFA0A0A0),
                                             thickness = 1.dp

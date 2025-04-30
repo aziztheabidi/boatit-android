@@ -38,6 +38,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.boatit.boatsharing.application.StripeSheetActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation" />
+
         <service
             android:name=".fcm.MyFirebaseMessagingService"
             android:exported="false">

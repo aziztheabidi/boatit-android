@@ -31,14 +31,21 @@ object ApiConstants {
         const val ACCEPT_REQUEST = "/Voyage/Accept"
         const val START_VOYAGE = "/Voyage/Start"
         const val COMPLETE_VOYAGE = "/Voyage/Complete"
-        const val CANCEL_VOYAGE = "/Voyage/Cancel"
         const val PAYMENT = "/Voyage/PaymentInitiate"
+        const val PAYMENT_COMFIRMATION = "/Voyage/PaymentConfirmation"
+        const val SPONSOR_PAYMENT_CONFIRMATION = "/Voyage/SponserPaymentConfirmation"
+        const val SPONSOR_PAYMENT_INITIATE = "/Voyage/SponserPaymentInitiate"
         const val GET_CAPTAIN_BOAT = "/CaptainBoat/GetByUserId"
         const val SAVE_CAPTAIN_DOCS = "/CaptainDocument/Save"
         const val GET_CAPTAIN_DOCS = "/CaptainDocument/GetByUserId"
         const val GET_CAPTAIN_VOYAGES = "/CaptainDashboard/GetVoyages"
         const val GET_Voyager_PAST_VOYAGES = "/VoyagerDashboard/GetPastVoyages"
-        const val GET_VOYAGERS_LIST = "/VoyagerDashboard/GetActiveVoyagers"
+        const val GET_VOYAGERS_LIST = "/Voyager/GetRelationship"
         const val GET_ACTIVE_VOYAGES = "/VoyagerDashboard/GetActiveVoyage"
+        const val GET_SPONSOR_PAYMENTS = "/Voyager/GetSponserPaymentsByUserId"
+        const val GET_FUTURE_BOOKED_VOYAGES = "/Voyager/GetFutureBookedVoyagesByUserId"
+        const val CONFIRM_BOOKED_VOYAGE = "/Voyage/Confirm"
+        const val CANCEL_VOYAGE = "/Voyage/Cancel"
+
     }
 }

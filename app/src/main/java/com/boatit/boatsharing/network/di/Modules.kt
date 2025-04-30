@@ -50,24 +50,36 @@ import com.boatit.boatsharing.ui.userroles.viewmodel.FCMTokenViewModel
 import com.boatit.boatsharing.ui.userroles.viewmodel.RoleViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.BookVoyageRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.CalculateFairRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.CancelBookedVoyageRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.ConfirmBookedVoyageRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchNearByVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FindBoatRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FollowedVoyagerRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FutureVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.GetActiveVoyageRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.GoogleDirectionsApi
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentSheetConfigRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.RegistrationViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponcerVoyagesRepo
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentConfirmationRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentSheetConfigRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.VoyagerVoyagesRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.BookVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CalculateFairViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FindBoatViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FollowedVoyagerViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FutureVoyagesViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.GetActiveVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.NearByVoyagesViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.PaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.PaymentViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.RegistrationRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponcerVoyagesViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TrackingLocationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerVoyagesViewModel
 import com.boatit.boatsharing.utils.prefmanager.RoleProvider
@@ -209,6 +221,24 @@ val Modules = module {
 
     single { FollowedVoyagerRepository(get()) }
     viewModel { FollowedVoyagerViewModel(get()) }
+
+    single { SponcerVoyagesRepo(get()) }
+    viewModel { SponcerVoyagesViewModel(get()) }
+
+    single { FutureVoyagesRepo(get()) }
+    viewModel { FutureVoyagesViewModel(get()) }
+
+    single { SponsorPaymentSheetConfigRepository(get()) }
+    viewModel { SponsorPaymentSheetConfigViewModel(get()) }
+
+    single { SponsorPaymentConfirmationRepository(get()) }
+    viewModel { SponsorPaymentConfirmationViewModel(get()) }
+
+    single { ConfirmBookedVoyageRepository(get()) }
+    viewModel { ConfirmBookedVoyageViewModel(get()) }
+
+    single { CancelBookedVoyageRepository(get()) }
+    viewModel { CancelBookedVoyageViewModel(get()) }
 
 
 }

@@ -22,10 +22,10 @@ import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
-class PaymentRepository(private val httpClient: HttpClient) {
+class SponsorPaymentConfirmationRepository(private val httpClient: HttpClient) {
     suspend fun payment(profile: PaymentConfirmationRequest): Result<VoyagePaymentResponse> {
         return try {
-            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.PAYMENT_COMFIRMATION}") {
+            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SPONSOR_PAYMENT_CONFIRMATION}") {
                 contentType(ContentType.Application.Json)
                 setBody(profile)
             }

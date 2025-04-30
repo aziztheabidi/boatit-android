@@ -45,20 +45,30 @@ import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
-import com.boatit.boatsharing.ui.chat.model.VoyagerProfile
 import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.ui.res.colorResource
-
+import com.boatit.boatsharing.ui.chat.model.VoyagerInfo
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureConfirmVoyagerItems
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureVoyagerItems
 
 
 @Composable
@@ -68,6 +78,8 @@ fun VoyagersListScreen(navController: NavController, viewModel: VoyagersListView
     val coroutineScope = rememberCoroutineScope()
     val voyagesList by viewModel.loginState.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabTitles = listOf("Followed", "All")
 
     LaunchedEffect(Unit) {
         viewModel.voyages()
@@ -120,23 +132,81 @@ fun VoyagersListScreen(navController: NavController, viewModel: VoyagersListView
                 .background(Color.White, RoundedCornerShape(8.dp))
                 .padding(15.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                when (voyagesList) {
-                    is NetworkResponse.Loading -> {
-                        println("Loading")
+            Column(modifier = Modifier
+                .padding(
+                    top = 15.dp,
+                    start = 20.dp,
+                    end = 20.dp,
+                )
+                .fillMaxSize()) {
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    contentColor = Color.White,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                            color = Color.White // Make indicator transparent
+                        )
                     }
-                    is NetworkResponse.Error -> {
-                        println(voyagesList.message)
+                ) {
+                    tabTitles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    color = if (selectedTabIndex == index) Color.White else colorResource(R.color.button_normal)
+                                )
+                            },
+                            modifier = Modifier.background(if (selectedTabIndex == index) colorResource(R.color.button_normal)else Color.White)
+                        )
                     }
-                    is NetworkResponse.Success -> {
-                        items(voyagesList.data!!.obj.size) { user ->
-                            UserItem(voyagesList.data!!.obj.get(user)) { dat ->
-                                val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
-                                println(chatId)
-                                navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
+                }
+                when (selectedTabIndex) {
+                    0 ->  {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            when (voyagesList) {
+                                is NetworkResponse.Loading -> {
+                                    println("Loading")
+                                }
+                                is NetworkResponse.Error -> {
+                                    println(voyagesList.message)
+                                }
+                                is NetworkResponse.Success -> {
+                                    items(voyagesList.data!!.obj.Followed.size) { user ->
+                                        UserItemFollow(voyagesList.data!!.obj.Followed.get(user)) { dat ->
+                                            val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
+                                            println(chatId)
+                                            navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    1 ->   LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        when (voyagesList) {
+                            is NetworkResponse.Loading -> {
+                                println("Loading")
+                            }
+                            is NetworkResponse.Error -> {
+                                println(voyagesList.message)
+                            }
+                            is NetworkResponse.Success -> {
+                                items(voyagesList.data!!.obj.UnFollowed.size) { user ->
+                                    UserItem(voyagesList.data!!.obj.UnFollowed.get(user)) { dat ->
+                                        val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
+                                        println(chatId)
+                                        navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
+                                    }
+                                }
                             }
                         }
                     }
@@ -151,7 +221,47 @@ fun generateChatId(userId1: String, userId2: String): String {
 }
 
 @Composable
-fun UserItem(user: VoyagerProfile, onClick: (user: VoyagerProfile) -> Unit) {
+fun UserItem(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White, RoundedCornerShape(8.dp))
+            .padding(15.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().
+            clickable { onClick(user) },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Column {
+                Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
+            }
+
+            Button(
+                onClick = {},
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .width(90.dp)
+                    .height(40.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
+            ) {
+                Text(
+                    text = "Follow",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UserItemFollow(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
 
     Box(
         modifier = Modifier

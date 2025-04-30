@@ -38,13 +38,16 @@ import com.boatit.boatsharing.ui.signup.general.view.UserBasicInfoScreen
 import com.boatit.boatsharing.ui.signup.general.view.VerifyUserEmail
 import com.boatit.boatsharing.ui.userroles.SelectRole
 import com.boatit.boatsharing.ui.splash.SplashComposable
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorPayments
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmBooking
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmVoyageScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalc
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalcScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageSponsorScreen
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureVoyages
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.LiveTrackingMapScreen
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponcersList
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponsorScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.VoyagerVoyages
 
@@ -85,6 +88,8 @@ object NavigationManager {
     const val SPONSOR_SCREEN = "SponsorScreen"
     const val CONFIRM_VOYAGE_SCREEN = "ConfirmVoyageScreen"
     const val VOYAGE_BOOKED_SCREEN = "VoyageBookedScreen"
+    const val SPONSOR_LIST_SCREEN = "SponsorListScreen"
+    const val FUTURE_VOYAGES_SCREEN = "FutureVoyagesScreen"
 
 
 }
@@ -157,6 +162,14 @@ fun AppNavGraph(navController: NavHostController ) {
 
            composable(NavigationManager.VOYAGE_BOOKED_SCREEN) {
                VoyageBookedScreenVoyager(navController)
+           }
+
+           composable(NavigationManager.SPONSOR_LIST_SCREEN) {
+               SponcersList(navController)
+           }
+
+           composable(NavigationManager.FUTURE_VOYAGES_SCREEN) {
+               FutureVoyages(navController)
            }
 
            composable("$CREATE_ACCOUNT_STEP_TWO_SCREEN/{value}") { backStackEntry ->

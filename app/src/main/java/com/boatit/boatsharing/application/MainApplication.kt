@@ -8,13 +8,13 @@ import com.google.android.libraries.places.api.Places
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.stripe.android.PaymentConfiguration
+import com.stripe.android.Stripe
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        PaymentConfiguration.init(applicationContext, "pk_test_51N8B6wIiYO00MT0yE2hZ0oQEf1VyHKzAtZyGuiFCRrx8eo5swxsYKzBKBNEGWuO4hzqHnHCzX9EYBJDLt1mmmsX000BtNUImoB")
         val apiKey = getString(R.string.mapAPiKey)
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, apiKey)

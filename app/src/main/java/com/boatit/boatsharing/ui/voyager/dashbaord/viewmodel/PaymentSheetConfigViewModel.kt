@@ -8,6 +8,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentSheetConfigRepository
+import com.stripe.android.paymentsheet.PaymentSheetResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,5 +28,9 @@ class PaymentSheetConfigViewModel(private val repository: PaymentSheetConfigRepo
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
             }
         }
+    }
+
+    fun resetNearbyPlaces() {
+        _loginState.value = NetworkResponse.Loading()
     }
 }

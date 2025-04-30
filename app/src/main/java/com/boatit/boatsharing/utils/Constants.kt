@@ -12,8 +12,8 @@ object AppConstants {
     var Event_Name: String? = "Event"
     var No_Of_Voyagers: Int? = 3
     var Per_Hour_Rate: Int? = 100
-    var Estimated_Cost: Int? = 200
-    var Event_Time: String?= null
+    var Estimated_Cost: Double? = 200.0
+    var Event_Time: String?= ""
     var Pick_Up_Loc: String? = null
     var Drop_Off_Loc: String? = null
     var Travel_Now:Boolean? = null

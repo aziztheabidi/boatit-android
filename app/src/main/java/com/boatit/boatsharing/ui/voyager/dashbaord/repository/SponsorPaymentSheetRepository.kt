@@ -9,7 +9,8 @@ import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.login.model.LoginRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatResponse
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentSheetConfigResponse
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentResponse
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
@@ -22,15 +23,16 @@ import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
-class PaymentRepository(private val httpClient: HttpClient) {
-    suspend fun payment(profile: PaymentConfirmationRequest): Result<VoyagePaymentResponse> {
+class SponsorPaymentSheetConfigRepository(private val httpClient: HttpClient) {
+
+    suspend fun SheetConfi(id: SponsorVoyagePaymentRequest): Result<PaymentSheetConfigResponse> {
         return try {
-            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.PAYMENT_COMFIRMATION}") {
+            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SPONSOR_PAYMENT_INITIATE}") {
                 contentType(ContentType.Application.Json)
-                setBody(profile)
+                setBody(id)
             }
-            if (response.status == HttpStatusCode.Created) {
-                val result: VoyagePaymentResponse = response.body()
+            if (response.status == HttpStatusCode.OK) {
+                val result: PaymentSheetConfigResponse = response.body()
                 Result.success(result)
             } else {
                 Result.failure(Exception("API Error: ${response.status}"))

@@ -211,6 +211,8 @@
     <string name="online_status_text">Start accepting  voyager and help voyagers reach there destinations</string>
     <string name="voyages_screen">Voyages Requests</string>
     <string name="voyages_past">Past Voyages</string>
+    <string name="voyages_future">Future Voyages</string>
+    <string name="voyages_sponcer">Sponsor Voyages</string>
     <string name="voyagers_screen">Voyagers List</string>
     <string name="accept_text">Accept</string>
     <string name="start_text">Start</string>

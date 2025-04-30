@@ -24,3 +24,11 @@
 -keep class dagger.** { *; }
 -dontwarn dagger.**
 
+-keep class com.stripe.** { *; }
+-keepclassmembers class * {
+    @android.os.Parcel *;
+}
+-keepclassmembers class com.stripe.android.paymentsheet.PaymentSheetContractV2$Args {
+    *;
+}
+

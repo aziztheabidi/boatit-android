@@ -44,12 +44,12 @@ import kotlin.math.sin
 fun MenuOptions(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
 
     val items = listOf(
-        MenuItem(R.drawable.current_marker, "Map"),
+        MenuItem(R.drawable.current_marker, "Sponsors"),
         MenuItem(R.drawable.current_marker, "Profile"),
         MenuItem(R.drawable.current_marker,"Past Voyages"),
-        MenuItem(R.drawable.current_marker, "Switch Role"),
+        MenuItem(R.drawable.current_marker, "Chat Screen"),
         MenuItem(R.drawable.current_marker, "Logout"),
-        MenuItem(R.drawable.current_marker, "Settings")
+        MenuItem(R.drawable.current_marker, "Upcoming Voyages")
     )
 
     Box(modifier = Modifier.fillMaxSize()
@@ -160,21 +160,25 @@ fun RotatingWheelMenu(
 
 fun onItemClick(item: MenuItem, navController: NavController, viewModel: LoginViewModel) {
     when (item.label) {
-        "Map" -> println("Navigating to Map")
+        "Sponsors" -> {
+            navController.navigate(NavigationManager.SPONSOR_LIST_SCREEN)
+        }
         "Profile" -> {
             navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
         }
         "Past Voyages" -> {
             navController.navigate(NavigationManager.VOYAGE_PAST_SCREEN)
         }
-        "Switch Role" -> {
-            navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
+        "Chat Screen" -> {
+            navController.navigate(NavigationManager.VOYAGER_CHAT_SCREEN)
         }
         "Logout" -> {
             viewModel.clearUserData()
             navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
         }
-        "Settings" -> println("Opening Settings")
+        "Upcoming Voyages" -> {
+            navController.navigate(NavigationManager.FUTURE_VOYAGES_SCREEN)
+        }
     }
 }
 

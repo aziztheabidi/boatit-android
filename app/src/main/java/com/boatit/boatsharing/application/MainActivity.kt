@@ -1,5 +1,7 @@
 package com.boatit.boatsharing.application
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,15 +13,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.routes.AppNavGraph
-import com.boatit.boatsharing.utils.theme.BoatSharingAppTheme
-import android.Manifest
-import android.annotation.SuppressLint
-import androidx.lifecycle.lifecycleScope
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
-import kotlinx.coroutines.launch
+import com.boatit.boatsharing.utils.theme.BoatSharingAppTheme
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -31,17 +30,18 @@ class MainActivity : ComponentActivity() {
             requestNotificationPermission()
         }
 
-         enableEdgeToEdge()
-            setContent {
-                BoatSharingAppTheme {
-                    val navController = rememberNavController()
-                    Box(
-                        modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars) // Handle system bars padding
-                    ) {
-                        AppNavGraph(navController = navController)
-                    }
+        enableEdgeToEdge()
+        setContent {
+            BoatSharingAppTheme {
+                val navController = rememberNavController()
+                Box(
+                    modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars) // Handle system bars padding
+                ) {
+                    AppNavGraph(navController = navController)
                 }
+            }
         }
+
     }
 
     @SuppressLint("InlinedApi")
@@ -55,3 +55,4 @@ class MainActivity : ComponentActivity() {
         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 }
+

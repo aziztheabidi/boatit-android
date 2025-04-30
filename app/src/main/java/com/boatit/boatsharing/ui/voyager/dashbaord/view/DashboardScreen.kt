@@ -1,11 +1,17 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.content.RestrictionsManager.RESULT_ERROR
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,12 +23,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -45,22 +48,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.application.StripeSheetActivity
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.FindBoatRequest
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.ActiveVoyageDetails
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FindBoatViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.GetActiveVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.NearByVoyagesViewModel
@@ -74,22 +74,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.skydoves.flexible.bottomsheet.material.FlexibleBottomSheet
-import com.skydoves.flexible.core.FlexibleSheetSize
 import com.skydoves.flexible.core.FlexibleSheetValue
-import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
-import com.stripe.android.PaymentConfiguration
-import com.stripe.android.paymentsheet.PaymentSheet
-import com.stripe.android.paymentsheet.PaymentSheetResult
-import com.stripe.android.paymentsheet.rememberPaymentSheet
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
@@ -107,30 +98,24 @@ fun DashboardScreen(navController: NavController, value: String?,
     viewModelStripe: PaymentSheetConfigViewModel = koinViewModel(),
     viewModelP: PaymentViewModel = koinViewModel(), ) {
 
-
     val context = LocalContext.current
     val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    val seaRoute = listOf(
-        LatLng(40.65209, -73.13763), // Start
-        LatLng(40.70000, -73.10000), // Waypoint 1 (ocean path)
-        LatLng(40.73000, -73.05000), // Waypoint 2 (ocean path)
-        LatLng(40.75808, -73.01926)  // End
-    )
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-    val paymentSheet = rememberPaymentSheet(::onPaymentSheetResult)
     var selectedLocation by rememberSaveable { mutableStateOf<List<String>?>(null) }
     val defaultLatLng = LatLng(40.792240, -73.138260)
     var currentLatLng by rememberSaveable { mutableStateOf(defaultLatLng) }
 
     val cameraPositionState = rememberCameraPositionState {
-//        position = CameraPosition.fromLatLngZoom(defaultLatLng, 17f)
-        position = CameraPosition.fromLatLngZoom(seaRoute.first(), 4f)
+        position = CameraPosition.fromLatLngZoom(defaultLatLng, 17f)
     }
 
-    var customerConfig by remember { mutableStateOf<PaymentSheet.CustomerConfiguration?>(null) }
     var paymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
+    var publishableKey by remember { mutableStateOf<String?>(null) }
+    var id by remember { mutableStateOf<String?>(null) }
+    var PaymentIntentid by remember { mutableStateOf<String?>(null) }
+    var ephemeralKeySecret by remember { mutableStateOf<String?>(null) }
+    var voyageDetail by remember { mutableStateOf<ActiveVoyageDetails?>(null) }
     var isMenuIconVisible by rememberSaveable { mutableStateOf(true) }
     var showFindBoat by rememberSaveable { mutableStateOf(false) }
     var showConfirmBooking by rememberSaveable { mutableStateOf(false) }
@@ -149,21 +134,6 @@ fun DashboardScreen(navController: NavController, value: String?,
     val markerState = remember { MarkerState(position = defaultLatLng) }
     var currentSheetTarget by remember {
         mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded)
-    }
-    val sheetStateF = rememberFlexibleBottomSheetState(
-        flexibleSheetSize = FlexibleSheetSize(
-            fullyExpanded = 0.9f,
-            intermediatelyExpanded = 0.5f,
-            slightlyExpanded = 0.18f,
-        ),
-        isModal = false,
-        skipSlightlyExpanded = false,
-        skipHiddenState = true
-    )
-
-    val handleError = {
-        errorMessage = null
-        isError = false
     }
 
     if (navController.currentBackStackEntry?.savedStateHandle?.contains("result_key") == true) {
@@ -197,6 +167,34 @@ fun DashboardScreen(navController: NavController, value: String?,
     val stripeState by viewModelStripe.loginState.collectAsState()
     val notificationState by viewModelN.notificationState.collectAsStateWithLifecycle()
 
+    val stripeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ){  result: ActivityResult ->
+        if(result.resultCode == RESULT_OK) {
+            Toast.makeText(context, "Payment Successfull", Toast.LENGTH_LONG).show()
+            viewModelP.payment(PaymentConfirmationRequest(
+                AppConstants.Voyage_ID!!,
+                PaymentIntentid!!,
+                ""
+            ))
+        }else if(result.resultCode == RESULT_CANCELED){
+        }else if(result.resultCode == RESULT_ERROR){
+
+        }else{
+        }
+    }
+
+    when (paymentState) {
+        is NetworkResponse.Success -> {
+            viewModelCurrent.voyages()
+        }
+        is NetworkResponse.Error -> {
+                showFindBoat = false
+                Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
+        }
+        else -> {}
+    }
+
     when (findState) {
         is NetworkResponse.Success -> {
             if (showWaitingResponsePrompt) {
@@ -221,17 +219,20 @@ fun DashboardScreen(navController: NavController, value: String?,
             if (showWaitingResponsePrompt) {
                 showWaitingResponsePrompt = false
                 showConfirmBooking = false
-                showVoyageDetails = true
-                showFindBoat = true
-                val paymentSheet = rememberPaymentSheet(::onPaymentSheetResult)
-                paymentIntentClientSecret = "pi_3RGIXgIiYO00MT0y2JsZIk3L_secret_VQVooKaU2tZ6DcqOvoA8d6ZeG"
-                customerConfig = PaymentSheet.CustomerConfiguration(
-                    id = "cus_RuWb1Rjvzm01Nk",
-                    ephemeralKeySecret = "ephkey_1RGIXhIiYO00MT0yL2ADgNCx"
-                )
-                val publishableKey = "pk_test_51N8B6wIiYO00MT0yE2hZ0oQEf1VyHKzAtZyGuiFCRrx8eo5swxsYKzBKBNEGWuO4hzqHnHCzX9EYBJDLt1mmmsX000BtNUImoB"
-                PaymentConfiguration.init(context, publishableKey)
-                presentPaymentSheet(paymentSheet, customerConfig!!, paymentIntentClientSecret!!)
+                showVoyageDetails = false
+                showFindBoat = false
+                paymentIntentClientSecret = stripeState.data?.obj?.ClientSecret
+                id = stripeState.data?.obj?.CustomerId
+                ephemeralKeySecret = stripeState.data?.obj?.EphemeralKey_Secret
+                publishableKey = stripeState.data?.obj?.PublishableKey
+                PaymentIntentid = stripeState.data?.obj?.PaymentIntentId
+                val intent = Intent(context, StripeSheetActivity::class.java)
+                intent.putExtra("publishableKey", publishableKey)
+                intent.putExtra("ClientSecret", paymentIntentClientSecret)
+                intent.putExtra("customerId", id)
+                intent.putExtra("ephemeralKey", ephemeralKeySecret)
+                stripeLauncher.launch(intent)
+                viewModelStripe.resetNearbyPlaces()
             }
         }
         is NetworkResponse.Error -> {
@@ -246,21 +247,26 @@ fun DashboardScreen(navController: NavController, value: String?,
 
     when (currentState) {
         is NetworkResponse.Success -> {
+            Toast.makeText(context, currentState.data?.obj?.Status.toString(), Toast.LENGTH_SHORT).show()
             if(currentState.data?.obj?.Status?.equals("Started")!!){
-//                Toast.makeText(context, "Anni Deya", Toast.LENGTH_SHORT).show()
-//                showConfirmBooking = false
-//                showFindBoat = false
-//                showVoyageDetails = false
-//                navController.navigate(NavigationManager.VOYAGE_STARTED_SCREEN_Voyager)
-            }else if(currentState.data?.obj?.Status?.equals("Accepted")!!){
-                showConfirmBooking = true
+                showConfirmBooking = false
                 showFindBoat = false
                 showVoyageDetails = false
+                navController.navigate(NavigationManager.VOYAGE_STARTED_SCREEN_Voyager)
+            }else if(currentState.data?.obj?.Status?.equals("Accepted")!!){
+                showConfirmBooking = true
+                showFindBoat = true
+                showVoyageDetails = false
                 AppConstants.Voyage_ID = currentState.data!!.obj.Id
+                AppConstants.Estimated_Cost = currentState.data!!.obj.AmountToPay
+                AppConstants.Event_Time = currentState.data!!.obj.AmountToPay.toString()
+                AppConstants.Pick_Up_Loc = currentState.data!!.obj.PickupDock
+                AppConstants.Drop_Off_Loc = currentState.data!!.obj.DropOffDock
             }else if(currentState.data?.obj?.Status?.equals("Paid")!!){
                 showVoyageDetails = true
                 showConfirmBooking = false
-                showFindBoat = false
+                showFindBoat = true
+                voyageDetail = currentState.data?.obj
             }
             viewModelCurrent.resetNearbyPlaces()
         }
@@ -271,14 +277,7 @@ fun DashboardScreen(navController: NavController, value: String?,
 
     LaunchedEffect(notificationState) {
         viewModel.fetchNearbyPlaces()
-//        viewModelCurrent.voyages()
-    }
-
-    LaunchedEffect(value) {
-        if (value != null && value == "True") { // You can define the condition here
-            showConfirmBooking = true
-            showFindBoat = true
-        }
+        viewModelCurrent.voyages()
     }
 
     Box(modifier = Modifier.fillMaxSize()
@@ -302,15 +301,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                         title = "Its me",
                         icon = BitmapDescriptorFactory.fromResource(R.drawable.current_marker)
                     )
-
-                    if(showFindBoat){
-                        Polyline(
-                            points = seaRoute,
-                            color = Color.Blue,
-                            width = 8f,
-                            geodesic = true // Smooths the polyline for curved sea paths
-                        )
-                    }
 
                     when (nearbyPlacesState) {
                         is NetworkResponse.Loading -> {  }
@@ -367,8 +357,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                     modifier = Modifier
                         .size(width = 120.dp, height = 120.dp)
                         .clickable {
-//                            presentPaymentSheet(paymentSheet, customerConfig!!, paymentIntentClientSecret!!)
-                            navController.navigate(NavigationManager.FIND_LOCATION_SCREEN)
+                          navController.navigate(NavigationManager.FIND_LOCATION_SCREEN)
                         }
                 )
                 Spacer(Modifier.height(30.dp))
@@ -377,16 +366,12 @@ fun DashboardScreen(navController: NavController, value: String?,
         }
 
         if(showFindBoat){
-            FlexibleBottomSheet(
+            ModalBottomSheet(
                 onDismissRequest = {
                     coroutineScope.launch { sheetState.partialExpand() // Always revert to partial expansion
                     }
                     showFindBoat = false
                     selectedLocation = null
-                },
-                sheetState = sheetStateF,
-                onTargetChanges = { sheetValue ->
-                    currentSheetTarget = sheetValue
                 },
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                 containerColor = Color.Transparent,
@@ -421,13 +406,12 @@ fun DashboardScreen(navController: NavController, value: String?,
                         onPayNowClick = {
                             showWaitingResponsePrompt = true
                             waitingResponsePromptValue = "pay_now"
-                            viewModelStripe.paymentConfig("67EDA486-6BF8-469A-BBF6-5EF72CC7CED1")
+                            viewModelStripe.paymentConfig(AppConstants.Voyage_ID!!)
                         },
                     )
-
                 }
                 else if (showVoyageDetails){
-                    VoyageDetails(navController, 17890, "sassasa", "maskataza", "6969" )
+                    VoyageDetails(navController, voyageDetail?.OTP, voyageDetail?.CaptainName, voyageDetail?.BoatName, voyageDetail?.BoatModel)
                 }
                 else{
                     FindBoat(
@@ -456,12 +440,6 @@ fun DashboardScreen(navController: NavController, value: String?,
         if (!selectedLocation.isNullOrEmpty()){
             showFindBoat = true
             isMenuIconVisible = false
-            val boundsBuilder = LatLngBounds.Builder()
-            seaRoute.forEach { boundsBuilder.include(it) }
-            val bounds = boundsBuilder.build()
-            cameraPositionState.move(
-                update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-            )
         }
 
         if (showWaitingResponsePrompt){
@@ -469,7 +447,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                 value = waitingResponsePromptValue,
                 onDismiss = {
                     if (waitingResponsePromptValue=="pay_now"){
-                        showVoyageDetails = true
                         showWaitingResponsePrompt = false
                         showConfirmBooking =false
                     }
@@ -482,36 +459,6 @@ fun DashboardScreen(navController: NavController, value: String?,
         }
     }
 
-}
-
-private fun presentPaymentSheet(
-    paymentSheet: PaymentSheet,
-    customerConfig: PaymentSheet.CustomerConfiguration,
-    paymentIntentClientSecret: String
-) {
-    paymentSheet.presentWithPaymentIntent(
-        paymentIntentClientSecret,
-        PaymentSheet.Configuration(
-            merchantDisplayName = "Boat App",
-            customer = customerConfig,
-            allowsDelayedPaymentMethods = true
-        )
-    )
-}
-
-private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
-    when(paymentSheetResult) {
-        is PaymentSheetResult.Canceled -> {
-            print("Canceled")
-        }
-        is PaymentSheetResult.Failed -> {
-            print("Error: ${paymentSheetResult.error}")
-        }
-        is PaymentSheetResult.Completed -> {
-//            viewModelP.payment(VoyagePaymentRequest(AppConstants.Voyage_ID!!))
-            print("Completed")
-        }
-    }
 }
 
 @Preview
