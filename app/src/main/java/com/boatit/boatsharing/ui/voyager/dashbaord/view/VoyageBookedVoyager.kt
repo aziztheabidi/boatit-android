@@ -57,6 +57,7 @@ import com.boatit.boatsharing.ui.captain.availablitystatus.viewmodel.UpdateStatu
 import com.boatit.boatsharing.ui.userroles.viewmodel.RoleViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.utils.AppConstants
 import kotlinx.coroutines.delay
@@ -64,7 +65,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun VoyageBookedScreenVoyager(navController: NavController,
-                              viewModelStripe: SponsorPaymentSheetConfigViewModel = koinViewModel(),
+      viewModelStripe: SponsorPaymentSheetConfigViewModel = koinViewModel(),
+      viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel()
 ) {
     var title by remember { mutableStateOf("Your voyage has been booked") }
     var image by remember { mutableIntStateOf(R.drawable.wheel_inactive) }
@@ -86,22 +88,37 @@ fun VoyageBookedScreenVoyager(navController: NavController,
     var showFindBoat by rememberSaveable { mutableStateOf(false) }
 
     val stripeState by viewModelStripe.loginState.collectAsState()
+    val paymentState by viewModelP.loginState.collectAsState()
 
     val stripeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ){  result: ActivityResult ->
         if(result.resultCode == RESULT_OK) {
             Toast.makeText(context, "Payment Successfull", Toast.LENGTH_LONG).show()
-//            viewModelP.payment(
-//                PaymentConfirmationRequest(
-//                    notification?.Id!!,
-//                    PaymentIntentid!!,
-//                    ""
-//                )
-//            )
+            viewModelP.payment(
+                PaymentConfirmationRequest(
+                    AppConstants.Voyage_ID!!,
+                    PaymentIntentid!!,
+                    ""
+                )
+            )
         }else if(result.resultCode == RESULT_CANCELED){
         }else if(result.resultCode == RESULT_ERROR){
         }else{ }
+    }
+
+    when (paymentState) {
+        is NetworkResponse.Success -> {
+            Toast.makeText(context, "Payment Confirmed", Toast.LENGTH_SHORT).show()
+            navController.navigate(route = "$DASHBOARD_SCREEN/null")
+            viewModelP.resetNearbyPlaces()
+
+        }
+        is NetworkResponse.Error -> {
+            Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
+            viewModelP.resetNearbyPlaces()
+        }
+        else -> {}
     }
 
     when (stripeState) {
@@ -172,13 +189,12 @@ fun VoyageBookedScreenVoyager(navController: NavController,
 
             Spacer(modifier = Modifier.height(100.dp))
 
-            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = {  },
+                    onClick = { navController.navigate(route = "$DASHBOARD_SCREEN/null")  },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier
                         .weight(1f)

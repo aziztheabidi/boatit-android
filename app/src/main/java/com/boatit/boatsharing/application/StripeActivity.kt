@@ -52,10 +52,6 @@ class StripeSheetActivity : ComponentActivity() {
         paymentIntentClientSecret = getIntent().getStringExtra("ClientSecret")!!
         val customerId = getIntent().getStringExtra("customerId")
         val ephemeralKey = getIntent().getStringExtra("ephemeralKey")
-//        val publishableKey = "pk_test_51N8B6wIiYO00MT0yE2hZ0oQEf1VyHKzAtZyGuiFCRrx8eo5swxsYKzBKBNEGWuO4hzqHnHCzX9EYBJDLt1mmmsX000BtNUImoB"
-//        paymentIntentClientSecret = "pi_3RJadkIiYO00MT0y1BsUCY5v_secret_dsd0PGLz3zkClbfj3h8ldgW64"
-//        val customerId = "cus_RuWb1Rjvzm01Nk"
-//        val ephemeralKey = "ek_test_YWNjdF8xTjhCNndJaVlPMDBNVDB5LFV1dHR3Q1hiTUVjYTRrcW5MQTNJQnI3UUg5VTlvWjc_005314m3gj"
         customerConfig = PaymentSheet.CustomerConfiguration(
             id = customerId!!, // From backend
             ephemeralKeySecret = ephemeralKey!! // From backend

@@ -37,11 +37,11 @@ fun SponcersList(navController: NavController,
 
     when (paymentState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Payment Successfull", Toast.LENGTH_SHORT).show()
             viewModel.voyages()
         }
         is NetworkResponse.Error -> {
-            Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
             viewModel.voyages()
         }
         else -> {}

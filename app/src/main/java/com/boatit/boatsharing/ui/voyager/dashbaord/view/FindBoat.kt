@@ -51,6 +51,7 @@ import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.getDate
+import com.boatit.boatsharing.utils.AppConstants
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -284,7 +285,8 @@ fun FindBoat(navController: NavController,
                 CustomTextField(
                     textValue = noOffPassengers,
                     placeholderText = stringResource(R.string.num_off_voyagers_lbl),
-                    onTextChange = { noOffPassengers = it },
+                    onTextChange = { noOffPassengers = it
+                        AppConstants.No_Of_Voyagers = noOffPassengers.toInt()    },
                     keyboardType = KeyboardType.Number,
                     errorMessage = if (totalPassengers.isNotEmpty()&&totalPassengers.length <= 1) stringResource(
                         R.string.num_off_voyagers_text) else null,

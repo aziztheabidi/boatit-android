@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.fcm.MyFirebaseMessagingService
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageNotification
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

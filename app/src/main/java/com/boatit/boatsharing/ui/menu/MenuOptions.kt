@@ -46,7 +46,7 @@ fun MenuOptions(navController: NavController, viewModel: LoginViewModel = koinVi
     val items = listOf(
         MenuItem(R.drawable.current_marker, "Sponsors"),
         MenuItem(R.drawable.current_marker, "Profile"),
-        MenuItem(R.drawable.current_marker,"Past Voyages"),
+        MenuItem(R.drawable.current_marker, "Travel Now"),
         MenuItem(R.drawable.current_marker, "Chat Screen"),
         MenuItem(R.drawable.current_marker, "Logout"),
         MenuItem(R.drawable.current_marker, "Upcoming Voyages")
@@ -166,8 +166,8 @@ fun onItemClick(item: MenuItem, navController: NavController, viewModel: LoginVi
         "Profile" -> {
             navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
         }
-        "Past Voyages" -> {
-            navController.navigate(NavigationManager.VOYAGE_PAST_SCREEN)
+        "Travel Now" -> {
+            navController.navigate(NavigationManager.TRAVER_NOW_SCREEN)
         }
         "Chat Screen" -> {
             navController.navigate(NavigationManager.VOYAGER_CHAT_SCREEN)

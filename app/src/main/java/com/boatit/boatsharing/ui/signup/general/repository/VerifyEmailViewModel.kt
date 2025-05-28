@@ -10,22 +10,37 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class VerifyEmailViewModel(private val repository: VerifyEmailRepository) : ViewModel() {
+class VerifyEmailViewModel(
+    private val repository: VerifyEmailRepository
+) : ViewModel() {
 
-    private val _registrationState = MutableStateFlow<NetworkResponse<VerifyEmailResponse>>(Loading())
+    private val _registrationState = MutableStateFlow<NetworkResponse<VerifyEmailResponse>>(NetworkResponse.Loading())
     val registrationState: StateFlow<NetworkResponse<VerifyEmailResponse>> = _registrationState
 
-    fun VerifyEmail(email: String, otp: String) {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun verifyEmail(email: String, otp: String) {
+        _isLoading.value = true
+        _errorMessage.value = null
+        _registrationState.value = NetworkResponse.Loading()
+
         viewModelScope.launch {
-            _registrationState.value = Loading()
             val result = repository.verifyEmail(email, otp)
-            result.onSuccess { placesResponse ->
-                _registrationState.value = NetworkResponse.Success(placesResponse)
+            result.onSuccess { response ->
+                _registrationState.value = NetworkResponse.Success(response)
+                _isLoading.value = false
             }.onFailure { error ->
-                _registrationState.value = NetworkResponse.Error(error.message ?: "Registration failed")
+                _registrationState.value = NetworkResponse.Error(error.message ?: "Verification failed")
+                _isLoading.value = false
+                _errorMessage.value = error.message
             }
         }
     }
 }
+
 
 

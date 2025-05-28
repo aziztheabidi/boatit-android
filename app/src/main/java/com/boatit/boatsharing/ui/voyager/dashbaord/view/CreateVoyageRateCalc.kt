@@ -81,7 +81,7 @@ import java.util.Calendar
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun CreateVoyageRateCalcScreen(navController: NavController, viewModel: VoyagerProfileViewModel = koinViewModel(), viewModelfeth: GetVoyagerProfileViewModel = koinViewModel()) {
+fun CreateVoyageRateCalcScreen(navController: NavController) {
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -96,7 +96,6 @@ fun CreateVoyageRateCalcScreen(navController: NavController, viewModel: VoyagerP
     var paypalEmail by remember { mutableStateOf("") }
     val showDialog = mutableStateOf(false)
     var bookingDate by remember { mutableStateOf("") }
-//    var eventTime by remember { mutableStateOf(AppConstants.Event_Time) }
     var eventTime = AppConstants.Event_Time
 
 
@@ -117,55 +116,6 @@ fun CreateVoyageRateCalcScreen(navController: NavController, viewModel: VoyagerP
         isError = false
     }
 
-    val registrationState by viewModel.registrationState.collectAsState()
-    val fetchState by viewModelfeth.registrationState.collectAsState()
-
-    fun performLogin(){
-        navController.popBack()
-    }
-
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                performLogin()
-            }
-        }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
-    }
-
-    when (fetchState) {
-        is NetworkResponse.Success -> {
-            if(getingData) {
-                phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
-                firstName = fetchState.data?.obj?.FirstName.toString()
-                lastName = fetchState.data?.obj?.LastName.toString()
-                address = fetchState.data?.obj?.Address.toString()
-                dob = fetchState.data?.obj?.DateOfBirth.toString()
-                paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
-                getingData = false
-            }
-        }
-        is NetworkResponse.Error -> {
-            getingData = false
-        }
-        else -> {}
-    }
-
-    LaunchedEffect(getingData) {
-        viewModelfeth.GetVoyagerProfile()
-    }
-
     Scaffold(
         topBar = {
             CustomTopBar(text = "Create Voyage", onImageClick = {
@@ -174,21 +124,6 @@ fun CreateVoyageRateCalcScreen(navController: NavController, viewModel: VoyagerP
 
         },
         content = { innerPadding ->
-            if (getingData) {
-                Dialog(
-                    onDismissRequest = {},
-                    DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-                ){
-                    Box(
-                        contentAlignment=  Alignment.Center,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .background(White, shape = RoundedCornerShape(8.dp))
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-            }
             Column(
                 modifier = Modifier
                     .padding(
@@ -566,21 +501,7 @@ fun CreateVoyageRateCalcScreen(navController: NavController, viewModel: VoyagerP
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {
-                        viewModel.saveProfile(VoyagerProfileRequest(
-                            UserId = AppConstants.USER_ID,
-                            PhoneNumber = phoneNumber,
-                            FirstName = firstName,
-                            LastName = lastName,
-                            Address = address,
-                            DateOfBirth = dob,
-                            StripeEmail = paypalEmail)
-                        )
-                        isButtonEnabled = true
-                        isLoading = true
-                        focusManager.clearFocus()
-                        println("perform network call")
                         navController.navigate(NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN)
-
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

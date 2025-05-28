@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -46,69 +47,32 @@ import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.uihelpers.TermsAndPrivacyView
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun UserBasicInfoScreen(navController: NavController, viewModel: RegistrationViewModel = koinViewModel(), ) {
-
+fun UserBasicInfoScreen(
+    navController: NavController,
+    viewModel: RegistrationViewModel = koinViewModel()
+) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val emailFocusRequester =  remember { FocusRequester() }
-    val nameFocusRequester =  remember { FocusRequester() }
+    val emailFocusRequester = remember { FocusRequester() }
+    val nameFocusRequester = remember { FocusRequester() }
     val phoneNumberFocusRequester = remember { FocusRequester() }
 
-    var email by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    val isEmailValid = email.contains("@") && email.contains(".")
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    var isNetworkError by remember { mutableStateOf(false) }
-    val registrationState by viewModel.registrationState.collectAsState()
-
-    fun performLogin(){
-        navController.navigate(route = "$CREATE_ACCOUNT_STEP_TWO_SCREEN/$email")
-    }
-
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                performLogin()
-            }
-
+    LaunchedEffect(Unit) {
+        viewModel.navigateToNext.collectLatest { email ->
+            Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
+            navController.navigate("$CREATE_ACCOUNT_STEP_TWO_SCREEN/$email")
         }
-        is NetworkResponse.Error -> {
-            isLoading = false
-            isNetworkError = true
-            errorMessage = "Network error, please try again."
-            Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-        }
-        else -> {}
-    }
-
-    val isValidate = email.isNotEmpty() && name.isNotEmpty()&& phoneNumber.isNotEmpty()
-            && isEmailValid
-
-    val handleError = {
-        errorMessage = null
-        isError = false
-    }
-
-    LaunchedEffect(isButtonEnabled) {
-
     }
 
     Scaffold(
         topBar = {
-            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 1/3", onImageClick = {
-                println("clicked...")
-            })
+            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 1/3", onImageClick = { })
         },
         content = { innerPadding ->
             Column(
@@ -117,135 +81,96 @@ fun UserBasicInfoScreen(navController: NavController, viewModel: RegistrationVie
                         top = innerPadding.calculateTopPadding() + 15.dp,
                         start = 20.dp,
                         end = 20.dp,
-                        bottom = innerPadding.calculateTopPadding()+25.dp,
+                        bottom = innerPadding.calculateTopPadding() + 25.dp,
                     )
                     .fillMaxSize()
-                    // .background(color = Color.Gray)
                     .verticalScroll(rememberScrollState())
             ) {
 
                 FormStepsViews(numberOfViews = 3,
                     activeColor = colorResource(id = R.color.button_normal),
                     inactiveColor = Color.Gray,
-                    activeViewsCount = 1)
+                    activeViewsCount = 1
+                )
 
                 Spacer(Modifier.height(30.dp))
-                Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.email)
-                )
 
+                Text("Email", style = TextStyle(fontSize = 18.sp, color = Color.Black))
                 Spacer(Modifier.height(10.dp))
-
-
-
                 CustomTextField(
-                    textValue = email,
+                    textValue = viewModel.email,
                     placeholderText = stringResource(R.string.email_placeholder),
-                    onTextChange = { email = it },
+                    onTextChange = { viewModel.onEmailChange(it) },
                     keyboardType = KeyboardType.Email,
                     maxChars = 100,
-                    errorMessage = if (!isEmailValid && email.isNotEmpty()) stringResource(R.string.email_validation_text) else null,
-                    isError = !isEmailValid && email.isNotEmpty(),
-                    onClearError = handleError,
+                    errorMessage = if (!viewModel.isEmailValid && viewModel.email.isNotEmpty())
+                        stringResource(R.string.email_validation_text)
+                    else null,
+                    isError = !viewModel.isEmailValid && viewModel.email.isNotEmpty(),
+                    onClearError = { viewModel.errorMessage = null },
                     imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { nameFocusRequester.requestFocus() }
-                    ),
+                    keyboardActions = KeyboardActions(onNext = { nameFocusRequester.requestFocus() }),
                     focusRequester = emailFocusRequester
                 )
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(
-                    text = stringResource(R.string.name_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
 
+                Spacer(Modifier.height(20.dp))
+                Text("Name", style = TextStyle(fontSize = 18.sp, color = Color.Black))
+                Spacer(Modifier.height(10.dp))
                 CustomTextField(
-                    textValue = name,
+                    textValue = viewModel.name,
                     placeholderText = stringResource(R.string.name_placeholder),
-                    onTextChange = { name = it },
+                    onTextChange = { viewModel.onNameChange(it) },
                     keyboardType = KeyboardType.Text,
                     maxChars = 200,
-                    errorMessage = if (name.isNotEmpty() && name.length <= 3) stringResource(R.string.name_validation_text) else null,
-                    isError =  name.isNotEmpty() && name.length <= 3,
-                    onClearError = handleError,
+                    errorMessage = if (!viewModel.isNameValid && viewModel.name.isNotEmpty())
+                        stringResource(R.string.name_validation_text)
+                    else null,
+                    isError = !viewModel.isNameValid && viewModel.name.isNotEmpty(),
+                    onClearError = { viewModel.errorMessage = null },
                     imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { phoneNumberFocusRequester.requestFocus() }
-                    ),
+                    keyboardActions = KeyboardActions(onNext = { phoneNumberFocusRequester.requestFocus() }),
                     focusRequester = nameFocusRequester
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(
-                    text = stringResource(R.string.phone_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
+                Spacer(Modifier.height(20.dp))
+                Text("Phone Number", style = TextStyle(fontSize = 18.sp, color = Color.Black))
+                Spacer(Modifier.height(10.dp))
                 CustomTextField(
-                    textValue = phoneNumber,
+                    textValue = viewModel.phoneNumber,
                     placeholderText = stringResource(R.string.phone_placeholder),
-                    onTextChange = { phoneNumber = it },
+                    onTextChange = { viewModel.onPhoneChange(it) },
                     keyboardType = KeyboardType.Number,
                     maxChars = 15,
-                    errorMessage = if (phoneNumber.isNotEmpty() && phoneNumber.length <= 3) stringResource(R.string.phone_validation_text) else null,
-                    isError =  phoneNumber.isNotEmpty()  && phoneNumber.length <= 3,
-                    onClearError = handleError,
+                    errorMessage = if (!viewModel.isPhoneValid && viewModel.phoneNumber.isNotEmpty())
+                        stringResource(R.string.phone_validation_text)
+                    else null,
+                    isError = !viewModel.isPhoneValid && viewModel.phoneNumber.isNotEmpty(),
+                    onClearError = { viewModel.errorMessage = null },
                     imeAction = ImeAction.Done,
-                    keyboardActions = KeyboardActions(
-                        onDone = { focusManager.clearFocus() }
-                    ),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     focusRequester = phoneNumberFocusRequester
                 )
-
 
                 Spacer(modifier = Modifier.height(40.dp))
 
                 CustomButton(
                     text = "Next",
-                    isValidate = isValidate,
-                    isLoading = isLoading,
+                    isValidate = viewModel.isFormValid,
+                    isLoading = viewModel.isLoading,
                     onButtonClick = {
-                        viewModel.registerUser(name, phoneNumber, email)
-                        isButtonEnabled = true
-                        isLoading = true
                         focusManager.clearFocus()
+                        viewModel.register()
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-
             }
         },
-
-
-
         bottomBar = {
-            TermsAndPrivacyView(
-                onClick = {
-
-                }
-            )
-
+            TermsAndPrivacyView(onClick = {})
         }
-
-
     )
-
 }
+
 
 @Preview
 @Composable

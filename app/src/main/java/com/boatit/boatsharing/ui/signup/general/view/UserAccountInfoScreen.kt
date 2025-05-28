@@ -160,6 +160,7 @@ fun UserAccountInfoScreen(navController: NavController,value: String?, viewModel
             }
         }
         is NetworkResponse.Error -> {
+            Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
             getingData = false
         }
         else -> {}

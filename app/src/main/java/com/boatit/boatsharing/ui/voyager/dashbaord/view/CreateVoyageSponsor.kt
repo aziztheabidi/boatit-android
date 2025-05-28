@@ -115,6 +115,14 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     val registrationState by viewModel.nearbyPlaces.collectAsState()
     val findState by viewModelFind.nearbyPlaces.collectAsState()
 
+    LaunchedEffect(Unit) {
+        if(!AppConstants.Travel_Now!!){
+            splitPaymentSwitchState = true;
+            findBoat = "Book Voyage"
+            AppConstants.sponsorList.add(Sponser(VoyagerUserId = AppConstants.USER_ID!!))
+        }
+    }
+
     fun performLogin(){
         navController.navigate(NavigationManager.VOYAGE_BOOKED_SCREEN)
     }
@@ -135,9 +143,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = true
                 errorMessage = "Network error, please try again."
+                println( "Message" + (registrationState as NetworkResponse.Error).message)
                 Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-                println("Message" + AppConstants.Voyage_ID)
-                performLogin()
             }
         }
         else -> {}
@@ -203,8 +210,6 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
                 Spacer(Modifier.height(30.dp))
 
-
-
                 Text(
                     style = TextStyle(
                         color = Color.Black,
@@ -218,9 +223,9 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
 
                 CustomTextField(
-                    textValue = firstName,
-                    placeholderText = "Select Date",
-                    onTextChange = { firstName = it },
+                    textValue = AppConstants.Estimated_Cost.toString(),
+                    placeholderText = AppConstants.Estimated_Cost.toString(),
+                    onTextChange = {  },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
@@ -258,15 +263,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 )
                     Switch(
                         checked = splitPaymentSwitchState,
-                        onCheckedChange = { splitPaymentSwitchState = it
-                          if(splitPaymentSwitchState){
-                              findBoat = "Book Voyage"
-                              AppConstants.sponsorList.add(Sponser(VoyagerUserId = AppConstants.USER_ID!!))
-                          }else{
-                              findBoat = "Find Boat"
-                          }
-
-                                          },
+                        onCheckedChange = {},
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = colorResource(id = R.color.button_normal),
@@ -275,8 +272,6 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                         )
                     )                }
                 Spacer(Modifier.height(15.dp))
-
-
                 if (splitPaymentSwitchState){
                     Text(
                         style = TextStyle(
@@ -306,26 +301,16 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                             verticalArrangement = Arrangement.Center
                         ) {
 
-                            if (showDialog.value) {
-                                MyDatePickerDialog(
-                                    onDateSelected = { bookingDate = it },
-                                    onDismiss = { showDialog.value = false }
-                                )
-                            }
-
                             Icon(
                                 painter = painterResource(id = R.drawable.add_sponsor),
                                 contentDescription = "Icon",
                                 modifier = Modifier
                                     .size(30.dp)
                                     .clickable {
-                                        showDialog.value = true
                                         navController.navigate(NavigationManager.SPONSOR_SCREEN)
-
                                     },
                                 tint = colorResource(R.color.button_normal)
                             )
-
 
                         }
                     }
@@ -342,11 +327,10 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
                     Spacer(Modifier.height(5.dp))
 
-
                     CustomTextField(
-                        textValue = firstName,
-                        placeholderText = "Select Date",
-                        onTextChange = { firstName = it },
+                        textValue = AppConstants.sponsorList.size.toString(),
+                        placeholderText = AppConstants.sponsorList.size.toString(),
+                        onTextChange = {},
                         keyboardType = KeyboardType.Text,
                         maxChars = 100,
                         errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
@@ -383,9 +367,9 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
 
                 CustomTextField(
-                    textValue = firstName,
-                    placeholderText = "Select Date",
-                    onTextChange = { firstName = it },
+                    textValue = AppConstants.Estimated_Cost.toString(),
+                    placeholderText = AppConstants.Estimated_Cost.toString(),
+                    onTextChange = {  },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
@@ -492,23 +476,24 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     isLoading = isLoading,
                     onButtonClick = {
                         if(splitPaymentSwitchState){
+                            Toast.makeText(context, AppConstants.Event_Date.toString() , Toast.LENGTH_SHORT).show()
                             viewModel.bookVoyageVMfunc(
                                 BookVoyageRequest(
                                     VoyagerUserId = AppConstants.USER_ID!!,
                                     PickupDockId = 1,
                                     DropOffDockId= 2,
-                                    NoOfVoyagers= 3,
+                                    NoOfVoyagers= AppConstants.No_Of_Voyagers!!,
                                     IsImmediately= false,
                                     IsSplitPayment = true,
-                                    BookingDate = "2025-05-30",
+                                    BookingDate = AppConstants.Event_Date.toString(),
                                     StartTime = "10:00:00",
-                                    IsStayOnWater =  false,
+                                    IsStayOnWater =  AppConstants.Stay_on_water!!,
                                     EndTime= "12:12:00",
-                                    PerHourRate= 123.0,
-                                    DurationInHours= 4.0,
-                                    NoOfSponsers= 2,
-                                    EstimatedCost= 34.0,
-                                    IndvidualAmount= 23.0,
+                                    PerHourRate= AppConstants.Per_Hour_Rate!!,
+                                    DurationInHours= AppConstants.No_of_Hour!!,
+                                    NoOfSponsers= AppConstants.sponsorList.size,
+                                    EstimatedCost= AppConstants.Total_Cost!!,
+                                    IndvidualAmount= AppConstants.Estimated_Cost!!,
                                     Sponsers = AppConstants.sponsorList,
                                 ))
                         }else{
@@ -517,12 +502,14 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                                     VoyagerUserId = AppConstants.USER_ID!!,
                                     PickupDockId = 1,
                                     DropOffDockId= 2,
-                                    NoOfVoyagers= 3
+                                    NoOfVoyagers= AppConstants.No_Of_Voyagers!!,
+                                    EstimatedCost = AppConstants.Total_Cost!!,
+                                    IsImmediately = true,
+                                    IsSplitPayment = false,
+                                    BookingDate = AppConstants.Event_Date.toString()
                                 )
                             )
                         }
-                        showWaitingResponsePrompt = true
-                        waitingResponsePromptValue = "find_boat"
                         isButtonEnabled = true
                         isLoading = true
                         focusManager.clearFocus()
@@ -530,20 +517,6 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-            }
-
-            if (showWaitingResponsePrompt){
-                CustomDialog(
-                    value = waitingResponsePromptValue,
-                    onDismiss = {
-                        if (waitingResponsePromptValue=="pay_now"){
-                            showWaitingResponsePrompt = false
-                        }
-                        else{
-                            showWaitingResponsePrompt = false
-                        }
-                    },
-                )
             }
         },
     )

@@ -34,6 +34,10 @@ data class FindBoatRequest(
     val PickupDockId: Int,
     val DropOffDockId: Int,
     val NoOfVoyagers: Int,
+    val EstimatedCost: Double,
+    val IsImmediately: Boolean,
+    val IsSplitPayment: Boolean,
+    val BookingDate: String,
 )
 
 @Serializable

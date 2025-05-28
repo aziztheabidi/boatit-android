@@ -42,7 +42,7 @@ import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
-fun CaptainVoyageDetails(navController: NavController, CaptainName: String?,onDeclineClick: () -> Unit, onAcceptClick: (String) -> Unit) {
+fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, VoyageId: String?, CaptainName: String?, onDeclineClick: () -> Unit, onAcceptClick: (String) -> Unit) {
 
     val context = LocalContext.current
     val enteredValues = remember { mutableStateListOf("", "", "","","") }
@@ -200,7 +200,7 @@ fun CaptainVoyageDetails(navController: NavController, CaptainName: String?,onDe
                     }
 
                     IconButton(onClick = {
-                        navController.navigate(route = "$CHAT_SCREEN/${AppConstants.Voyage_ID}/${AppConstants.USER_ID}/${CaptainName}/${CaptainName}")
+                        navController.navigate(route = "$CHAT_SCREEN/${VoyageId}/${AppConstants.USER_ID}/${VoyagerName}/${CaptainName}")
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message_icon),

@@ -117,9 +117,10 @@ fun DashboardScreen(navController: NavController, value: String?,
     var ephemeralKeySecret by remember { mutableStateOf<String?>(null) }
     var voyageDetail by remember { mutableStateOf<ActiveVoyageDetails?>(null) }
     var isMenuIconVisible by rememberSaveable { mutableStateOf(true) }
-    var showFindBoat by rememberSaveable { mutableStateOf(false) }
-    var showConfirmBooking by rememberSaveable { mutableStateOf(false) }
-    var showVoyageDetails by rememberSaveable { mutableStateOf(false) }
+    var showFindBoat by remember { mutableStateOf(false) }
+    var showConfirmBooking by remember { mutableStateOf(false) }
+    var showStartBooking by remember { mutableStateOf(false) }
+    var showVoyageDetails by remember { mutableStateOf(false) }
     var pickupLocation by rememberSaveable { mutableStateOf("") }
     var dropOffLocation by rememberSaveable { mutableStateOf("") }
     var totalPassengers by rememberSaveable { mutableStateOf("") }
@@ -171,7 +172,8 @@ fun DashboardScreen(navController: NavController, value: String?,
         contract = ActivityResultContracts.StartActivityForResult()
     ){  result: ActivityResult ->
         if(result.resultCode == RESULT_OK) {
-            Toast.makeText(context, "Payment Successfull", Toast.LENGTH_LONG).show()
+            showWaitingResponsePrompt = true
+            waitingResponsePromptValue = "pay_now"
             viewModelP.payment(PaymentConfirmationRequest(
                 AppConstants.Voyage_ID!!,
                 PaymentIntentid!!,
@@ -179,14 +181,16 @@ fun DashboardScreen(navController: NavController, value: String?,
             ))
         }else if(result.resultCode == RESULT_CANCELED){
         }else if(result.resultCode == RESULT_ERROR){
-
         }else{
         }
     }
 
     when (paymentState) {
         is NetworkResponse.Success -> {
+            showWaitingResponsePrompt = false
+            waitingResponsePromptValue = "pay_now"
             viewModelCurrent.voyages()
+            viewModelP.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {
                 showFindBoat = false
@@ -216,7 +220,6 @@ fun DashboardScreen(navController: NavController, value: String?,
 
     when (stripeState) {
         is NetworkResponse.Success -> {
-            if (showWaitingResponsePrompt) {
                 showWaitingResponsePrompt = false
                 showConfirmBooking = false
                 showVoyageDetails = false
@@ -233,14 +236,11 @@ fun DashboardScreen(navController: NavController, value: String?,
                 intent.putExtra("ephemeralKey", ephemeralKeySecret)
                 stripeLauncher.launch(intent)
                 viewModelStripe.resetNearbyPlaces()
-            }
         }
         is NetworkResponse.Error -> {
-            if (showWaitingResponsePrompt) {
                 showWaitingResponsePrompt = false
                 showConfirmBooking = false
                 Toast.makeText(context, findState.message, Toast.LENGTH_SHORT).show()
-            }
         }
         else -> {}
     }
@@ -249,10 +249,15 @@ fun DashboardScreen(navController: NavController, value: String?,
         is NetworkResponse.Success -> {
             Toast.makeText(context, currentState.data?.obj?.Status.toString(), Toast.LENGTH_SHORT).show()
             if(currentState.data?.obj?.Status?.equals("Started")!!){
-                showConfirmBooking = false
-                showFindBoat = false
                 showVoyageDetails = false
-                navController.navigate(NavigationManager.VOYAGE_STARTED_SCREEN_Voyager)
+                showConfirmBooking = false
+                showStartBooking = true
+                showFindBoat = true
+                AppConstants.Voyage_ID = currentState.data!!.obj.Id
+                AppConstants.Estimated_Cost = currentState.data!!.obj.AmountToPay
+                AppConstants.Event_Time = currentState.data!!.obj.AmountToPay.toString()
+                AppConstants.Pick_Up_Loc = currentState.data!!.obj.PickupDock
+                AppConstants.Drop_Off_Loc = currentState.data!!.obj.DropOffDock
             }else if(currentState.data?.obj?.Status?.equals("Accepted")!!){
                 showConfirmBooking = true
                 showFindBoat = true
@@ -267,6 +272,12 @@ fun DashboardScreen(navController: NavController, value: String?,
                 showConfirmBooking = false
                 showFindBoat = true
                 voyageDetail = currentState.data?.obj
+                println("ID" + voyageDetail?.Id)
+            }else if(currentState.data?.obj?.Status?.equals("Completed")!!){
+                showConfirmBooking = false
+                showFindBoat = false
+                showVoyageDetails = false
+                navController.navigate(NavigationManager.VOYAGER_FEEDBACK_SCREEN)
             }
             viewModelCurrent.resetNearbyPlaces()
         }
@@ -395,7 +406,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                         }
                     }
             ) {
-                if (showConfirmBooking){
+                if(showConfirmBooking){
                     ConfirmBooking(
                         navController,
                         onCancelClick = {
@@ -404,11 +415,12 @@ fun DashboardScreen(navController: NavController, value: String?,
                             isMenuIconVisible = true
                         },
                         onPayNowClick = {
-                            showWaitingResponsePrompt = true
-                            waitingResponsePromptValue = "pay_now"
                             viewModelStripe.paymentConfig(AppConstants.Voyage_ID!!)
                         },
                     )
+                }
+                else if(showStartBooking){
+                    StartVoyage(navController)
                 }
                 else if (showVoyageDetails){
                     VoyageDetails(navController, voyageDetail?.OTP, voyageDetail?.CaptainName, voyageDetail?.BoatName, voyageDetail?.BoatModel)
@@ -428,8 +440,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                         onFindBoatClick = {
                             AppConstants.Pick_Up_Loc = pickupLocation
                             AppConstants.Drop_Off_Loc = dropOffLocation
-                            showWaitingResponsePrompt = true
-                            waitingResponsePromptValue = "find_boat"
                             navController.navigate(NavigationManager.CREATE_VOYAGE_SCREEN)
                         }
                     )

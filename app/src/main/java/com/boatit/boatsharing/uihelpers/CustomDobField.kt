@@ -57,7 +57,6 @@ fun CustomDobField(
     maxLines: Int? = null,
     minLines: Int = 1,
     leadingIcon: @Composable (() -> Unit)? = null,
-
 ) {
 
     val localFocusRequester = remember { focusRequester }

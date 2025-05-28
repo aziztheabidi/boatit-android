@@ -25,6 +25,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.repository.VoyagerVoyagesRepo
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
@@ -49,5 +50,6 @@ class GetActiveVoyageViewModel(private val repository: GetActiveVoyageRepository
         _loginState.value = NetworkResponse.Loading()
     }
 }
+
 
 

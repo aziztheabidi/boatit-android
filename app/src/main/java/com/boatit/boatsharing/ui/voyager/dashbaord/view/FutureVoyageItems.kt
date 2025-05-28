@@ -75,7 +75,6 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                        viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel()
 
 ) {
-
     val ConfirmState by viewModelConfirm.nearbyPlaces.collectAsState()
     val stripeState by viewModelStripe.loginState.collectAsState()
     val paymentState by viewModelP.loginState.collectAsState()
@@ -102,7 +101,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
             Toast.makeText(context, "Payment Successfull", Toast.LENGTH_LONG).show()
             viewModelP.payment(
                 PaymentConfirmationRequest(
-                    AppConstants.Voyage_ID!!,
+                    notification?.Id!!,
                     PaymentIntentid!!,
                     ""
                 )
@@ -115,11 +114,6 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
 
     when (stripeState) {
         is NetworkResponse.Success -> {
-            if (showWaitingResponsePrompt) {
-                showWaitingResponsePrompt = false
-                showConfirmBooking = false
-                showVoyageDetails = false
-                showFindBoat = false
                 paymentIntentClientSecret = stripeState.data?.obj?.ClientSecret
                 id = stripeState.data?.obj?.CustomerId
                 ephemeralKeySecret = stripeState.data?.obj?.EphemeralKey_Secret
@@ -132,14 +126,10 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                 intent.putExtra("customerId", id)
                 intent.putExtra("ephemeralKey", ephemeralKeySecret)
                 stripeLauncher.launch(intent)
-            }
+
         }
         is NetworkResponse.Error -> {
-            if (showWaitingResponsePrompt) {
-                showWaitingResponsePrompt = false
-                showConfirmBooking = false
                 Toast.makeText(context, stripeState.message, Toast.LENGTH_SHORT).show()
-            }
         }
         else -> {}
     }
@@ -149,7 +139,6 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
         is NetworkResponse.Error -> {
             if(ConfirmState.message.equals("An error occurred: Please Pay Completely first then you can confirm your voyage"))
             {
-                Toast.makeText(context, ConfirmState.message, Toast.LENGTH_SHORT).show()
                 viewModelStripe.paymentConfig(SponsorVoyagePaymentRequest(notification?.Id!!,
                     AppConstants.USER_ID.toString(),""))
             }
@@ -173,7 +162,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ,
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(Color.White)
     ) {
@@ -181,20 +171,20 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(
-                    top = 50.dp,
-                    start = 16.dp, end = 16.dp, bottom = 16.dp
-                ),
+                .padding(top = 15.dp,
+                    start = 12.dp, end = 12.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             // Boat Info Card
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().
+                border(1.dp, Color.Blue, RoundedCornerShape(8.dp))
             ) {
-                Column() {
+                Column(
+                    modifier = Modifier.padding(10.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -208,25 +198,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                             ),
                             text = "Sunday, 12 April | 10:00 am"
                         )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.pending),
-                                contentDescription = "Status Icon",
-                                modifier = Modifier
-                                    .size(25.dp) // Adjust size as needed
-                                    .padding(end = 5.dp), // Add some space between text and icon
-                                tint = Color.Blue // Change color of the icon
-                            )
-                            Text(
-                                style = TextStyle(
-                                    color = Color(0xFF797979),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.W500
-                                ),
-                                text = "Pending"
-                            )
 
-                        }
                     }
 
                     Spacer(Modifier.height(7.dp))
@@ -296,8 +268,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = "12"
                                         )
@@ -344,8 +316,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = "12 PM"
                                         )
@@ -382,8 +354,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = notification?.PickupDock!!
                                         )
@@ -406,8 +378,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = notification?.DropOffDock!!
                                         )
@@ -431,10 +403,10 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
-                                            text = "No Time Spent"
+                                            text = notification?.PickupDock!!
                                         )
                                     }
                                 }
@@ -445,8 +417,6 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                 }
 
             }
-
-
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -467,7 +437,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp) // Set a fixed height for the inner Card
+                    .height(165.dp) // Set a fixed height for the inner Card
                     .background(color = Color.White)
                     .padding(5.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // Add elevation
@@ -501,13 +471,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                             contentDescription = "Person Icon",
                             tint = Color.Green,
                             modifier = Modifier
-                                .size(18.dp) // Adjust icon size
+                                .size(22.dp) // Adjust icon size
                                 .clip(CircleShape) // Make the icon circular
 
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp)) // Space between rows
+                    Spacer(modifier = Modifier.height(15.dp)) // Space between rows
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -534,13 +504,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                             contentDescription = "Person Icon",
                             tint = Color.Gray,
                             modifier = Modifier
-                                .size(25.dp) // Adjust icon size
+                                .size(22.dp) // Adjust icon size
                                 .clip(CircleShape) // Make the icon circular
 
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp)) // Space between rows
+                    Spacer(modifier = Modifier.height(15.dp)) // Space between rows
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -568,7 +538,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                             contentDescription = "Person Icon",
                             tint = Color.Gray,
                             modifier = Modifier
-                                .size(25.dp) // Adjust icon size
+                                .size(22.dp) // Adjust icon size
                                 .clip(CircleShape) // Make the icon circular
 
                         )
@@ -599,9 +569,9 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
                     Text(
-                        text = "Cancel",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        text = "Cancel Voyage",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.ExtraBold,
                         color = colorResource(id = R.color.button_normal) // Text color matches border
                     )
                 }
@@ -616,13 +586,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                         .weight(1f)
                         .fillMaxWidth()
                         .height(50.dp)
-                        .padding(horizontal = 1.dp),
+                    ,
                     colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
                 ) {
                     Text(
-                        text = "Confirm",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        text = "Confirm Voyage",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.ExtraBold,
                         color = Color.White
                     )
                 }

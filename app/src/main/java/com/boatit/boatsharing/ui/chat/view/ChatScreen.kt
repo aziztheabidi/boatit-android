@@ -64,9 +64,7 @@ fun ChatScreen(navController: NavController,
 ) {
 
     val messages by viewModel.messages.collectAsState(initial = emptyList())
-
     val messageText = remember { mutableStateOf("") }
-
     val listState = rememberLazyListState()
 
     LaunchedEffect(chatId) {

@@ -208,7 +208,11 @@ fun VoyageDetails(navController: NavController,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 0.dp, vertical = 0.dp) // Padding for the row
+                        .clickable {
+                            navController.navigate(route = "$CHAT_SCREEN/${AppConstants.Voyage_ID}/${AppConstants.USER_ID}/${CaptainName}/${CaptainName}")
+                        }
+                        .padding(horizontal = 0.dp, vertical = 0.dp)
+
                 ) {
                     var pickupNotes by remember { mutableStateOf("") }
                     OutlinedTextField(
@@ -240,41 +244,6 @@ fun VoyageDetails(navController: NavController,
                             .padding(end = 8.dp)
                             .background(Color.White)
                     )
-                    IconButton(onClick = {
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:1228388383")
-                        }
-                        context.startActivity(intent) }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.call_icon),
-                            contentDescription = "Call",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(50.dp)
-                        )
-                    }
-                    IconButton(onClick = {
-                        navController.navigate(route = "$CHAT_SCREEN/${AppConstants.Voyage_ID}/${AppConstants.USER_ID}/${CaptainName}/${CaptainName}")
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message_icon),
-                            contentDescription = "Message",
-                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
-                        )
-                    }
-
-                    IconButton(onClick = {
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, "Boating App")
-                        }
-                        context.startActivity(Intent.createChooser(intent, "Share via"))
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.share_icon),
-                            contentDescription = "Share",
-                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
-                        )
-                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

@@ -213,6 +213,7 @@ fun SponsorScreen(navController: NavController,
                                             .fillMaxWidth()
                                             .clickable {
                                                 AppConstants.sponsorList.add(Sponser(VoyagerUserId = registrationState.data?.obj?.Followed!!.get(prediction).UserId))
+                                                AppConstants.Estimated_Cost = AppConstants.Estimated_Cost!!/AppConstants.sponsorList.size
                                                 Toast.makeText(context, "Sponsor Added" , Toast.LENGTH_SHORT).show()
                                             }
                                             .padding(vertical = 8.dp)
@@ -249,7 +250,7 @@ fun SponsorScreen(navController: NavController,
                 Spacer(Modifier.height(15.dp))
 
                 CustomButton(
-                    text = "Invite to Sponsor",
+                    text = "Add Sponsors",
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {

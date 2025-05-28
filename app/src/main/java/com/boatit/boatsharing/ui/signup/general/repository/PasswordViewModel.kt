@@ -14,27 +14,42 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PasswordViewModel(private val repository: PasswordRepository, private val sharedPrefManager: SharedPrefManager) : ViewModel() {
+class PasswordViewModel(
+    private val repository: PasswordRepository,
+    private val sharedPrefManager: SharedPrefManager
+) : ViewModel() {
 
-    private val _registrationState = MutableStateFlow<NetworkResponse<LoginResponse>>(Loading())
+    private val _registrationState = MutableStateFlow<NetworkResponse<LoginResponse>>(NetworkResponse.Loading())
     val registrationState: StateFlow<NetworkResponse<LoginResponse>> = _registrationState
+
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
+
+    fun onPasswordChange(newPassword: String) {
+        _password.value = newPassword
+    }
 
     fun passwordReg(password: String, token: String) {
         viewModelScope.launch {
-            _registrationState.value = Loading()
+            _registrationState.value = NetworkResponse.Loading()
             val result = repository.passwordRepository(password, token)
-            result.onSuccess { placesResponse ->
-                _registrationState.value = NetworkResponse.Success(placesResponse)
-                saveLoginData(placesResponse.obj)
+            result.onSuccess { response ->
+                _registrationState.value = NetworkResponse.Success(response)
+                saveLoginData(response.obj)
             }.onFailure { error ->
                 _registrationState.value = NetworkResponse.Error(error.message ?: "Registration failed")
             }
         }
     }
 
-    fun saveLoginData(userData: UserData) {
+    private fun saveLoginData(userData: UserData) {
         sharedPrefManager.saveLoginData(userData)
     }
+
+    fun resetState() {
+        _registrationState.value = NetworkResponse.Loading()
+    }
 }
+
 
 

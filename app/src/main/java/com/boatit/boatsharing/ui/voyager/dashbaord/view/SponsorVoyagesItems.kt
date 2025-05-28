@@ -97,8 +97,7 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
             Toast.makeText(context, "Payment Successfull", Toast.LENGTH_LONG).show()
             viewModelP.payment(
                 PaymentConfirmationRequest(
-                notification?.Id!!,
-                "pi_3RJadkIiYO00MT0y1BsUCY5v",
+                notification?.Id!!, PaymentIntentid!!,
                 ""
             )
             )

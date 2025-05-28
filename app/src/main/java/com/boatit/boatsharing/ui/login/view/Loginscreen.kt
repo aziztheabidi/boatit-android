@@ -68,74 +68,55 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun LoginScreen(navController: NavController, viewModel: LoginViewModel = koinViewModel(), viewModelFcm: FCMTokenViewModel = koinViewModel()) {
-
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = koinViewModel(),
+    viewModelFcm: FCMTokenViewModel = koinViewModel()
+) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val emailFocusRequester =  remember { FocusRequester() }
-    val passwordFocusRequester =  remember { FocusRequester() }
+    val emailFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val email = viewModel.email
+    val password = viewModel.password
+    val isFormValid = viewModel.isFormValid
+    val isLoading = viewModel.isLoading
+    val loginState by viewModel.loginState.collectAsState()
 
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    val isEmailValid = email.contains("@") && email.contains(".")
-    val isPasswordValid = password.length >= 6
-
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    var isNetworkError by remember { mutableStateOf(false) }
-
-    val isValidate = email.isNotEmpty() && password.isNotEmpty() && isEmailValid && isPasswordValid
-
-    val handleError = {
-        errorMessage = null
-        isError = false
-    }
-
-    fun performLogin(log: LoginResponse?){
+    fun performLogin(response: LoginResponse?) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val token = task.result
-                viewModelFcm.fcm(AppConstants.USER_ID.toString(),token)
+                viewModelFcm.fcm(AppConstants.USER_ID.toString(), token)
             }
         }
-        if(log?.obj?.Role.equals("Voyager")){
-            navController.navigate(route = "$DASHBOARD_SCREEN/null")
-        }else if(log?.obj?.Role.equals("Captain")){
-            navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
-        }else{
-            navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
+        when (response?.obj?.Role) {
+            "Voyager" -> navController.navigate("$DASHBOARD_SCREEN/null")
+            "Captain" -> navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
+            else -> navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
         }
     }
-    val loginState by viewModel.loginState.collectAsState()
+
     when (loginState) {
         is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
                 Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                performLogin(loginState.data)
-            }
+                performLogin((loginState as NetworkResponse.Success<LoginResponse>).data)
+
         }
         is NetworkResponse.Error -> {
-            isLoading = false
-            isNetworkError = true
-            errorMessage = "Network error, please try again."
-            Toast.makeText(context, (loginState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                val error = (loginState as NetworkResponse.Error).message
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
         }
         else -> {}
     }
 
-    LaunchedEffect(isButtonEnabled) {}
-
     Scaffold(
         topBar = {
-            CustomTopBar(text = stringResource(R.string.login_h1), onImageClick = {
-          println("clicked...")
-        })
+            CustomTopBar(
+                text = stringResource(R.string.login_h1),
+                onImageClick = { println("clicked...") }
+            )
         },
         content = { innerPadding ->
             Column(
@@ -144,41 +125,44 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = koinVi
                         top = innerPadding.calculateTopPadding() + 15.dp,
                         start = 20.dp,
                         end = 20.dp,
-                        bottom = innerPadding.calculateTopPadding()+25.dp,
+                        bottom = innerPadding.calculateTopPadding() + 25.dp,
                     )
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-
                 Spacer(Modifier.height(30.dp))
+
                 Text(
+                    text = stringResource(R.string.email),
                     style = TextStyle(
                         color = Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.email)
+                    )
                 )
 
                 Spacer(Modifier.height(10.dp))
 
-
                 CustomTextField(
                     textValue = email,
                     placeholderText = stringResource(R.string.email_placeholder),
-                    onTextChange = { email = it },
+                    onTextChange = viewModel::onEmailChange,
                     keyboardType = KeyboardType.Email,
                     maxChars = 100,
-                    errorMessage = if (!isEmailValid && email.isNotEmpty()) stringResource(R.string.email_validation_text) else null,
-                    isError = !isEmailValid && email.isNotEmpty(),
-                    onClearError = handleError,
+                    errorMessage = if (!viewModel.isEmailValid && email.isNotEmpty())
+                        stringResource(R.string.email_validation_text)
+                    else null,
+                    isError = !viewModel.isEmailValid && email.isNotEmpty(),
+                    onClearError = { viewModel.errorMessage = null },
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
                         onNext = { passwordFocusRequester.requestFocus() }
                     ),
                     focusRequester = emailFocusRequester
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+
+                Spacer(Modifier.height(20.dp))
+
                 Text(
                     text = stringResource(R.string.password),
                     style = TextStyle(
@@ -187,13 +171,17 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = koinVi
                         color = Color.Black
                     )
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+
+                Spacer(Modifier.height(10.dp))
+
                 PasswordTextField(
                     value = password,
-                    onValueChange = { password = it },
-                    errorMessage = if (!isPasswordValid && password.isNotEmpty()) stringResource(R.string.password_validation_text) else null,
-                    isError = !isPasswordValid && password.isNotEmpty(),
-                    onClearError = handleError,
+                    onValueChange = viewModel::onPasswordChange,
+                    errorMessage = if (!viewModel.isPasswordValid && password.isNotEmpty())
+                        stringResource(R.string.password_validation_text)
+                    else null,
+                    isError = !viewModel.isPasswordValid && password.isNotEmpty(),
+                    onClearError = { viewModel.errorMessage = null },
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(
@@ -202,34 +190,32 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = koinVi
                     focusRequester = passwordFocusRequester
                 )
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(Modifier.height(40.dp))
 
                 CustomButton(
                     text = stringResource(R.string.login),
-                    isValidate = isValidate,
+                    isValidate = isFormValid,
                     isLoading = isLoading,
                     onButtonClick = {
-                        viewModel.login(email, password)
-                        isButtonEnabled = true
-                        isLoading = true
                         focusManager.clearFocus()
+                        viewModel.login()
                     }
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                CustomClickableTextView(
-                    text = stringResource(R.string.forgot_password),
-                    onTextClick = {
-                        println("forgot password")
-                        navController.navigate(NavigationManager.FORGOT_PASSWORD_SCREEN)
-                    }
-                )
-            } }
+                    CustomClickableTextView(
+                        text = stringResource(R.string.forgot_password),
+                        onTextClick = {
+                            navController.navigate(NavigationManager.FORGOT_PASSWORD_SCREEN)
+                        }
+                    )
+                }
+            }
         },
         bottomBar = {
             TermsAndPrivacyView(
@@ -237,9 +223,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = koinVi
             )
         }
     )
-
 }
-
 
 @Preview
 @Composable

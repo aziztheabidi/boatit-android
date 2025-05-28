@@ -198,7 +198,7 @@
     <string name="num_off_voyagers_text">add number of passengers</string>
     <string name="num_off_voyagers_lbl">No. of voyagers</string>
 
-    <string name="find_boat_button_text">Find Boat</string>
+    <string name="find_boat_button_text">Create Voyage</string>
     <string name="title_activity_rotating_wheel_view">RotatingWheelView</string>
     <string name="booking_date">Booking Date:</string>
     <string name="pay_now_text">Pay Now</string>
@@ -217,4 +217,10 @@
     <string name="accept_text">Accept</string>
     <string name="start_text">Start</string>
     <string name="decline_text">decline</string>
+    <string name="voyage_text">Voyages</string>
+    <string name="fb_submit_text">Submit</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="add_to_yoyage">Add to Yoyage</string>
+    <string name="followed">Followed</string>
+    <string name="travel_now">Travel Now</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.chat.view
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -64,22 +65,52 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.colorResource
 import com.boatit.boatsharing.ui.chat.model.VoyagerInfo
+import com.boatit.boatsharing.ui.chat.viewmodel.FollowViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageNotification
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureConfirmVoyagerItems
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureVoyagerItems
 
 
 @Composable
-fun VoyagersListScreen(navController: NavController, viewModel: VoyagersListViewModel = koinViewModel()) {
+fun VoyagersListScreen(navController: NavController,
+                       viewModel: VoyagersListViewModel = koinViewModel(),
+                       viewModelF: FollowViewModel = koinViewModel()
+                       ) {
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val voyagesList by viewModel.loginState.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
+    var isNetworkError by remember { mutableStateOf(false) }
+
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("Followed", "All")
+    var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
+    var notification by remember { mutableStateOf<VoyageNotification?>(null) }
+    val followState by viewModelF.nearbyPlaces.collectAsState()
+    when (followState) {
+        is NetworkResponse.Success -> {
+            if (isLoading) {
+                isLoading = false
+                isNetworkError = false
+                Toast.makeText(context, "Voyager Followed", Toast.LENGTH_SHORT).show()
+                showVoyagerRequest = false
+                AppConstants.Voyage_ID = notification?.Id
+            }
+        }
+        is NetworkResponse.Error -> {
+            if (isLoading) {
+                isLoading = false
+                isNetworkError = false
+                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+        else -> {}
+    }
 
     LaunchedEffect(Unit) {
         viewModel.voyages()
@@ -242,7 +273,9 @@ fun UserItem(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
             }
 
             Button(
-                onClick = {},
+                onClick = {
+
+                },
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .width(90.dp)

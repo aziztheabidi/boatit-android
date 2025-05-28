@@ -1,23 +1,29 @@
 package com.boatit.boatsharing.network.di
 
 import LocationViewModel
+import com.boatit.boatsharing.ui.business.repository.GetBusinessRepo
+import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.ui.captain.availablitystatus.repository.UpdateStatusRepository
 import com.boatit.boatsharing.ui.captain.availablitystatus.viewmodel.UpdateStatusViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.repository.AcceptRequestRepository
 import com.boatit.boatsharing.ui.captain.dashbaord.repository.CancelVoyageRepository
 import com.boatit.boatsharing.ui.captain.dashbaord.repository.CaptainActiveVoyagesRepository
+import com.boatit.boatsharing.ui.captain.dashbaord.repository.CaptainFeedbackRepository
 import com.boatit.boatsharing.ui.captain.dashbaord.repository.CompleteVoyageRepository
 import com.boatit.boatsharing.ui.captain.dashbaord.repository.StartVoyageRepository
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.AcceptRequestViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CancelVoyageViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
+import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainFeedbackViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CompleteVoyageViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.StartVoyageViewModel
 import com.boatit.boatsharing.ui.captain.voyages.repository.CaptainVoyagesRepository
 import com.boatit.boatsharing.ui.captain.voyages.viewmodel.CaptainVoyagesViewModel
 import com.boatit.boatsharing.ui.chat.repository.ChatRepository
+import com.boatit.boatsharing.ui.chat.repository.FollowRepository
 import com.boatit.boatsharing.ui.chat.repository.VoyagersRepository
 import com.boatit.boatsharing.ui.chat.viewmodel.ChatViewModel
+import com.boatit.boatsharing.ui.chat.viewmodel.FollowViewModel
 import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.ui.forgotpassword.repository.ForgotPassRepository
 import com.boatit.boatsharing.ui.forgotpassword.viewmodel.ForgotPassViewModel
@@ -64,6 +70,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.repository.RegistrationViewMo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponcerVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentConfirmationRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentSheetConfigRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.TravelNowRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.VoyagerVoyagesRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.BookVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CalculateFairViewModel
@@ -81,6 +88,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponcerVoyagesViewM
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TrackingLocationViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TravelNowViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerVoyagesViewModel
 import com.boatit.boatsharing.utils.prefmanager.RoleProvider
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
@@ -239,6 +247,18 @@ val Modules = module {
 
     single { CancelBookedVoyageRepository(get()) }
     viewModel { CancelBookedVoyageViewModel(get()) }
+
+    single { CaptainFeedbackRepository(get()) }
+    viewModel { CaptainFeedbackViewModel(get()) }
+
+    single { FollowRepository(get()) }
+    viewModel { FollowViewModel(get()) }
+
+    single { GetBusinessRepo(get()) }
+    viewModel { GetBusinessViewModel(get())}
+
+    single { TravelNowRepo(get()) }
+    viewModel { TravelNowViewModel(get(), get(), get()) }
 
 
 }

@@ -2,7 +2,6 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -22,14 +20,11 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -40,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -54,13 +48,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CalculateFairViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
@@ -68,88 +60,42 @@ import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
+import android.text.format.DateFormat
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun CreateVoyageScreen(navController: NavController,
-   viewModel: CalculateFairViewModel = koinViewModel()) {
-
+fun CreateVoyageScreen(
+    navController: NavController,
+    viewModel: CalculateFairViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val registrationState by viewModel.registrationState.collectAsState()
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val dobFocusRequester = remember { FocusRequester() }
     val paypalFocusRequester = remember { FocusRequester() }
 
-
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var dob by remember { mutableStateOf("") }
-    var paypalEmail by remember { mutableStateOf("") }
-    val showDialog = mutableStateOf(false)
-    val showTimer = mutableStateOf(false)
-    val showEndTimer = mutableStateOf(false)
-    var bookingDate by remember { mutableStateOf("") }
-    var startTime by remember { mutableStateOf("") }
-    var endTime by remember { mutableStateOf("") }
-
-    val isEmailValid = paypalEmail.contains("@") && paypalEmail.contains(".")
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    var getingData by remember { mutableStateOf(true) }
-    var isNetworkError by remember { mutableStateOf(false) }
-
-    var travelNowSwitchState by remember { mutableStateOf(false) }
-    var spendTimeSwitchState by remember { mutableStateOf(false) }
-
-    val isValidate =
-            dob.isNotEmpty()
-            && startTime.isNotEmpty()
-
-    val handleError = {
-        errorMessage = null
-        isError = false
-    }
-
-    val registrationState by viewModel.registrationState.collectAsState()
-
-    fun performLogin(){
-        AppConstants.Event_Time = endTime
-        navController.navigate(NavigationManager.CREATE_VOYAGE_RATE_CALC_SCREEN)
-    }
-
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                performLogin()
-            }
+    // Navigate on successful fare calculation
+    LaunchedEffect(registrationState) {
+        if (registrationState is NetworkResponse.Success && uiState.isLoading) {
+            // After loading is done and success received
+            navController.navigate(NavigationManager.CREATE_VOYAGE_RATE_CALC_SCREEN)
         }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
     }
-
 
     Scaffold(
         topBar = {
-            CustomTopBar(text = "Create Voyage", onImageClick = {
-                println("clicked...")
-            })
-
+            CustomTopBar(text = "Create Voyage", onImageClick = { println("clicked...") })
         },
         content = { innerPadding ->
             Column(
@@ -163,7 +109,6 @@ fun CreateVoyageScreen(navController: NavController,
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-
                 FormStepsViews(
                     numberOfViews = 1,
                     activeColor = colorResource(id = R.color.button_normal),
@@ -171,100 +116,57 @@ fun CreateVoyageScreen(navController: NavController,
                     activeViewsCount = 1
                 )
 
-//                if (showDialog.value) {
-//
-//                    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
-//                        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-//                            return utcTimeMillis <= System.currentTimeMillis()
-//                        }
-//                    })
-//
-//                    Popup(
-//                        onDismissRequest = { showDialog.value = false },
-//                        alignment = Alignment.TopStart
-//                    ) {
-//                        Box(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .offset(y = 64.dp)
-//                                .shadow(elevation = 4.dp)
-//                                .background(MaterialTheme.colorScheme.surface)
-//                                .padding(16.dp)
-//                        ) {
-//                            DatePicker(
-//                                state = datePickerState,
-//                                showModeToggle = false
-//                            )
-//                        }
-//                    }
-//                }
-
-                if (showDialog.value) {
-                    val datePickerState = rememberDatePickerState(
-                        selectableDates = object : SelectableDates {
-                            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                                return utcTimeMillis <= System.currentTimeMillis()
-                            }
-                        }
-                    )
+                if (uiState.showDatePicker) {
+                    val datePickerState = rememberDatePickerState()
+                    val selectedDateMillis = datePickerState.selectedDateMillis
+                    val selectedDate = selectedDateMillis?.let {
+                        val calendar = Calendar.getInstance().apply { timeInMillis = it }
+                        val year = calendar.get(Calendar.YEAR)
+                        val month = calendar.get(Calendar.MONTH) + 1
+                        val day = calendar.get(Calendar.DAY_OF_MONTH)
+                        String.format("%04d-%02d-%02d", year, month, day)
+                    } ?: ""
 
                     DatePickerDialog(
-                        onDismissRequest = { showDialog.value = false },
+                        onDismissRequest = { viewModel.onShowDatePicker(false) },
                         confirmButton = {
                             Button(onClick = {
-                                datePickerState.selectedDateMillis?.let { millis ->
-                                    bookingDate = convertMillisToDate(millis)
-                                    dob = bookingDate
-                                }
-                                showDialog.value = false
-                            }) {
-                                Text("OK")
-                            }
+                                viewModel.onDobChange(selectedDate)
+                                viewModel.onShowDatePicker(false)
+                            }) { Text("OK") }
                         },
                         dismissButton = {
-                            Button(onClick = { showDialog.value = false }) {
-                                Text("Cancel")
-                            }
+                            Button(onClick = { viewModel.onShowDatePicker(false) }) { Text("Cancel") }
                         }
                     ) {
-                        DatePicker(
-                            state = datePickerState,
-                            showModeToggle = false
-                        )
+                        DatePicker(state = datePickerState, showModeToggle = false)
                     }
                 }
 
-
-//                if (showDialog.value) {
-//                    MyDatePickerDialog(
-//                        onDateSelected = {
-//                            bookingDate = it
-//                            dob = bookingDate },
-//                        onDismiss = { showDialog.value = false }
-//                    )
-//                }
-
-                if (showTimer.value) {
+                if (uiState.showStartTimePicker) {
                     MyTimePickerDialog(
                         onDateSelected = {
-                            startTime = it },
-                        onDismiss = { showTimer.value = false }
+                            viewModel.onStartTimeChange(it + ":00")
+                            viewModel.onShowStartTimePicker(false)
+                        },
+                        onDismiss = { viewModel.onShowStartTimePicker(false) }
                     )
                 }
 
-                if (showEndTimer.value) {
+                if (uiState.showEndTimePicker) {
                     MyTimePickerDialog(
                         onDateSelected = {
-                            endTime = it },
-                        onDismiss = { showEndTimer.value = false }
+                            viewModel.onEndTimeChange(it + ":00")
+                            viewModel.onShowEndTimePicker(false)
+                        },
+                        onDismiss = { viewModel.onShowEndTimePicker(false) }
                     )
                 }
 
                 Spacer(Modifier.height(30.dp))
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -276,12 +178,9 @@ fun CreateVoyageScreen(navController: NavController,
                         ),
                         text = "Want to travel now?"
                     )
-
                     Switch(
-                        checked = travelNowSwitchState,
-                        onCheckedChange = {
-                            travelNowSwitchState = it
-                            AppConstants.Travel_Now = travelNowSwitchState},
+                        checked = uiState.travelNowSwitchState,
+                        onCheckedChange = { viewModel.onTravelNowSwitchChange(it) },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = colorResource(id = R.color.button_normal),
@@ -304,19 +203,20 @@ fun CreateVoyageScreen(navController: NavController,
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-
                 Box(
-                    modifier = Modifier.clickable { showDialog.value = true }
+                    modifier = Modifier.clickable {
+                        if (!uiState.travelNowSwitchState) viewModel.onShowDatePicker(true)
+                    }
                 ) {
                     CustomDobField(
-                        textValue = dob,
+                        textValue = uiState.dob,
                         placeholderText = stringResource(R.string.dob_placeholder),
-                        onTextChange = { dob = it },
+                        onTextChange = viewModel::onDobChange,
                         keyboardType = KeyboardType.Text,
                         maxChars = 40,
-                        errorMessage = if (dob.isNotEmpty() && dob.length <= 3) stringResource(R.string.dob_validation_text) else null,
-                        isError = dob.isNotEmpty() && dob.length <= 3,
-                        onClearError = handleError,
+                        errorMessage = if (uiState.dob.isNotEmpty() && uiState.dob.length <= 3) stringResource(R.string.dob_validation_text) else null,
+                        isError = uiState.dob.isNotEmpty() && uiState.dob.length <= 3,
+                        onClearError = viewModel::clearError,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
                         focusRequester = dobFocusRequester,
@@ -326,17 +226,19 @@ fun CreateVoyageScreen(navController: NavController,
                 Spacer(modifier = Modifier.height(15.dp))
 
                 Box(
-                    modifier = Modifier.clickable { showTimer.value = true }
+                    modifier = Modifier.clickable {
+                        if (!uiState.travelNowSwitchState) viewModel.onShowStartTimePicker(true)
+                    }
                 ) {
                     CustomDobField(
-                        textValue = startTime,
+                        textValue = uiState.startTime,
                         placeholderText = "Start Time",
-                        onTextChange = { startTime = it },
+                        onTextChange = viewModel::onStartTimeChange,
                         keyboardType = KeyboardType.Text,
                         maxChars = 40,
-                        errorMessage = if (startTime.isNotEmpty() && startTime.length <= 3) stringResource(R.string.dob_validation_text) else null,
-                        isError = startTime.isNotEmpty() && startTime.length <= 3,
-                        onClearError = handleError,
+                        errorMessage = if (uiState.startTime.isNotEmpty() && uiState.startTime.length <= 3) stringResource(R.string.dob_validation_text) else null,
+                        isError = uiState.startTime.isNotEmpty() && uiState.startTime.length <= 3,
+                        onClearError = viewModel::clearError,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
                         focusRequester = dobFocusRequester,
@@ -346,8 +248,7 @@ fun CreateVoyageScreen(navController: NavController,
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -357,11 +258,11 @@ fun CreateVoyageScreen(navController: NavController,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         ),
-                        text = "Want to spend time on water?"
+                        text = "Spend Time on the voyage"
                     )
                     Switch(
-                        checked = spendTimeSwitchState,
-                        onCheckedChange = { spendTimeSwitchState = it },
+                        checked = uiState.spendTimeSwitchState,
+                        onCheckedChange = viewModel::onSpendTimeSwitchChange,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = colorResource(id = R.color.button_normal),
@@ -370,65 +271,62 @@ fun CreateVoyageScreen(navController: NavController,
                         )
                     )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
 
-                if(spendTimeSwitchState){
-                    Text(
-                        style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal
-                        ),
-                        text = "If you want to stay on water, please select duration by entering an end time"
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
+                if (uiState.spendTimeSwitchState) {
                     Box(
-                        modifier = Modifier.clickable { showEndTimer.value = true }
-
+                        modifier = Modifier.clickable {
+                            viewModel.onShowEndTimePicker(true)
+                        }
                     ) {
                         CustomDobField(
-                            textValue = endTime,
+                            textValue = uiState.endTime,
                             placeholderText = "End Time",
-                            onTextChange = { endTime = it },
+                            onTextChange = viewModel::onEndTimeChange,
                             keyboardType = KeyboardType.Text,
                             maxChars = 40,
-                            errorMessage = null,
-                            isError = false,
-                            onClearError = handleError,
+                            errorMessage = if (uiState.endTime.isNotEmpty() && uiState.endTime.length <= 3) stringResource(R.string.dob_validation_text) else null,
+                            isError = uiState.endTime.isNotEmpty() && uiState.endTime.length <= 3,
+                            onClearError = viewModel::clearError,
                             imeAction = ImeAction.Next,
                             keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
-                            focusRequester = dobFocusRequester,
-
-                            )
+                            focusRequester = paypalFocusRequester,
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                CustomButton(
-                    text = "Proceed",
-                    isValidate = isValidate,
-                    isLoading = isLoading,
-                    onButtonClick = {
-                        if (!spendTimeSwitchState){
-                            endTime = "0"
-                        }
-                        else{
-                            endTime = "5"
-                        }
-                        viewModel.CalculateFairFunc("1", "2", endTime)
-                        isButtonEnabled = true
-                        isLoading = true
+                Button(
+                    onClick = {
                         focusManager.clearFocus()
-                        println("perform network call")
+                        viewModel.calculateFare(fromDockId = "someFromId", toDockId = "someToId")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.button_normal)
+                    ),
+                    enabled = !uiState.isLoading
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp)
+                    } else {
+                        Text(text = "Calculate Fare")
                     }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                uiState.errorMessage?.let { error ->
+                    Text(text = error, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                }
             }
-        },
+        }
     )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -445,22 +343,17 @@ fun MyTimePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
     val formattedTime =
         "%02d:%02d".format(
             timePickerState.hour,
-            timePickerState.minute,
+            timePickerState.minute
         )
 
-
-
     DatePickerDialog(
-
         onDismissRequest = { onDismiss() },
-
 
         confirmButton = {
             Button(onClick = {
                 onDateSelected(formattedTime)
                 onDismiss()
             }
-
             ) {
                 Text(text = "OK")
             }
@@ -479,8 +372,6 @@ fun MyTimePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
         )
     )
     {
-
-
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(20.dp),
@@ -490,8 +381,6 @@ fun MyTimePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
                 state = timePickerState
             )
         }
-
-
     }
 
 

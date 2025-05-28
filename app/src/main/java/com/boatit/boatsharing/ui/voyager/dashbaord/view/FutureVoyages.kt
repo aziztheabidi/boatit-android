@@ -40,9 +40,7 @@ import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageDetails
-import com.boatit.boatsharing.ui.chat.view.InProcessList
-import com.boatit.boatsharing.ui.chat.view.OnGoingCardList
+
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookedVoyageObj
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
@@ -57,7 +55,7 @@ fun FutureVoyages(navController: NavController,
                   viewModel: FutureVoyagesViewModel = koinViewModel()) {
 
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabTitles = listOf("UnConfirmed", "Confirmed")
+    val tabTitles = listOf("UnConfirmed", "Pending")
     val context = LocalContext.current
     val voyagesList by viewModel.loginState.collectAsState()
     val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
@@ -99,7 +97,7 @@ fun FutureVoyages(navController: NavController,
 
     when (ConfirmState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, ConfirmState.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Voyage Confirmed", Toast.LENGTH_SHORT).show()
             viewModel.voyages()
             viewModelConfirm.resetNearbyPlaces()
         }
@@ -174,10 +172,13 @@ fun FutureVoyages(navController: NavController,
                                     .verticalScroll(rememberScrollState())
                                     .padding(innerPadding),
                             ) {
-                                FutureVoyagerItems(
-                                    navController = navController,
-                                    notification = voyages?.UnConfirmed
-                                )
+                                if(!(voyages?.UnConfirmed?.Id.equals(""))){
+                                    FutureVoyagerItems(
+                                        navController = navController,
+                                        notification = voyages?.UnConfirmed
+                                    )
+                                }
+
                             }
                         }
                         1 ->  LazyColumn(

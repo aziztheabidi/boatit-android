@@ -84,7 +84,9 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
     var loading by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(8.dp)
+            .border(1.dp, Color.Blue, RoundedCornerShape(8.dp)),
+
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(Color.White)
     ) {
@@ -93,7 +95,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(
-                    top = 50.dp,
+                    top = 20.dp,
                     start = 16.dp, end = 16.dp, bottom = 16.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -104,6 +106,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
+
+
             ) {
                 Column() {
                     Row(
@@ -120,22 +124,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                             text = "Sunday, 12 April | 10:00 am"
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.pending),
-                                contentDescription = "Status Icon",
-                                modifier = Modifier
-                                    .size(25.dp) // Adjust size as needed
-                                    .padding(end = 5.dp), // Add some space between text and icon
-                                tint = Color.Blue // Change color of the icon
-                            )
-                            Text(
-                                style = TextStyle(
-                                    color = Color(0xFF797979),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.W500
-                                ),
-                                text = "Pending"
-                            )
+
 
                         }
                     }
@@ -207,8 +196,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = "12"
                                         )
@@ -231,7 +220,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             style = TextStyle(
                                                 color = Color.Black,
                                                 fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontWeight = FontWeight.Bold
                                             ),
                                             text = notification?.AmountToPay.toString()
                                         )
@@ -255,8 +244,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = "12 PM"
                                         )
@@ -293,8 +282,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = notification?.PickupDock!!
                                         )
@@ -317,8 +306,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = notification?.DropOffDock!!
                                         )
@@ -342,8 +331,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.W400
                                             ),
                                             text = "No Time Spent"
                                         )
@@ -367,16 +356,16 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                     .height(50.dp)
                     .border(
                         width = 1.dp,
-                        color = colorResource(id = R.color.button_normal), // Border color
+                        color = colorResource(id = R.color.black), // Border color
                         shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
                     ),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
                 Text(
                     text = notification?.OTP.toString(),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colorResource(id = R.color.button_normal) // Text color matches border
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = colorResource(id = R.color.black) // Text color matches border
                 )
             }
 
@@ -391,14 +380,19 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                     .fillMaxWidth()
                     .fillMaxWidth()
                     .height(50.dp)
-                    .padding(horizontal = 1.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
+                    .padding(horizontal = 1.dp)
+                    .border(
+                        width = 1.dp,
+                        color = colorResource(id = R.color.button_normal), // Border color
+                        shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                    ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
                 Text(
-                    text = stringResource(R.string.cancel),
+                    text = "Cancel Voyage",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = colorResource(id = R.color.button_normal), // Border color
                 )
             }
         }

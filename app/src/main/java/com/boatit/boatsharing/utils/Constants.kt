@@ -11,11 +11,16 @@ object AppConstants {
     var sponsorList = arrayListOf<Sponser>()
     var Event_Name: String? = "Event"
     var No_Of_Voyagers: Int? = 3
-    var Per_Hour_Rate: Int? = 100
+    var Per_Hour_Rate: Double? = 100.0
+    var No_of_Hour: Double? = 5.0
     var Estimated_Cost: Double? = 200.0
+    var Total_Cost: Double? = 200.0
     var Event_Time: String?= ""
+    var Event_Time_End: String?= ""
+    var Event_Date: String? = ""
     var Pick_Up_Loc: String? = null
     var Drop_Off_Loc: String? = null
-    var Travel_Now:Boolean? = null
+    var Travel_Now:Boolean? = false
+    var Stay_on_water:Boolean? = false
 
 }

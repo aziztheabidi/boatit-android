@@ -9,8 +9,8 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.PaymentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
 
 class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() {
 
@@ -33,5 +33,6 @@ class PaymentViewModel(private val repository: PaymentRepository) : ViewModel() 
         _loginState.value = NetworkResponse.Loading()
     }
 }
+
 
 

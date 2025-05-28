@@ -116,5 +116,6 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.stripe.android)
     implementation(libs.flexible.bottomsheet.material)
+    implementation(libs.compose.ratingbar)
 
 }

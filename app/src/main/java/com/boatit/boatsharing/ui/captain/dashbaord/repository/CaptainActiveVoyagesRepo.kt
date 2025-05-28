@@ -1,11 +1,11 @@
 package com.boatit.boatsharing.ui.captain.dashbaord.repository
 
+import CaptainActiveVoyagesResponse
 import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityRequest
 import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityResponse
 import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.CaptainActiveVoyagesResponse
 import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartResponse
 import com.boatit.boatsharing.ui.captain.voyages.model.CaptainVoyages
@@ -30,11 +30,7 @@ class CaptainActiveVoyagesRepository(private val httpClient: HttpClient) {
     suspend fun voyages(): Result<CaptainActiveVoyagesResponse> {
         return try {
             val userId = AppConstants.USER_ID
-            val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.GET_CAPTAIN_VOYAGES}") {
-                url {
-                    parameters.append("UserId", userId.toString())
-                }
-            }
+            val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.GET_CAPTAIN_VOYAGES}")
             if (response.status == HttpStatusCode.OK) {
                 val result: CaptainActiveVoyagesResponse = response.body()
                 Result.success(result)

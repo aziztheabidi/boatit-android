@@ -9,6 +9,18 @@ data class ActiveVoyagersResponse(
 )
 
 @Serializable
+data class FollowResponse(
+    val Status: Int,
+    val Message: String,
+    val obj: Int ? = null
+)
+
+@Serializable
+data class FollowRequest(
+    val VoyagerUsrId: String,
+)
+
+@Serializable
 data class VoyagerRelationshipObj(
     val MySelf: VoyagerInfo,
     val Followed: List<VoyagerInfo>,
@@ -24,3 +36,6 @@ data class VoyagerInfo(
     val Address: String,
     val DateOfBirth: String
 )
+
+
+

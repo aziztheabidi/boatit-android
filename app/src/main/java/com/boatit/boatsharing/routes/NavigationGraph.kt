@@ -5,21 +5,28 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.boatit.boatsharing.routes.NavigationManager.CAPTAIN_FEEDBACK_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.VOYAGER_FEEDBACK_SCREEN
+import com.boatit.boatsharing.ui.business.view.BusinessDashboard
+import com.boatit.boatsharing.ui.captain.availablitystatus.CaptainFeedbackScreen
 import com.boatit.boatsharing.ui.captain.availablitystatus.CustomStatusScreen
 import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageBookedScreenVoyager
 import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageStartedScreen
 import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageStartedScreenVoyager
+import com.boatit.boatsharing.ui.captain.availablitystatus.VoyagerFeedbackScreen
 import com.boatit.boatsharing.ui.captain.dashbaord.view.CaptainDashboard
 import com.boatit.boatsharing.ui.captain.voyages.view.CaptainVoyages
+import com.boatit.boatsharing.ui.chat.view.CaptainCurrentVoyages
 import com.boatit.boatsharing.ui.chat.view.ChatScreen
 import com.boatit.boatsharing.ui.chat.view.VoyagersListScreen
 import com.boatit.boatsharing.ui.forgotpassword.view.ForgotPasswordScreen
 import com.boatit.boatsharing.ui.login.view.LoginScreen
+import com.boatit.boatsharing.ui.menu.CaptainMenuOptions
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.DashboardScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.FindDestinationLocationScreen
 import com.boatit.boatsharing.ui.menu.MenuOptions
@@ -49,6 +56,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureVoyages
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.LiveTrackingMapScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponcersList
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponsorScreen
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.TravelNow
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.VoyagerVoyages
 
 
@@ -76,8 +84,10 @@ object NavigationManager {
     const val VOYAGER_CHAT_SCREEN = "VoyagerChatScreen"
     const val CAPTAIN_DASHBOARD_SCREEN = "captaindashboardScreen"
     const val CAPTAIN_OFFLINE_SCREEN = "captainofflineScreen"
+    const val CAPTAIN_FEEDBACK_SCREEN = "captainFeedbackScreen"
     const val FIND_LOCATION_SCREEN = "FindLocationScreen"
     const val MENU_OPTIONS_SCREEN = "MenuOptionsScreen"
+    const val CAPTAIN_MENU_OPTIONS_SCREEN = "CaptainMenuOptionsScreen"
     const val VOYAGE_STARTED_SCREEN = "VoyageStartedScreen"
     const val VOYAGE_PAST_SCREEN = "VoyagePastScreen"
     const val VOYAGE_STARTED_SCREEN_Voyager = "VoyageStartedScreenVoyager"
@@ -90,7 +100,10 @@ object NavigationManager {
     const val VOYAGE_BOOKED_SCREEN = "VoyageBookedScreen"
     const val SPONSOR_LIST_SCREEN = "SponsorListScreen"
     const val FUTURE_VOYAGES_SCREEN = "FutureVoyagesScreen"
-
+    const val CAPTAIN_CURRENT_VOYAGES_SCREEN = "CaptainCurrentVoyages"
+    const val VOYAGER_FEEDBACK_SCREEN = "VoyagerFeedbackScreen"
+    const val BUSINESS_SCREEN = "BusinessScreen"
+    const val TRAVER_NOW_SCREEN = "TravelScreen"
 
 }
 
@@ -101,6 +114,15 @@ fun AppNavGraph(navController: NavHostController ) {
         composable(NavigationManager.SPLASH_SCREEN) {
             SplashComposable(navController)
         }
+
+       composable(NavigationManager.BUSINESS_SCREEN) {
+           BusinessDashboard(navController)
+       }
+
+       composable(NavigationManager.TRAVER_NOW_SCREEN) {
+           TravelNow(navController)
+       }
+
        //  onboarding screens
         composable(NavigationManager.VOYAGER_ONBOARDING_SCREEN) {
             VoyagerOnboarding(navController)
@@ -234,11 +256,20 @@ fun AppNavGraph(navController: NavHostController ) {
                VoyageStartedScreenVoyager(navController)
            }
 
+           composable(NavigationManager.CAPTAIN_CURRENT_VOYAGES_SCREEN) {
+               CaptainCurrentVoyages(navController)
+           }
+
            composable(NavigationManager.CAPTAIN_OFFLINE_SCREEN) {
                CustomStatusScreen(navController)
            }
 
-           //Remove Value
+           composable("$CAPTAIN_FEEDBACK_SCREEN/{value}") { backStackEntry ->
+               val data = backStackEntry.arguments?.getString("value")
+               CaptainFeedbackScreen(navController, data!!)
+           }
+
+
            composable("$DASHBOARD_SCREEN/{value}") { backStackEntry ->
                val data = backStackEntry.arguments?.getString("value")
                DashboardScreen(navController, data)
@@ -263,7 +294,18 @@ fun AppNavGraph(navController: NavHostController ) {
                    MenuOptions(navController)
                }
 
+           composable(NavigationManager.CAPTAIN_MENU_OPTIONS_SCREEN) {
+               CaptainMenuOptions(navController)
+               }
 
+           composable(NavigationManager.CAPTAIN_MENU_OPTIONS_SCREEN) {
+               CaptainMenuOptions(navController)
+               }
+
+           composable("$VOYAGER_FEEDBACK_SCREEN/{value}") { backStackEntry ->
+               val data = backStackEntry.arguments?.getString("value")
+               VoyagerFeedbackScreen(navController, data!!)
+           }
 
     }
 }
