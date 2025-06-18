@@ -46,6 +46,8 @@ import com.boatit.boatsharing.ui.signup.general.view.VerifyUserEmail
 import com.boatit.boatsharing.ui.userroles.SelectRole
 import com.boatit.boatsharing.ui.splash.SplashComposable
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorPayments
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.BusinessDetail
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.BusinessListScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmBooking
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmVoyageScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalc
@@ -102,13 +104,16 @@ object NavigationManager {
     const val FUTURE_VOYAGES_SCREEN = "FutureVoyagesScreen"
     const val CAPTAIN_CURRENT_VOYAGES_SCREEN = "CaptainCurrentVoyages"
     const val VOYAGER_FEEDBACK_SCREEN = "VoyagerFeedbackScreen"
+    const val VOYAGER_BUSINESS_SCREEN = "VoyagerBusinessScreen"
     const val BUSINESS_SCREEN = "BusinessScreen"
+    const val BUSINESS_DETAIL_SCREEN = "BusinessDetailScreen"
     const val TRAVER_NOW_SCREEN = "TravelScreen"
 
 }
 
 @Composable
 fun AppNavGraph(navController: NavHostController ) {
+
        NavHost(navController = navController, startDestination = NavigationManager.SPLASH_SCREEN) {
         // Splash screen
         composable(NavigationManager.SPLASH_SCREEN) {
@@ -117,6 +122,14 @@ fun AppNavGraph(navController: NavHostController ) {
 
        composable(NavigationManager.BUSINESS_SCREEN) {
            BusinessDashboard(navController)
+       }
+
+       composable(NavigationManager.BUSINESS_DETAIL_SCREEN) {
+           BusinessDetail(navController)
+       }
+
+       composable(NavigationManager.VOYAGER_BUSINESS_SCREEN) {
+           BusinessListScreen(navController)
        }
 
        composable(NavigationManager.TRAVER_NOW_SCREEN) {

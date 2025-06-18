@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.network.di
 
 import LocationViewModel
+import com.boatit.boatsharing.ui.business.repository.GetBusinessDocksRepo
 import com.boatit.boatsharing.ui.business.repository.GetBusinessRepo
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.ui.captain.availablitystatus.repository.UpdateStatusRepository
@@ -58,6 +59,8 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.repository.BookVoyageRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.CalculateFairRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.CancelBookedVoyageRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.ConfirmBookedVoyageRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchBusinessRepo
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchCategoryRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchNearByVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FindBoatRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FollowedVoyagerRepository
@@ -76,6 +79,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.BookVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CalculateFairViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FetchBusinessViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FindBoatViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FollowedVoyagerViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FutureVoyagesViewModel
@@ -131,7 +135,8 @@ val Modules = module {
     single { createKtorClient(get()) }
 
     single { FetchNearByVoyagesRepo(get(), androidContext()) }
-    viewModelOf(::NearByVoyagesViewModel)
+    single { FetchCategoryRepo(get(), androidContext()) }
+    viewModel {NearByVoyagesViewModel(get(), get())}
 
     single { SharedPrefManager(androidContext()) }
     single { LoginRepository(get()) }
@@ -254,8 +259,12 @@ val Modules = module {
     single { FollowRepository(get()) }
     viewModel { FollowViewModel(get()) }
 
+    single { FetchBusinessRepo(get()) }
+    viewModel { FetchBusinessViewModel(get()) }
+
     single { GetBusinessRepo(get()) }
-    viewModel { GetBusinessViewModel(get())}
+    single { GetBusinessDocksRepo(get()) }
+    viewModel { GetBusinessViewModel(get(),get())}
 
     single { TravelNowRepo(get()) }
     viewModel { TravelNowViewModel(get(), get(), get()) }

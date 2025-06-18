@@ -88,7 +88,7 @@ fun CaptainStatus(
                     .height(100.dp)
                     .clickable {
                         isLoading = true
-                        viewModelStatus.status(AppConstants.USER_ID.toString(), false)
+                        viewModelStatus.toggleStatus(AppConstants.USER_ID.toString())
                     }
             )
             Spacer(modifier = Modifier.height(8.dp))

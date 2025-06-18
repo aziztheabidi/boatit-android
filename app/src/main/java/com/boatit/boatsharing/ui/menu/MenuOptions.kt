@@ -44,6 +44,7 @@ import kotlin.math.sin
 fun MenuOptions(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
 
     val items = listOf(
+        MenuItem(R.drawable.current_marker, "Business"),
         MenuItem(R.drawable.current_marker, "Sponsors"),
         MenuItem(R.drawable.current_marker, "Profile"),
         MenuItem(R.drawable.current_marker, "Travel Now"),
@@ -162,6 +163,9 @@ fun onItemClick(item: MenuItem, navController: NavController, viewModel: LoginVi
     when (item.label) {
         "Sponsors" -> {
             navController.navigate(NavigationManager.SPONSOR_LIST_SCREEN)
+        }
+        "Business" -> {
+            navController.navigate(NavigationManager.VOYAGER_BUSINESS_SCREEN)
         }
         "Profile" -> {
             navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")

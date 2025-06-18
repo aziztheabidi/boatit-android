@@ -92,6 +92,7 @@ fun VoyagersListScreen(navController: NavController,
     var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
     var notification by remember { mutableStateOf<VoyageNotification?>(null) }
     val followState by viewModelF.nearbyPlaces.collectAsState()
+
     when (followState) {
         is NetworkResponse.Success -> {
             if (isLoading) {

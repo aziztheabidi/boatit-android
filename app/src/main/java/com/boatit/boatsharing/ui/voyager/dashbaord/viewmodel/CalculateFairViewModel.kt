@@ -94,7 +94,6 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
             result.onSuccess { response ->
                 _registrationState.value = NetworkResponse.Success(response)
                 _uiState.update { it.copy(isLoading = false, isButtonEnabled = true) }
-
                 AppConstants.Per_Hour_Rate = response.obj?.PerHourRate ?: 0.0
                 AppConstants.Estimated_Cost = response.obj?.TotalFair ?: 0.0
                 AppConstants.Total_Cost = response.obj?.TotalFair ?: 0.0

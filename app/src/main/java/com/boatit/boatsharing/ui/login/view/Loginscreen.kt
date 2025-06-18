@@ -93,20 +93,22 @@ fun LoginScreen(
         }
         when (response?.obj?.Role) {
             "Voyager" -> navController.navigate("$DASHBOARD_SCREEN/null")
+            "Business" -> navController.navigate(NavigationManager.BUSINESS_SCREEN)
             "Captain" -> navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
             else -> navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
         }
+        viewModel.resetNearbyPlaces()
     }
 
     when (loginState) {
         is NetworkResponse.Success -> {
                 Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
                 performLogin((loginState as NetworkResponse.Success<LoginResponse>).data)
-
         }
         is NetworkResponse.Error -> {
                 val error = (loginState as NetworkResponse.Error).message
                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                viewModel.resetNearbyPlaces()
         }
         else -> {}
     }

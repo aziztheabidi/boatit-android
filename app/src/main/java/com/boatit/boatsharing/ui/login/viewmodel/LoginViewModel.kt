@@ -26,14 +26,11 @@ class LoginViewModel(
     var isError by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
-    val isEmailValid: Boolean
-        get() = email.contains("@") && email.contains(".")
+    val isEmailValid: Boolean get() = email.contains("@") && email.contains(".")
 
-    val isPasswordValid: Boolean
-        get() = password.length >= 6
+    val isPasswordValid: Boolean get() = password.length >= 6
 
-    val isFormValid: Boolean
-        get() = email.isNotEmpty() && password.isNotEmpty() && isEmailValid && isPasswordValid
+    val isFormValid: Boolean get() = email.isNotEmpty() && password.isNotEmpty() && isEmailValid && isPasswordValid
 
     private val _loginState = MutableStateFlow<NetworkResponse<LoginResponse>>(NetworkResponse.Loading())
     val loginState: StateFlow<NetworkResponse<LoginResponse>> = _loginState
@@ -57,7 +54,6 @@ class LoginViewModel(
         viewModelScope.launch {
             isLoading = true
             _loginState.value = NetworkResponse.Loading()
-
             val result = repository.login(email, password)
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
@@ -73,6 +69,10 @@ class LoginViewModel(
 
     private fun saveLoginData(userData: UserData) {
         sharedPrefManager.saveLoginData(userData)
+    }
+
+    fun resetNearbyPlaces() {
+        _loginState.value = NetworkResponse.Loading()
     }
 
     fun getUserData(): UserData? = sharedPrefManager.getUserData()

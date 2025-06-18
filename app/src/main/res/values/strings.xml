@@ -223,4 +223,10 @@
     <string name="add_to_yoyage">Add to Yoyage</string>
     <string name="followed">Followed</string>
     <string name="travel_now">Travel Now</string>
+    <string name="categoy">Categoy</string>
+    <string name="shores">Shores</string>
+    <string name="zones">Zones</string>
+    <string name="island">Island</string>
+    <string name="follow">Follow</string>
+    <string name="add_dock">Add Dock</string>
 </resources>

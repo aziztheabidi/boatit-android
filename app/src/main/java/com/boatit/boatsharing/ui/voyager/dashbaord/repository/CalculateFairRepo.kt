@@ -19,7 +19,9 @@ class CalculateFairRepository(private val httpClient: HttpClient) {
                 url {
                     parameters.append("FromDockId", FromDockId)
                     parameters.append("ToDockId", ToDockId)
+                    parameters.append("VoyageCategoryId", AppConstants.Cat_id.toString())
                     parameters.append("DurationInHours", DurationInHours)
+                    parameters.append("NoOfVoyagers", AppConstants.No_Of_Voyagers.toString())
                 }
             }
             if (response.status == HttpStatusCode.Created) {

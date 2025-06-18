@@ -288,7 +288,8 @@ fun DashboardScreen(navController: NavController, value: String?,
 
     LaunchedEffect(notificationState) {
         viewModel.fetchNearbyPlaces()
-        viewModelCurrent.voyages()
+        viewModel.fetchCategories()
+//        viewModelCurrent.voyages()
     }
 
     Box(modifier = Modifier.fillMaxSize()
@@ -359,7 +360,7 @@ fun DashboardScreen(navController: NavController, value: String?,
             .align(Alignment.BottomCenter)
             .width(130.dp)
             .height(130.dp)
-                , contentAlignment = Alignment.BottomCenter,) {
+            ,contentAlignment = Alignment.BottomCenter) {
 
             Column {
                 Image(
@@ -367,9 +368,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                     contentDescription = "Icon Image",
                     modifier = Modifier
                         .size(width = 120.dp, height = 120.dp)
-                        .clickable {
-                          navController.navigate(NavigationManager.FIND_LOCATION_SCREEN)
-                        }
+                        .clickable { showFindBoat = true }
                 )
                 Spacer(Modifier.height(30.dp))
             }
@@ -427,10 +426,8 @@ fun DashboardScreen(navController: NavController, value: String?,
                 }
                 else{
                     FindBoat(
-                        navController, modifier = Modifier
-                            .fillMaxWidth()
-                            .height(screenHeight * 0.75f),
-                        pickupLocation, dropOffLocation, totalPassengers,
+                        navController, modifier = Modifier.fillMaxWidth().height(screenHeight * 0.75f),
+                        "", "", "",
                         onCancelClick = {
                             showFindBoat = false
                             selectedLocation = null
@@ -438,20 +435,12 @@ fun DashboardScreen(navController: NavController, value: String?,
                             println(totalPassengers)
                         },
                         onFindBoatClick = {
-                            AppConstants.Pick_Up_Loc = pickupLocation
-                            AppConstants.Drop_Off_Loc = dropOffLocation
                             navController.navigate(NavigationManager.CREATE_VOYAGE_SCREEN)
                         }
                     )
                 }
             }
         }
-
-        if (!selectedLocation.isNullOrEmpty()){
-            showFindBoat = true
-            isMenuIconVisible = false
-        }
-
         if (showWaitingResponsePrompt){
             CustomDialog(
                 value = waitingResponsePromptValue,

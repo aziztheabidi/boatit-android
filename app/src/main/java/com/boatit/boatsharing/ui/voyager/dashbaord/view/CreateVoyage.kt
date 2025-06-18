@@ -85,10 +85,8 @@ fun CreateVoyageScreen(
     val dobFocusRequester = remember { FocusRequester() }
     val paypalFocusRequester = remember { FocusRequester() }
 
-    // Navigate on successful fare calculation
     LaunchedEffect(registrationState) {
         if (registrationState is NetworkResponse.Success && uiState.isLoading) {
-            // After loading is done and success received
             navController.navigate(NavigationManager.CREATE_VOYAGE_RATE_CALC_SCREEN)
         }
     }

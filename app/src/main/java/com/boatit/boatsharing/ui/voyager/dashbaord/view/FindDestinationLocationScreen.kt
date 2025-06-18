@@ -82,9 +82,7 @@ fun FindDestinationLocationScreen(navController: NavController, onLocationSelect
     var isDestinationLocationFocused by remember { mutableStateOf(false) }
     var activeTextField by remember { mutableStateOf("pickupLocation") }
 
-    val isDropDownExpanded = remember {
-        mutableStateOf(false)
-    }
+    val isDropDownExpanded = remember { mutableStateOf(false) }
 
     val itemPosition = remember {
         mutableStateOf(0)

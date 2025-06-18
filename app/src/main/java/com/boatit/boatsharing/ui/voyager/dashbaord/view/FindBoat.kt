@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,12 +19,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -48,7 +60,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.getDate
 import com.boatit.boatsharing.utils.AppConstants
@@ -64,11 +76,14 @@ fun FindBoat(navController: NavController,
     val showDialog = mutableStateOf(false)
     var pLocation by remember { mutableStateOf(pickupLocation) }
     var dLocation by remember { mutableStateOf(dropOffLocation) }
+    var category by remember { mutableStateOf("Category") }
     var noOffPassengers by remember { mutableStateOf(totalPassengers) }
-
     var bookingDate by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+    var expandedp by remember { mutableStateOf(false) }
+    var expandedd by remember { mutableStateOf(false) }
 
     val handleError = { errorMessage = null
         isError = false
@@ -76,13 +91,10 @@ fun FindBoat(navController: NavController,
 
     bookingDate = getDate()
 
-
     Box(
-
         modifier = modifier,
         contentAlignment = Alignment.TopCenter
     ) {
-        // Main Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,7 +116,6 @@ fun FindBoat(navController: NavController,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Text label on the left
                 Text(
                     text = "Please confirm your details before booking",
                     style = TextStyle(
@@ -173,7 +184,9 @@ fun FindBoat(navController: NavController,
                     )
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-            ) {
+            )
+
+            {
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -200,6 +213,72 @@ fun FindBoat(navController: NavController,
                 }
 
                 Spacer(Modifier.height(10.dp))
+
+                Text(
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = stringResource(R.string.categoy)
+                )
+
+                Box( modifier = Modifier.clickable { expanded = true }){
+                    CustomDobField(
+                        textValue = category,
+                        placeholderText = stringResource(R.string.categoy),
+                        onTextChange = {},
+                        keyboardType = KeyboardType.Email,
+                        maxChars = 100,
+                        errorMessage = null,
+                        isError = false,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.location_icon),
+                                contentDescription = "Icon",
+                                modifier = Modifier.size(20.dp),
+                                tint = colorResource(R.color.button_normal)
+                            )
+                        }
+
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                            .padding(vertical = 4.dp)
+                    ) {
+                        AppConstants.Cates.forEach { categories ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    expanded = false
+                                    category = categories.Name
+                                    AppConstants.Cat_id = categories.Id
+                                },
+                                text = {
+                                    Text(
+                                        text = categories.Name,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(10.dp))
+
                 Text(
                     style = TextStyle(
                         color = Color.Black,
@@ -211,28 +290,60 @@ fun FindBoat(navController: NavController,
 
                 Spacer(Modifier.height(10.dp))
 
+                Box( modifier = Modifier.clickable { expandedp = true }){
+                    CustomDobField(
+                        textValue = pLocation,
+                        placeholderText = stringResource(R.string.pickup_location_lbl),
+                        onTextChange = { pLocation = it },
+                        keyboardType = KeyboardType.Email,
+                        maxChars = 100,
+                        errorMessage = if (pLocation.isNotEmpty()&& pLocation.length <= 3) stringResource(
+                            R.string.pickup_location_text) else null,
+                        isError = pLocation.isNotEmpty()&& pLocation.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.location_icon),
+                                contentDescription = "Icon",
+                                modifier = Modifier.size(20.dp),
+                                tint = colorResource(R.color.button_normal)
+                            )
+                        }
 
-                CustomTextField(
-                    textValue = pickupLocation,
-                    placeholderText = stringResource(R.string.pickup_location_lbl),
-                    onTextChange = { pLocation = it },
-                    keyboardType = KeyboardType.Email,
-                    maxChars = 100,
-                    errorMessage = if (pickupLocation.isNotEmpty()&& pickupLocation.length <= 3) stringResource(
-                        R.string.pickup_location_text) else null,
-                    isError = pickupLocation.isNotEmpty()&& pickupLocation.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Next,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.location_icon),
-                            contentDescription = "Icon",
-                            modifier = Modifier.size(20.dp),
-                            tint = colorResource(R.color.button_normal)
-                        )
+                    )
+
+                    DropdownMenu(
+                        expanded = expandedp,
+                        onDismissRequest = { expandedp = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                            .padding(vertical = 4.dp)
+                    ) {
+                        AppConstants.PLACES.forEach { category ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    expandedp = false
+                                    pLocation = category.Name
+                                    AppConstants.Pick_Up_Loc = category.Name
+                                },
+                                text = {
+                                    Text(
+                                        text = category.Name,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
+                            )
+                        }
                     }
-
-                )
+                }
 
                 Spacer(Modifier.height(15.dp))
 
@@ -247,27 +358,58 @@ fun FindBoat(navController: NavController,
 
                 Spacer(Modifier.height(10.dp))
 
-                CustomTextField(
-                    textValue = dropOffLocation,
-                    placeholderText = stringResource(R.string.drop_off_location_lbl),
-                    onTextChange = { dLocation = it },
-                    keyboardType = KeyboardType.Email,
-                    maxChars = 100,
-                    errorMessage = if (dropOffLocation.isNotEmpty()&&dropOffLocation.length <= 3) stringResource(R.string.drop_off_location_text) else null,
-                    isError = dropOffLocation.isNotEmpty()&&dropOffLocation.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Next,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.drop_off_loc_icon),
-                            contentDescription = "Icon",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.Unspecified
-                        )
+                Box( modifier = Modifier.clickable { expandedd = true }){
+                    CustomDobField(
+                        textValue = dLocation,
+                        placeholderText = stringResource(R.string.drop_off_location_lbl),
+                        onTextChange = { dLocation = it },
+                        keyboardType = KeyboardType.Email,
+                        maxChars = 100,
+                        errorMessage = if (dLocation.isNotEmpty()&&dLocation.length <= 3) stringResource(R.string.drop_off_location_text) else null,
+                        isError = dLocation.isNotEmpty()&&dLocation.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.drop_off_loc_icon),
+                                contentDescription = "Icon",
+                                modifier = Modifier.size(20.dp),
+                                tint = Color.Unspecified
+                            )
+                        }
+
+                    )
+                    DropdownMenu(
+                        expanded = expandedd,
+                        onDismissRequest = { expandedd = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                            .padding(vertical = 4.dp)
+                    ) {
+                        AppConstants.PLACES.forEach { category ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    expandedd = false
+                                    dLocation = category.Name
+                                    AppConstants.Drop_Off_Loc = category.Name
+                                },
+                                text = {
+                                    Text(
+                                        text = category.Name,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
+                            )
+                        }
                     }
-
-                )
-
+                }
 
                 Spacer(Modifier.height(15.dp))
 

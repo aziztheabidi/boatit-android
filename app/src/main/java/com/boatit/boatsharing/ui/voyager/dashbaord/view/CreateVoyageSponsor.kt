@@ -480,10 +480,11 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                             viewModel.bookVoyageVMfunc(
                                 BookVoyageRequest(
                                     VoyagerUserId = AppConstants.USER_ID!!,
+                                    VoyageCategoryId = AppConstants.Cat_id!!,
                                     PickupDockId = 1,
                                     DropOffDockId= 2,
                                     NoOfVoyagers= AppConstants.No_Of_Voyagers!!,
-                                    IsImmediately= false,
+                                    IsImmediately= AppConstants.Travel_Now!!,
                                     IsSplitPayment = true,
                                     BookingDate = AppConstants.Event_Date.toString(),
                                     StartTime = "10:00:00",
@@ -500,6 +501,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                             viewModelFind.fetchNearbyPlaces(
                                 FindBoatRequest(
                                     VoyagerUserId = AppConstants.USER_ID!!,
+                                    VoyageCategoryId = AppConstants.Cat_id!!,
                                     PickupDockId = 1,
                                     DropOffDockId= 2,
                                     NoOfVoyagers= AppConstants.No_Of_Voyagers!!,
