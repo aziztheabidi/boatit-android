@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.captain.dashbaord.view
 
+import VoyageData
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -42,7 +43,7 @@ import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
-fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, VoyageId: String?, CaptainName: String?, onDeclineClick: () -> Unit, onAcceptClick: (String) -> Unit) {
+fun CaptainVoyageDetails(navController: NavController, notification : VoyageData, VoyageId: String?, CaptainName: String?, onDeclineClick: () -> Unit, onAcceptClick: (String) -> Unit) {
 
     val context = LocalContext.current
     val enteredValues = remember { mutableStateListOf("", "", "","","") }
@@ -50,8 +51,10 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
     val focusRequesters = remember { List(5) { FocusRequester() } }
     val keyboardController = LocalSoftwareKeyboardController.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    var pickupNotes by remember { mutableStateOf("") }
+    var hasNavigated by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier.height(screenHeight * 0.6f),
+        modifier = Modifier.height(screenHeight * 0.75f),
         contentAlignment = Alignment.TopCenter
     ) {
         Card(
@@ -73,6 +76,17 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+
+                Text(
+                    text = """Voyage from ${notification.PickupDock} to ${notification.DropOffDock}""",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
                 Text(
                     text = stringResource(R.string.enter_pin_text),
                     fontSize = 16.sp,
@@ -89,7 +103,8 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(colorResource(R.color.button_normal)),
+                                .border(1.dp, colorResource(R.color.button_normal), RoundedCornerShape(8.dp))
+                                .background(Color.White),
                             contentAlignment = Alignment.Center
                         ) {
                             CustomTextField(
@@ -134,10 +149,9 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Captain Image
                     Image(
-                        painter = painterResource(id = R.drawable.captain_img), // Replace with your drawable
-                        contentDescription = "Captain Image",
+                        painter = painterResource(id = R.drawable.captain_img),
+                        contentDescription = "Dont have in api data Voyager Image",
                         modifier = Modifier
                             .size(56.dp)
                             .clip(CircleShape)
@@ -148,7 +162,7 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = CaptainName!!,
+                                text = notification.VoyagerName ,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -162,20 +176,53 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
                         }
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "4.9", fontWeight = FontWeight.Bold)
-                            repeat(5) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.location_icon_two), // Anchor rating icon
-                                    contentDescription = "Rating",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
-                            Text(text = " | Rating", color = Color.Gray, fontSize = 12.sp)
+                            Text(text = "$" + notification.AmountToPay, color = Color.Gray, fontSize = 12.sp)
                         }
+
+
                     }
 
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = pickupNotes,
+                    onValueChange = {
+                        pickupNotes = it
+
+                        if (!hasNavigated && it.isNotBlank()) {
+                            hasNavigated = true
+                            navController.navigate(route = "$CHAT_SCREEN/${VoyageId}/${AppConstants.USER_ID}/${notification.VoyagerName}/${CaptainName}")
+
+                        }
+                    },
+                    placeholder = {
+                        Text(
+                            "Any pickup notes?",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = colorResource(R.color.button_normal),
+                        unfocusedBorderColor = colorResource(R.color.button_normal),
+                        unfocusedTextColor = Color.Gray,
+                        errorLabelColor = Color.Red
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    maxLines = 3,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { keyboardController?.hide() }
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp)
+                        .background(Color.White)
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -186,42 +233,42 @@ fun CaptainVoyageDetails(navController: NavController, VoyagerName: String?, Voy
                         .padding(horizontal = 0.dp, vertical = 0.dp) // Padding for the row
                 ) {
 
-                    IconButton(onClick = {
-                            val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:1228388383")
-                        }
-                        context.startActivity(intent) }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.call_icon),
-                            contentDescription = "Call",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(50.dp)
-                        )
-                    }
+//                    IconButton(onClick = {
+//                            val intent = Intent(Intent.ACTION_DIAL).apply {
+//                            data = Uri.parse("tel:1228388383")
+//                        }
+//                        context.startActivity(intent) }) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.call_icon),
+//                            contentDescription = "Call",
+//                            tint = Color.Unspecified,
+//                            modifier = Modifier.size(50.dp)
+//                        )
+//                    }
 
-                    IconButton(onClick = {
-                        navController.navigate(route = "$CHAT_SCREEN/${VoyageId}/${AppConstants.USER_ID}/${VoyagerName}/${CaptainName}")
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message_icon),
-                            contentDescription = "Message",
-                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
-                        )
-                    }
-
-                    IconButton(onClick = {
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, "Boating App")
-                        }
-                        context.startActivity(Intent.createChooser(intent, "Share via"))
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.share_icon),
-                            contentDescription = "Share",
-                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
-                        )
-                    }
+//                    IconButton(onClick = {
+//                        navController.navigate(route = "$CHAT_SCREEN/${VoyageId}/${AppConstants.USER_ID}/${VoyagerName}/${CaptainName}")
+//                    }) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.message_icon),
+//                            contentDescription = "Message",
+//                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
+//                        )
+//                    }
+//
+//                    IconButton(onClick = {
+//                        val intent = Intent(Intent.ACTION_SEND).apply {
+//                            type = "text/plain"
+//                            putExtra(Intent.EXTRA_TEXT, "Boating App")
+//                        }
+//                        context.startActivity(Intent.createChooser(intent, "Share via"))
+//                    }) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.share_icon),
+//                            contentDescription = "Share",
+//                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
+//                        )
+//                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

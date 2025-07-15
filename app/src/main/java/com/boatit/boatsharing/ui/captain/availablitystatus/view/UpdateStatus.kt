@@ -56,14 +56,12 @@ fun CustomStatusScreen(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val context = LocalContext.current
 
-    // Collect one-time toast messages
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Collect navigation event
     LaunchedEffect(Unit) {
         viewModel.navigateToDashboard.collect {
             navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)

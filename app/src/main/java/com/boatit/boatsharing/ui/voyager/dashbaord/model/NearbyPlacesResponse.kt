@@ -33,6 +33,7 @@ data class Place(
 @Serializable
 data class FindBoatRequest(
     val VoyagerUserId: String,
+    val Name: String,
     val VoyageCategoryId: Int,
     val PickupDockId: Int,
     val DropOffDockId: Int,

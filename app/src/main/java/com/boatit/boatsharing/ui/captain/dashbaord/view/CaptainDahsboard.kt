@@ -84,12 +84,6 @@ fun CaptainDashboard(navController: NavController ,
 
     val defaultLatLng = LatLng(40.792240, -73.138260)
     var currentLatLng by remember { mutableStateOf(defaultLatLng) }
-    val seaRoute = listOf(
-        LatLng(40.65209, -73.13763), // Start
-        LatLng(40.70000, -73.10000), // Waypoint 1 (ocean path)
-        LatLng(40.73000, -73.05000), // Waypoint 2 (ocean path)
-        LatLng(40.75808, -73.01926)  // End
-    )
 
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
@@ -135,12 +129,6 @@ fun CaptainDashboard(navController: NavController ,
     LaunchedEffect(notificationState) {
         if (notificationState != null) {
             if(notificationState!!.Name != null){
-                val boundsBuilder = LatLngBounds.Builder()
-                seaRoute.forEach { boundsBuilder.include(it) }
-                val bounds = boundsBuilder.build()
-                cameraPositionState.move(
-                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-                )
                 notification = notificationState
                 showVoyagerRequest = true
             }
@@ -154,7 +142,11 @@ fun CaptainDashboard(navController: NavController ,
             markerState.position = userLatLng
             cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLatLng, 17f))
         },
-        onPermissionDenied = {}
+        onPermissionDenied = {},
+        content = {
+            // Composable to show once permission is granted
+            Text("Permission Granted")
+        }
     )
 
     Box(

@@ -12,12 +12,18 @@ data class ActiveVoyagersResponse(
 data class FollowResponse(
     val Status: Int,
     val Message: String,
-    val obj: Int ? = null
+    val obj: String ? = null
 )
 
 @Serializable
 data class FollowRequest(
-    val VoyagerUsrId: String,
+    val VoyagerUserId: String,
+)
+
+@Serializable
+data class ComplainRequest(
+    val VoyageId: String,
+    val Description: String,
 )
 
 @Serializable

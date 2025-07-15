@@ -5,14 +5,17 @@ import VoyageData
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
@@ -111,32 +115,57 @@ fun CaptainCurrentVoyages(navController: NavController,
         containerColor = Color.White,
         content = {  innerPadding ->  Column(modifier = Modifier.fillMaxSize()
             .padding(
-                top = innerPadding.calculateTopPadding()+20.dp,
+                top = innerPadding.calculateTopPadding()+20.dp, start = 5.dp, end = 5.dp, bottom = 5.dp
+
             )) {
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                contentColor = Color.White,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = Color.White // Make indicator transparent
+            Box(
+                modifier = Modifier
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(
+                        width = 0.5.dp,
+                        color = colorResource(R.color.button_normal),
+                        shape = RoundedCornerShape(10.dp)
                     )
-                }
             ) {
-                tabTitles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.White)
+                ) {
+                    tabTitles.forEachIndexed { index, title ->
+                        val isSelected = selectedTabIndex == index
+
+                        val shape = if (isSelected) {
+                            RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                        } else {
+                            RoundedCornerShape(0.dp)
+                        }
+                        val offsetModifier = if (isSelected) Modifier.offset(x = 0.dp, y = (-1).dp) else Modifier
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .then(offsetModifier)
+                                .clip(shape)
+                                .background(
+                                    if (isSelected) colorResource(R.color.button_normal) else Color.White
+                                )
+                                .clickable { selectedTabIndex = index },
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text(
                                 text = title,
-                                color = if (selectedTabIndex == index) Color.White else colorResource(R.color.button_normal)
+                                color = if (isSelected) Color.White else colorResource(R.color.button_normal),
+                                fontWeight = FontWeight.Medium
                             )
-                        },
-                        modifier = Modifier.background(if (selectedTabIndex == index) colorResource(R.color.button_normal)else Color.White)
-                    )
+                        }
+                    }
                 }
             }
+
             when (selectedTabIndex) {
                 0 -> Tab1Content(pending)
                 1 -> Column(modifier = Modifier
@@ -177,15 +206,12 @@ fun PendingCardList(notification : List<VoyageData>) {
 
 
 @Composable
-fun PendingCard(notification : VoyageData?,
-                viewModelR: AcceptRequestViewModel = koinViewModel()) {
+fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel = koinViewModel()) {
 
     val defaultLatLng = LatLng(40.792240, -73.138260)
     val context = LocalContext.current
     val requestState by viewModelR.loginState.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
-
-
 
     when (requestState) {
         is NetworkResponse.Success -> {
@@ -230,8 +256,8 @@ fun PendingCard(notification : VoyageData?,
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(
-                    top = 50.dp,
-                    start = 16.dp, end = 16.dp, bottom = 16.dp
+                    top = 15.dp,
+                    start = 15.dp, end = 15.dp, bottom = 15.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -243,6 +269,8 @@ fun PendingCard(notification : VoyageData?,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column() {
+                    Spacer(Modifier.height(5.dp))
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -256,25 +284,6 @@ fun PendingCard(notification : VoyageData?,
                             ),
                             text = notification?.BookingDateTime!!
                         )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.pending),
-                                contentDescription = "Status Icon",
-                                modifier = Modifier
-                                    .size(25.dp) // Adjust size as needed
-                                    .padding(end = 5.dp), // Add some space between text and icon
-                                tint = Color.Blue // Change color of the icon
-                            )
-                            Text(
-                                style = TextStyle(
-                                    color = Color(0xFF797979),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.W500
-                                ),
-                                text = "Pending"
-                            )
-
-                        }
                     }
 
                     Spacer(Modifier.height(7.dp))
@@ -285,7 +294,7 @@ fun PendingCard(notification : VoyageData?,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "Event Conference"
+                        text = notification?.Name!!
                     )
                     Spacer(Modifier.height(7.dp))
                     Text(
@@ -294,7 +303,7 @@ fun PendingCard(notification : VoyageData?,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "2025"
+                        text = notification.BookingDateTime.split(",").get(0)
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -303,9 +312,9 @@ fun PendingCard(notification : VoyageData?,
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W500
+
                         ),
-                        text = "Voyagees details"
+                        text = "Voyagees Details"
                     )
                     Spacer(Modifier.height(10.dp))
 
@@ -322,13 +331,13 @@ fun PendingCard(notification : VoyageData?,
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(158.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -340,13 +349,13 @@ fun PendingCard(notification : VoyageData?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
+
                                             ),
                                             text = notification?.NoOfVoyager!!.toString()
                                         )
@@ -363,13 +372,13 @@ fun PendingCard(notification : VoyageData?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
                                                 fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontWeight = FontWeight.Bold
                                             ),
                                             text = notification?.AmountToPay.toString()
                                         )
@@ -388,13 +397,12 @@ fun PendingCard(notification : VoyageData?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
                                             text = notification?.Duration!!.toString()
                                         )
@@ -408,13 +416,13 @@ fun PendingCard(notification : VoyageData?,
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(175.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -426,13 +434,12 @@ fun PendingCard(notification : VoyageData?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
                                             text = notification?.PickupDock!!
                                         )
@@ -449,14 +456,14 @@ fun PendingCard(notification : VoyageData?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Red
+                                            tint = Color.Unspecified
 
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
+
                                             ),
                                             text = notification?.DropOffDock!!
                                         )
@@ -475,13 +482,13 @@ fun PendingCard(notification : VoyageData?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
+
                                             ),
                                             text = notification?.WaterStay!!
                                         )
@@ -499,10 +506,6 @@ fun PendingCard(notification : VoyageData?,
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-
-
-            Spacer(Modifier.height(5.dp))
 
 
 

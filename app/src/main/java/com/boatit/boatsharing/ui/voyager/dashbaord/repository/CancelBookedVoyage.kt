@@ -32,7 +32,7 @@ class CancelBookedVoyageRepository(
                 Result.failure(Exception(placesResponse.Message))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Error fetching places: ${e.localizedMessage}", e))
+            Result.failure(Exception("${e.localizedMessage}", e))
         }
     }
 }

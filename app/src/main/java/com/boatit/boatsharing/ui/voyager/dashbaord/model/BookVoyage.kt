@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BookVoyageRequest(
     val VoyagerUserId: String,
+    val Name: String,
     val VoyageCategoryId: Int,
     val PickupDockId: Int,
     val DropOffDockId: Int,
@@ -25,7 +26,10 @@ data class BookVoyageRequest(
 
 @Serializable
 data class Sponser(
-    val VoyagerUserId: String
+    val VoyagerUserId: String,
+    val VoyagerUserName: String,
+    val AmountToPay: Double,
+    val Status: String
 )
 
 @Serializable

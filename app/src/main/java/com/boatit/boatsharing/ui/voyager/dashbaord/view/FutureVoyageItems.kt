@@ -20,11 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,13 +37,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -63,6 +61,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageV
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
+import com.boatit.boatsharing.uihelpers.MissingPaymentDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
@@ -93,12 +92,14 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
     var id by remember { mutableStateOf<String?>(null) }
     var PaymentIntentid by remember { mutableStateOf<String?>(null) }
     var ephemeralKeySecret by remember { mutableStateOf<String?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+
 
     val stripeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ){  result: ActivityResult ->
         if(result.resultCode == RESULT_OK) {
-            Toast.makeText(context, "Payment Successfull", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Payment Done Please Confirm Your Voyage", Toast.LENGTH_LONG).show()
             viewModelP.payment(
                 PaymentConfirmationRequest(
                     notification?.Id!!,
@@ -139,8 +140,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
         is NetworkResponse.Error -> {
             if(ConfirmState.message.equals("An error occurred: Please Pay Completely first then you can confirm your voyage"))
             {
-                viewModelStripe.paymentConfig(SponsorVoyagePaymentRequest(notification?.Id!!,
-                    AppConstants.USER_ID.toString(),""))
+                showDialog = true
             }
             else{
                 Toast.makeText(context, ConfirmState.message, Toast.LENGTH_SHORT).show()
@@ -151,39 +151,45 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
     }
 
     when (paymentState) {
-        is NetworkResponse.Success -> {
-            Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
-        }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
-
-        }
+        is NetworkResponse.Success -> {}
+        is NetworkResponse.Error -> {}
         else -> {}
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(8.dp)
-            ,
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(Color.White)
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(top = 15.dp,
-                    start = 12.dp, end = 12.dp, bottom = 16.dp),
+                .padding(top = 5.dp,
+                    start = 5.dp, end = 5.dp, bottom = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Boat Info Card
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                buildAnnotatedString {
+                    append("Hey ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(AppConstants.USER_NAME)
+                    }
+                    append(" you are invited to sponsor the Voyage starting.Please pay now to confirm the Voyage.")
+                },
+                color = Color.Black,
+                fontSize = 12.sp
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(4.dp),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().
-                border(1.dp, Color.Blue, RoundedCornerShape(8.dp))
+                border(0.5.dp,  colorResource(id = R.color.button_normal), RoundedCornerShape(8.dp))
             ) {
                 Column(
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier.padding(15.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -196,7 +202,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Normal
                             ),
-                            text = "Sunday, 12 April | 10:00 am"
+                            text = notification?.BookingDateTime.toString()
                         )
 
                     }
@@ -209,7 +215,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "Event Conference"
+                        text = notification?.Name!!
                     )
                     Spacer(Modifier.height(7.dp))
                     Text(
@@ -218,7 +224,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "2025"
+                        text = notification.BookingDateTime
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -227,7 +233,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W500
+
                         ),
                         text = "Voyagees details"
                     )
@@ -245,13 +251,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(135.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -263,15 +269,16 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
+
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+                                                fontSize = 12.sp,
+
                                             ),
-                                            text = "12"
+                                            text = notification?.NoOfVoyagers.toString()
                                         )
                                     }
 
@@ -286,13 +293,14 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
                                                 fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontWeight = FontWeight.Bold
+
                                             ),
                                             text = notification?.AmountToPay.toString()
                                         )
@@ -311,15 +319,15 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+                                                fontSize = 12.sp,
+
                                             ),
-                                            text = "12 PM"
+                                            text = notification?.Duration.toString()
                                         )
                                     }
                                 }
@@ -331,13 +339,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(175.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -349,13 +357,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+                                                fontSize = 12.sp,
+
                                             ),
                                             text = notification?.PickupDock!!
                                         )
@@ -372,14 +380,14 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Red
+                                            tint = Color.Unspecified
 
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+                                                fontSize = 12.sp,
+
                                             ),
                                             text = notification?.DropOffDock!!
                                         )
@@ -398,13 +406,13 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
                                                 fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+
                                             ),
                                             text = notification?.PickupDock!!
                                         )
@@ -422,139 +430,34 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
 
 
 
-            Text(
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W500
-                ),
-                text = "Sponsors"
-            )
+            Spacer(Modifier.height(10.dp))
 
-            Spacer(Modifier.height(5.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(165.dp) // Set a fixed height for the inner Card
-                    .background(color = Color.White)
-                    .padding(5.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // Add elevation
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Person Icon",
-                            modifier = Modifier
-                                .size(25.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-                                .background(Color.Gray) // Optional: Add background color to the circle
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            text = "Myself"
-                        )
-                        Spacer(Modifier.width(170.dp))
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Person Icon",
-                            tint = Color.Green,
-                            modifier = Modifier
-                                .size(22.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(15.dp)) // Space between rows
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Phone Icon",
-                            modifier = Modifier
-                                .size(25.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-                                .background(Color.Gray) // Optional: Add background color to the circle
-                        )
-                        Spacer(Modifier.width(5.dp))
-
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            text = "Chadwick"
-                        )
-                        Spacer(Modifier.width(150.dp))
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Person Icon",
-                            tint = Color.Gray,
-                            modifier = Modifier
-                                .size(22.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(15.dp)) // Space between rows
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Email Icon",
-                            modifier = Modifier
-                                .size(25.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-                                .background(Color.Gray) // Optional: Add background color to the circle
-                        )
-                        Spacer(Modifier.width(5.dp))
-
-
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            text = "Anderson"
-                        )
-                        Spacer(Modifier.width(150.dp))
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Person Icon",
-                            tint = Color.Gray,
-                            modifier = Modifier
-                                .size(22.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-
-                        )
-                    }
-                }
-            }
+            SponsorsList(notification?.Sponsers!!)
 
             Spacer(Modifier.height(10.dp))
 
-            // Action Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 12.sp,
+
+                        ),
+                    text = "To Confirm the Voyage, please"
+                )
+            }
+            Spacer(Modifier.height(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = { viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
+                    onClick = {
+
+                          viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
                               loading = true
                               },
                     shape = RoundedCornerShape(10.dp), // Corner radius
@@ -597,6 +500,24 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                     )
                 }
             }
+
+
+            if (showDialog) {
+                val sponsorNames = remember(notification) {
+                    notification.Sponsers.joinToString(", ") { it.VoyagerUserName }
+                }
+                MissingPaymentDialog(
+                    name =sponsorNames,
+                    onCancel = { showDialog = false },
+                    onPayNow = {
+                        showDialog = false
+                        viewModelStripe.paymentConfig(SponsorVoyagePaymentRequest(notification?.Id!!,
+                            AppConstants.USER_ID.toString(),""))
+                    },
+                    onDismissRequest = { showDialog = false }
+                )
+            }
+
         }
     }
 

@@ -125,8 +125,8 @@ fun AcceptedRequestTab(
                         .fillMaxSize()
                         .background(Color.White)
                         .padding(
-                            top = 50.dp,
-                            start = 16.dp, end = 16.dp, bottom = 16.dp
+                            top = 15.dp,
+                            start = 15.dp, end = 15.dp, bottom = 15.dp
                         ),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -137,6 +137,8 @@ fun AcceptedRequestTab(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column() {
+                            Spacer(Modifier.height(5.dp))
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -150,25 +152,7 @@ fun AcceptedRequestTab(
                                     ),
                                     text = notification.get(voyage).BookingDateTime
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.pending),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(25.dp) // Adjust size as needed
-                                            .padding(end = 5.dp), // Add some space between text and icon
-                                        tint = Color.Blue // Change color of the icon
-                                    )
-                                    Text(
-                                        style = TextStyle(
-                                            color = Color(0xFF797979),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.W500
-                                        ),
-                                        text = "Pending"
-                                    )
 
-                                }
                             }
 
                             Spacer(Modifier.height(7.dp))
@@ -179,7 +163,7 @@ fun AcceptedRequestTab(
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.W500
                                 ),
-                                text = "Event Conference"
+                                text = notification.get(voyage).Name
                             )
                             Spacer(Modifier.height(7.dp))
                             Text(
@@ -188,7 +172,7 @@ fun AcceptedRequestTab(
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.W500
                                 ),
-                                text = "2025"
+                                text = notification.get(voyage).BookingDateTime.split(",").get(0)
                             )
 
                             Spacer(Modifier.height(10.dp))
@@ -197,9 +181,9 @@ fun AcceptedRequestTab(
                                 style = TextStyle(
                                     color = Color.Black,
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.W500
+
                                 ),
-                                text = "Voyagees details"
+                                text = "Voyagees Details"
                             )
                             Spacer(Modifier.height(10.dp))
 
@@ -215,13 +199,13 @@ fun AcceptedRequestTab(
                                         modifier = Modifier
                                             .padding(5.dp)
                                             .height(205.dp)
-                                            .width(158.dp),
+                                            .weight(1f),
                                         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                         colors = CardDefaults.cardColors(containerColor = Color.White)
                                     ) {
                                         Column(
                                             modifier = Modifier
-                                                .padding(16.dp)
+                                                .padding(10.dp)
                                                 .fillMaxSize(),
                                             verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                         ) {
@@ -233,13 +217,13 @@ fun AcceptedRequestTab(
                                                     modifier = Modifier
                                                         .size(30.dp)
                                                         .padding(end = 10.dp),
-                                                    tint = Color.Blue
+                                                    tint = Color.Unspecified
                                                 )
                                                 Text(
                                                     style = TextStyle(
                                                         color = Color.Black,
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.W500
+                                                        fontSize = 12.sp,
+
                                                     ),
                                                     text = notification.get(voyage).NoOfVoyager.toString()
                                                 )
@@ -256,13 +240,14 @@ fun AcceptedRequestTab(
                                                     modifier = Modifier
                                                         .size(30.dp)
                                                         .padding(end = 10.dp),
-                                                    tint = Color.Blue
+                                                    tint = Color.Unspecified
                                                 )
                                                 Text(
                                                     style = TextStyle(
                                                         color = Color.Black,
                                                         fontSize = 16.sp,
-                                                        fontWeight = FontWeight.W500
+                                                        fontWeight = FontWeight.Bold
+
                                                     ),
                                                     text = notification.get(voyage).AmountToPay.toString()
                                                 )
@@ -281,13 +266,12 @@ fun AcceptedRequestTab(
                                                     modifier = Modifier
                                                         .size(30.dp)
                                                         .padding(end = 10.dp),
-                                                    tint = Color.Blue
+                                                    tint = Color.Unspecified
                                                 )
                                                 Text(
                                                     style = TextStyle(
                                                         color = Color.Black,
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.W500
+                                                        fontSize = 12.sp,
                                                     ),
                                                     text = notification.get(voyage).Duration!!
                                                 )
@@ -301,13 +285,13 @@ fun AcceptedRequestTab(
                                         modifier = Modifier
                                             .padding(5.dp)
                                             .height(205.dp)
-                                            .width(175.dp),
+                                            .weight(1f),
                                         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                         colors = CardDefaults.cardColors(containerColor = Color.White)
                                     ) {
                                         Column(
                                             modifier = Modifier
-                                                .padding(16.dp)
+                                                .padding(10.dp)
                                                 .fillMaxSize(),
                                             verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                         ) {
@@ -319,13 +303,13 @@ fun AcceptedRequestTab(
                                                     modifier = Modifier
                                                         .size(30.dp)
                                                         .padding(end = 10.dp),
-                                                    tint = Color.Blue
+                                                    tint = Color.Unspecified
                                                 )
                                                 Text(
                                                     style = TextStyle(
                                                         color = Color.Black,
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.W500
+                                                        fontSize = 12.sp,
+
                                                     ),
                                                     text = notification.get(voyage).PickupDock
                                                 )
@@ -342,14 +326,14 @@ fun AcceptedRequestTab(
                                                     modifier = Modifier
                                                         .size(30.dp)
                                                         .padding(end = 10.dp),
-                                                    tint = Color.Red
+                                                    tint = Color.Unspecified
 
                                                 )
                                                 Text(
                                                     style = TextStyle(
                                                         color = Color.Black,
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.W500
+                                                        fontSize = 12.sp,
+
                                                     ),
                                                     text = notification.get(voyage).DropOffDock!!
                                                 )
@@ -368,13 +352,13 @@ fun AcceptedRequestTab(
                                                     modifier = Modifier
                                                         .size(30.dp)
                                                         .padding(end = 10.dp),
-                                                    tint = Color.Blue
+                                                    tint = Color.Unspecified
                                                 )
                                                 Text(
                                                     style = TextStyle(
                                                         color = Color.Black,
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.W500
+                                                        fontSize = 12.sp,
+
                                                     ),
                                                     text = notification.get(voyage).WaterStay
                                                 )
@@ -445,14 +429,14 @@ fun AcceptedRequestTab(
                     detectVerticalDragGestures { _, dragAmount ->
                         if (dragAmount > 20) {
                             coroutineScope.launch {
-                                sheetState.partialExpand() // Lock to partially expanded
+                                sheetState.partialExpand()
                             }
                         }
                     }
                 }
         ) {
             CaptainVoyageDetails(
-                navController, notification.get(voyageid).VoyagerName,
+                navController, notification.get(voyageid),
                 notification.get(voyageid).Id,
                 notification.get(voyageid).VoyagerName,
                 onDeclineClick = {

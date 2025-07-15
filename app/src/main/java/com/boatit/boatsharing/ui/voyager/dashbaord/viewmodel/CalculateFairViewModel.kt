@@ -1,10 +1,9 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 
+import android.text.format.DateFormat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainProfileResponse
-import com.boatit.boatsharing.ui.signup.captain.repository.GetCaptainProfileRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.CalculateFair
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.CalculateFairRepository
 import com.boatit.boatsharing.utils.AppConstants
@@ -12,10 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.text.format.DateFormat
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalTime
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 data class CreateVoyageUiState(
     val dob: String = "",
@@ -40,11 +41,28 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
     private val _registrationState = MutableStateFlow<NetworkResponse<CalculateFair>>(NetworkResponse.Loading())
     val registrationState: StateFlow<NetworkResponse<CalculateFair>> = _registrationState
 
+    init {
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val currentTime = DateFormat.format("hh:mm:ss", Date(System.currentTimeMillis())).toString()
+
+        AppConstants.Event_Time = currentTime
+        AppConstants.Event_Date = currentDate
+
+        _uiState.update {
+            it.copy(
+                dob = currentDate,
+                startTime = currentTime
+            )
+        }
+    }
+
     fun onDobChange(newDob: String) {
+        AppConstants.Event_Date = newDob
         _uiState.update { it.copy(dob = newDob) }
     }
 
     fun onStartTimeChange(newStartTime: String) {
+        AppConstants.Event_Time = newStartTime
         _uiState.update { it.copy(startTime = newStartTime) }
     }
 
@@ -63,6 +81,10 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
                 startTime = if (isChecked) currentTime else it.startTime
             )
         }
+    }
+
+    fun resetNearbyPlaces() {
+        _registrationState.value = NetworkResponse.Loading()
     }
 
     fun onSpendTimeSwitchChange(isChecked: Boolean) {
@@ -85,12 +107,22 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
         _uiState.update { it.copy(errorMessage = null, isNetworkError = false) }
     }
 
-    fun calculateFare(fromDockId: String, toDockId: String) {
+    fun calculateFare() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, isNetworkError = false, errorMessage = null) }
-            val duration = if (_uiState.value.spendTimeSwitchState) _uiState.value.endTime else "0"
-
-            val result = repository.CalculateFairRepoFunc(fromDockId, toDockId, duration)
+            val duration = if (_uiState.value.spendTimeSwitchState) {
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val start = timeFormat.parse(_uiState.value.startTime)
+                val end = timeFormat.parse(_uiState.value.endTime)
+                val durationMillis = end.time - start.time
+                val durationInMinutes = TimeUnit.MILLISECONDS.toMinutes(durationMillis)
+                AppConstants.No_of_Hour = durationInMinutes.toDouble() / 60f
+                (durationInMinutes.toFloat() / 60f).toString()
+            }else {
+                AppConstants.No_of_Hour = 0.0
+                "0"
+            }
+            val result = repository.CalculateFairRepoFunc(duration)
             result.onSuccess { response ->
                 _registrationState.value = NetworkResponse.Success(response)
                 _uiState.update { it.copy(isLoading = false, isButtonEnabled = true) }

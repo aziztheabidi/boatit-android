@@ -119,4 +119,6 @@ dependencies {
     implementation(libs.flexible.bottomsheet.material)
     implementation(libs.compose.ratingbar)
 
+
+
 }

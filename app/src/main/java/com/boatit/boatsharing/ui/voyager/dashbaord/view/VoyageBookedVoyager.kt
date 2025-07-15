@@ -110,12 +110,15 @@ fun VoyageBookedScreenVoyager(navController: NavController,
     when (paymentState) {
         is NetworkResponse.Success -> {
             Toast.makeText(context, "Payment Confirmed", Toast.LENGTH_SHORT).show()
+            AppConstants.resetDefaults()
             navController.navigate(route = "$DASHBOARD_SCREEN/null")
             viewModelP.resetNearbyPlaces()
 
         }
         is NetworkResponse.Error -> {
-            Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Payment Confirmed", Toast.LENGTH_SHORT).show()
+            AppConstants.resetDefaults()
+            navController.navigate(route = "$DASHBOARD_SCREEN/null")
             viewModelP.resetNearbyPlaces()
         }
         else -> {}

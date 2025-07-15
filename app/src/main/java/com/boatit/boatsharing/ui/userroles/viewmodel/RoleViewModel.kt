@@ -51,5 +51,9 @@ class RoleViewModel(
             }
         }
     }
+
+    fun resetNearbyPlaces() {
+        _roleState.value = NetworkResponse.Loading()
+    }
 }
 

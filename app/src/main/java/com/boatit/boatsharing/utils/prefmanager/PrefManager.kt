@@ -22,6 +22,7 @@ class SharedPrefManager(context: Context) {
 
     fun saveLoginData(userData: UserData) {
         AppConstants.USER_ID = userData.UserId
+        AppConstants.USER_NAME = userData.Username
         sharedPreferences.edit().apply {
             putString(KEY_EMAIL, userData.Email)
             putString(KEY_USER_ID, userData.UserId)

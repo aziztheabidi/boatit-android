@@ -29,15 +29,21 @@ class PasswordViewModel(
         _password.value = newPassword
     }
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun passwordReg(password: String, token: String) {
         viewModelScope.launch {
             _registrationState.value = NetworkResponse.Loading()
+            _isLoading.value = true
             val result = repository.passwordRepository(password, token)
             result.onSuccess { response ->
                 _registrationState.value = NetworkResponse.Success(response)
+                _isLoading.value = false
                 saveLoginData(response.obj)
             }.onFailure { error ->
                 _registrationState.value = NetworkResponse.Error(error.message ?: "Registration failed")
+                _isLoading.value = false
             }
         }
     }

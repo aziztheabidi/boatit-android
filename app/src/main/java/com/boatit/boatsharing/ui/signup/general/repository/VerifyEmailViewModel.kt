@@ -39,6 +39,12 @@ class VerifyEmailViewModel(
                 _errorMessage.value = error.message
             }
         }
+
+
+    }
+
+    fun resetNearbyPlaces() {
+        _registrationState.value = NetworkResponse.Loading()
     }
 }
 

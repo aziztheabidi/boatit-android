@@ -13,6 +13,8 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageCategoryDropdownR
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchCategoryRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchNearByVoyagesRepo
 import com.boatit.boatsharing.utils.AppConstants
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 
 class NearByVoyagesViewModel(
     private val repository: FetchNearByVoyagesRepo,
@@ -21,6 +23,9 @@ class NearByVoyagesViewModel(
 
     private val _nearbyPlaces = MutableStateFlow<NetworkResponse<List<Place>>>(NetworkResponse.Loading())
     val nearbyPlaces: StateFlow<NetworkResponse<List<Place>>> = _nearbyPlaces.asStateFlow()
+
+    private val _logoutEvent = MutableStateFlow(false)
+    val logoutEvent = _logoutEvent.asStateFlow()
 
     private val _categories = MutableStateFlow<NetworkResponse<VoyageCategoryDropdownResponse>>(NetworkResponse.Loading())
     val cate : StateFlow<NetworkResponse<VoyageCategoryDropdownResponse>> = _categories.asStateFlow()
@@ -42,7 +47,10 @@ class NearByVoyagesViewModel(
                 }
             }
         }.onFailure { exception ->
-            Log.e("viewModel", "Error fetching places: ${exception.localizedMessage}", exception)
+            Log.d("viewModel", "Error fetching places: ${exception.message}", exception)
+            if (exception.message?.contains("401")!!) {
+                _logoutEvent.value = true
+            }
             _nearbyPlaces.value = NetworkResponse.Error("An error occurred: ${exception.localizedMessage}")
         }
     }

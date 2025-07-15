@@ -1,17 +1,16 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 
-import androidx.compose.foundation.Image
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -58,16 +58,16 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.BusinessData
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.ConfirmBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FetchBusinessViewModel
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagerFollowBusinessRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerFollowBusinessViewModel
+import com.boatit.boatsharing.uihelpers.BusinessAddToVoyage
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewModel = koinViewModel(),) {
+fun BusinessDetail(navController: NavController, viewModel: VoyagerFollowBusinessViewModel = koinViewModel(),) {
 
     val focusManager = LocalFocusManager.current
     var selectedOption by remember { mutableStateOf("") }
@@ -77,21 +77,26 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     val isValidate = businessDescription.isNotEmpty()&&selectedOption.isNotEmpty()
     val fetchState by viewModel.loginState.collectAsState()
+    val isFollowed =  AppConstants.Business_Status
+    val context = LocalContext.current
 
-    val dummyImageUrls = listOf(
-        "https://picsum.photos/200/300?random=1",
-        "https://picsum.photos/200/300?random=2",
-        "https://picsum.photos/200/300?random=3",
-        "https://picsum.photos/200/300?random=4",
-        "https://picsum.photos/200/300?random=5",
-        "https://picsum.photos/200/300?random=6"
-    )
-
-    val handleError = {
-        errorMessage = null
-        isError = false
+    when (fetchState) {
+        is NetworkResponse.Success -> {
+            if (isLoading) {
+                isLoading = false
+                Toast.makeText(context, "Business Followed Successfully", Toast.LENGTH_SHORT).show()
+            }
+        }
+        is NetworkResponse.Error -> {
+            if (isLoading) {
+                isLoading = false
+                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+        else -> {}
     }
 
     LaunchedEffect(Unit) {
@@ -121,7 +126,7 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White) // 👈 White background
+                        .background(White)
                 ) {
                     Column(
                         modifier = Modifier
@@ -134,6 +139,8 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                             .verticalScroll(rememberScrollState())
                     ) {
 
+
+                        Spacer(Modifier.height(50.dp))
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -142,25 +149,37 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                             verticalArrangement = Arrangement.Center
                         ) {
 
-                            AsyncImage(
-                                model = "https://testbyfarhan.squarecod.com/" + AppConstants.Business?.LogoPath,
-                                contentDescription = "Grid Image",
+
+                            Card(
+                                shape = RoundedCornerShape(15.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                border = BorderStroke(1.dp, color = colorResource(R.color.black)),
                                 modifier = Modifier
+                                    .width(110.dp)
                                     .height(110.dp)
-                                    .width(110.dp)// Keeps all grid items square
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
+                            ) {
+                                AsyncImage(
+                                    model = "https://testbyfarhan.squarecod.com/" + AppConstants.Business?.LogoPath,
+                                    contentDescription = "Grid Image",
+                                    modifier = Modifier
+                                        .height(110.dp)
+                                        .width(110.dp)// Keeps all grid items square
+                                        .clip(RoundedCornerShape(15.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+
 
                             Spacer(Modifier.height(20.dp))
 
                             Text(
                                 style = TextStyle(
-                                    color = Color.Blue,
+                                    color = colorResource(id = R.color.button_normal),
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = "Sky Boating Ltd"
+                                text = AppConstants.Business?.Name!!
                             )
 
                             Text(
@@ -179,7 +198,7 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                 shape = RoundedCornerShape(10.dp), // Corner radius
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(40.dp)
+                                    .height(35.dp)
                                     .border(
                                         width = 1.dp,
                                         color = Color.Gray, // Border color
@@ -188,9 +207,9 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                 colors = ButtonDefaults.buttonColors(containerColor = White)
                             ) {
                                 Text(
-                                    text = "Established In : 19 November 2010",
+                                    text = "Established In : " + AppConstants.Business?.YearOfEstablishment!!,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.Bold,
                                     color = colorResource(id = R.color.black) // Text color matches border
                                 )
                             }
@@ -204,44 +223,35 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                                text = AppConstants.Business?.Description!!,
                             )
                         }
 
                         Spacer(Modifier.height(30.dp))
 
-                        // Action Buttons
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(
                                 onClick = {
-                                },
-                                shape = RoundedCornerShape(10.dp), // Corner radius
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(50.dp)
-                                    .border(
-                                        width = 1.dp,
-                                        color = colorResource(id = R.color.button_normal), // Border color
-                                        shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
-                                    ),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.follow),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = colorResource(id = R.color.button_normal) // Text color matches border
-                                )
-                            }
-
-                            Button(
-                                onClick = {
+                                    isLoading = true
+                                    if(isFollowed!!){
+                                        viewModel.VoyagerUnFollowFunc(
+                                            VoyagerFollowBusinessRequest(
+                                                BusinessDockId = AppConstants.Business?.Id!!
+                                            ),
+                                        )
+                                    }else{
+                                        viewModel.VoyagerFeedbackFunc(
+                                            VoyagerFollowBusinessRequest(
+                                                BusinessDockId = AppConstants.Business?.Id!!
+                                            ),
+                                        )
+                                    }
 
                                 },
-                                shape = RoundedCornerShape(10.dp),
+                                shape = RoundedCornerShape(15.dp),
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxWidth()
@@ -250,12 +260,34 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
                             ) {
                                 Text(
-                                    text = stringResource(R.string.add_dock),
+                                    text = if(isFollowed!!) stringResource(R.string.un_follow) else stringResource(R.string.follow),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = Color.White
+                                    color = White
                                 )
                             }
+                            Button(
+                                onClick = {showDialog = true},
+                                shape = RoundedCornerShape(15.dp), // Corner radius
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(50.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = colorResource(id = R.color.button_normal), // Border color
+                                        shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                                    ),
+                                colors = ButtonDefaults.buttonColors(containerColor = White)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.add_to_voyage),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = colorResource(id = R.color.button_normal) // Text color matches border
+                                )
+                            }
+
+
                         }
 
                         Spacer(Modifier.height(30.dp))
@@ -271,24 +303,43 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
 
                         Spacer(Modifier.height(20.dp))
 
+                        val imageCount = 7
+                        val columns = 3
+                        val itemSize = 90.dp
+                        val spacing = 8.dp
+                        val rows = (imageCount + columns - 1) / columns
+                        val totalHeight = (itemSize * rows) + (spacing * (rows - 1)) + 16.dp
+
                         LazyVerticalGrid(
-                            columns = GridCells.Fixed(3),
+                            columns = GridCells.Fixed(columns),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(250.dp),
+                                .height(totalHeight), // Calculated exact height
+                            userScrollEnabled = false,
                             contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(spacing),
+                            horizontalArrangement = Arrangement.spacedBy(spacing)
                         ) {
-                            items(dummyImageUrls.size) { url ->
-                                AsyncImage(
-                                    model = dummyImageUrls[url],
-                                    contentDescription = "Grid Image",
+                            items(AppConstants.Business?.ImagesPath?.size!!) { urlIndex ->
+
+                                Card(
+                                    shape = RoundedCornerShape(12.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                    border = BorderStroke(1.dp, color = colorResource(R.color.black)),
                                     modifier = Modifier
-                                        .aspectRatio(1f) // Keeps all grid items square
-                                        .clip(RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
+                                        .size(itemSize)
+                                ) {
+                                    AsyncImage(
+                                        model = AppConstants.IMG_PATH + AppConstants.Business?.ImagesPath?.get(urlIndex),
+                                        contentDescription = "Grid Image",
+                                        modifier = Modifier
+                                            .size(itemSize)
+                                            .clip(RoundedCornerShape(15.dp)),
+                                        contentScale = ContentScale.Crop,
+                                        placeholder = painterResource(id = R.drawable.business_placeholder),
+                                        error = painterResource(id = R.drawable.business_placeholder)
+                                    )
+                                }
                             }
                         }
 
@@ -311,7 +362,8 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                 .fillMaxWidth()
                                 .height(45.dp),
                             shape = RoundedCornerShape(8.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // Removed elevation
+                            border = BorderStroke(1.dp, Color.Black),
                             colors = CardDefaults.cardColors(containerColor = White)
                         ) {
                             Column(
@@ -319,7 +371,7 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                             ) {
                                 Text(
                                     text = AppConstants.Business?.Location!!,
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = MaterialTheme.typography.bodySmall
                                 )
                             }
                         }
@@ -342,7 +394,8 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                 .fillMaxWidth()
                                 .height(200.dp),
                             shape = RoundedCornerShape(8.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // Removed elevation
+                            border = BorderStroke(1.dp, Color.Black),
                             colors = CardDefaults.cardColors(containerColor = White)
                         ) {
                             Column(
@@ -350,14 +403,46 @@ fun BusinessDetail(navController: NavController, viewModel: FetchBusinessViewMod
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 AppConstants.Business?.BusinessHours?.distinctBy { it.Day }?.forEach { hour ->
-                                    Text(
-                                        text = "${hour.Day}: ${hour.StartTime} - ${hour.EndTimeTime}",
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = hour.Day,
+                                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                        )
+
+                                        Text(
+                                            text = "${hour.StartTime} - ${hour.EndTimeTime}",
+                                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                        )
+                                    }
+
                                 }
                             }
                         }
 
+                    }
+
+                    if (showDialog) {
+                        BusinessAddToVoyage(
+                            onPickupSelected = {
+                                AppConstants.BusinessDock = true
+                                AppConstants.BusinessDockTYpe = "Pick"
+                                AppConstants.Pick_Up_Loc = Pair(AppConstants.Business?.Id!!, AppConstants.Business?.Name!!)
+                                showDialog = false
+                                navController.navigate(route = "$DASHBOARD_SCREEN/null")
+                               },
+                            onDestinationSelected = {
+                                AppConstants.BusinessDock = true
+                                AppConstants.BusinessDockTYpe = "Drop"
+                                AppConstants.Drop_Off_Loc = Pair(AppConstants.Business?.Id!!, AppConstants.Business?.Name!!)
+                                showDialog = false
+                                navController.navigate(route = "$DASHBOARD_SCREEN/null")
+                            },
+                            onDismissRequest = {
+                                showDialog = false }
+                        )
                     }
                 }
             }

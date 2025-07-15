@@ -2,6 +2,8 @@ package com.boatit.boatsharing.uihelpers
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
+
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,10 +59,21 @@ fun CustomDobField(
     maxLines: Int? = null,
     minLines: Int = 1,
     leadingIcon: @Composable (() -> Unit)? = null,
+    showBorder: Boolean = true
 ) {
 
     val localFocusRequester = remember { focusRequester }
     val isFocused = remember { mutableStateOf(false) }
+
+    val fieldModifier = Modifier
+        .fillMaxWidth()
+        .then(
+            if (showBorder)
+                Modifier.border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
+            else
+                Modifier.shadow(4.dp, shape = RoundedCornerShape(12.dp))
+        )
+        .background(Color.White, shape = RoundedCornerShape(12.dp))
 
     OutlinedTextField(
         value = textValue,
@@ -71,7 +84,7 @@ fun CustomDobField(
                 onTextChange(it)
             }
         },
-        modifier = Modifier
+        modifier = fieldModifier
             .fillMaxWidth()
             .padding(0.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
@@ -108,7 +121,7 @@ fun CustomDobField(
         leadingIcon = leadingIcon,
         isError = isError,
         visualTransformation = inputType,
-        textStyle = TextStyle(textAlign = textAlign),
+        textStyle = TextStyle( color = Color.Black, textAlign = textAlign),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = if (isError) Color.Red else colorResource(R.color.button_normal),
             unfocusedBorderColor = if (isError) Color.Red else Color.Gray,

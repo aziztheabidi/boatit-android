@@ -55,11 +55,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.ActiveVoyageDetails
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
 
-fun StartVoyage(navController: NavController, ) {
+fun StartVoyage(navController: NavController, voyage: ActiveVoyageDetails, ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Box(
         modifier = Modifier.height(screenHeight * 0.65f),
@@ -107,7 +108,7 @@ fun StartVoyage(navController: NavController, ) {
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = "Sunday, 12 April | 10:00 am"
+                                text = voyage.BookingDateTime
                             )
                         }
 
@@ -119,7 +120,7 @@ fun StartVoyage(navController: NavController, ) {
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.W500
                             ),
-                            text = "Event Conference"
+                            text = voyage.Name
                         )
                         Spacer(Modifier.height(7.dp))
                         Text(
@@ -128,7 +129,7 @@ fun StartVoyage(navController: NavController, ) {
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.W500
                             ),
-                            text = "2025"
+                            text = voyage.BookingDateTime
                         )
 
                         Spacer(Modifier.height(10.dp))
@@ -137,7 +138,6 @@ fun StartVoyage(navController: NavController, ) {
                             style = TextStyle(
                                 color = Color.Black,
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.W500
                             ),
                             text = "Voyagees details"
                         )
@@ -165,7 +165,6 @@ fun StartVoyage(navController: NavController, ) {
                                             .fillMaxSize(),
                                         verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                     ) {
-                                        // First row with icon and text
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.passengers),
@@ -173,15 +172,15 @@ fun StartVoyage(navController: NavController, ) {
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = "Home"
+                                                text = voyage.NoOfVoyagers.toString()
                                             )
                                         }
                                         Divider(
@@ -195,15 +194,15 @@ fun StartVoyage(navController: NavController, ) {
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Estimated_Cost.toString()!!
+                                                text = voyage.AmountToPay.toString()
                                             )
                                         }
 
@@ -220,15 +219,15 @@ fun StartVoyage(navController: NavController, ) {
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Event_Time!!
+                                                text = voyage.Duration.toString()
                                             )
                                         }
                                     }
@@ -258,15 +257,15 @@ fun StartVoyage(navController: NavController, ) {
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Pick_Up_Loc!!
+                                                text = voyage.PickupDock
                                             )
                                         }
 
@@ -281,16 +280,16 @@ fun StartVoyage(navController: NavController, ) {
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Red
+                                                tint = Color.Unspecified
 
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Drop_Off_Loc!!
+                                                text = voyage.DropOffDock
                                             )
                                         }
 
@@ -299,7 +298,6 @@ fun StartVoyage(navController: NavController, ) {
                                             thickness = 1.dp
                                         )
 
-                                        // Third row with icon and text
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.flag),
@@ -307,15 +305,15 @@ fun StartVoyage(navController: NavController, ) {
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = "Home"
+                                                text = voyage.WaterStay
                                             )
                                         }
                                     }

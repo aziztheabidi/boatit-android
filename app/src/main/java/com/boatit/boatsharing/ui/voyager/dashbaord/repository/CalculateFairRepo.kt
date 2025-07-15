@@ -12,13 +12,13 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 
 class CalculateFairRepository(private val httpClient: HttpClient) {
-    suspend fun CalculateFairRepoFunc(FromDockId: String,ToDockId:String,DurationInHours:String): Result<CalculateFair> {
+    suspend fun CalculateFairRepoFunc(DurationInHours:String): Result<CalculateFair> {
         return try {
             val userId = AppConstants.USER_ID
             val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.CALCULATE_FAIR}") {
                 url {
-                    parameters.append("FromDockId", FromDockId)
-                    parameters.append("ToDockId", ToDockId)
+                    parameters.append("FromDockId", AppConstants.Pick_Up_Loc?.first.toString())
+                    parameters.append("ToDockId", AppConstants.Drop_Off_Loc?.first.toString())
                     parameters.append("VoyageCategoryId", AppConstants.Cat_id.toString())
                     parameters.append("DurationInHours", DurationInHours)
                     parameters.append("NoOfVoyagers", AppConstants.No_Of_Voyagers.toString())

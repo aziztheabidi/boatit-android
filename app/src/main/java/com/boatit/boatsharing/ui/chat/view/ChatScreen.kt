@@ -1,7 +1,9 @@
 package com.boatit.boatsharing.ui.chat.view
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +24,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,17 +43,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.abanapps.socailqrscanner.data_layer.model.ChatMessage
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
+import com.boatit.boatsharing.ui.chat.model.ComplainRequest
 import com.boatit.boatsharing.ui.chat.viewmodel.ChatViewModel
+import com.boatit.boatsharing.ui.chat.viewmodel.FollowViewModel
 import com.boatit.boatsharing.uihelpers.ComposableUtilsTextField
 import org.koin.androidx.compose.koinViewModel
 import com.boatit.boatsharing.uihelpers.ChatAppBar
@@ -60,19 +71,32 @@ fun ChatScreen(navController: NavController,
                currentUserId: String,
                name: String,
                senderId: String,
+               viewModelF: FollowViewModel = koinViewModel(),
                viewModel: ChatViewModel = koinViewModel()
 ) {
-
+    val context = LocalContext.current
     val messages by viewModel.messages.collectAsState(initial = emptyList())
     val messageText = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    val followState by viewModelF.nearbyPlaces.collectAsState()
+
+    when (followState) {
+        is NetworkResponse.Success -> {
+            viewModelF.resetNearbyPlaces()
+            Toast.makeText(context, stringResource(R.string.complain_submitted), Toast.LENGTH_SHORT).show()
+        }
+        is NetworkResponse.Error -> {
+            viewModelF.resetNearbyPlaces()
+            Toast.makeText(context, stringResource(R.string.complain_submitted), Toast.LENGTH_SHORT).show()
+        }
+        else -> {}
+    }
 
     LaunchedEffect(chatId) {
         println(chatId)
         viewModel.listenForMessages(chatId, currentUserId)
         viewModel.markMessagesAsRead(chatId, senderId)
     }
-
 
     Box(modifier = Modifier.fillMaxSize()
     ) {
@@ -106,6 +130,7 @@ fun ChatScreen(navController: NavController,
             ) {
                 items(messages) { message ->
                     MessageItem(
+                        chatId = chatId,
                         message = message,
                         currentUserId = currentUserId
                     )
@@ -152,11 +177,13 @@ fun ChatScreen(navController: NavController,
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MessageItem(message: ChatMessage, currentUserId: String) {
+fun MessageItem(chatId: String ,message: ChatMessage, currentUserId: String,
+    viewModelF: FollowViewModel = koinViewModel(),) {
     val isCurrentUser = message.user == currentUserId
+    var showComplaintDialog by remember { mutableStateOf(false) }
     var isFlagged by remember { mutableStateOf(false) }
+    var complaintText by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier
@@ -166,7 +193,16 @@ fun MessageItem(message: ChatMessage, currentUserId: String) {
     ) {
         if (!isCurrentUser) {
             Column(horizontalAlignment = Alignment.Start) {
-                Row(verticalAlignment = Alignment.Bottom) {
+                Row(verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            showComplaintDialog = true
+                            isFlagged = true
+                        }
+                    )
+                }
+                ) {
                     Card(
                         shape = RoundedCornerShape(
                             topEnd = 12.dp,
@@ -248,6 +284,34 @@ fun MessageItem(message: ChatMessage, currentUserId: String) {
                     color = Color.Gray
                 )
             }
+        }
+        if (showComplaintDialog) {
+            AlertDialog(
+                onDismissRequest = { showComplaintDialog = false },
+                title = { Text("Complain about message") },
+                text = { TextField(
+                    value = complaintText,
+                    onValueChange = { complaintText = it },
+                    placeholder = { Text("Type your complaint...") },
+                    modifier = Modifier.fillMaxWidth()
+                ) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showComplaintDialog = false
+                        viewModelF.complainFunc(profile = ComplainRequest(
+                            VoyageId = chatId,
+                            Description = complaintText,
+                        ))
+                    }) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showComplaintDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

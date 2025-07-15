@@ -1,7 +1,6 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,9 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -24,15 +26,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -42,7 +43,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,22 +53,14 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CalculateFairViewModel
-import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
-import android.text.format.DateFormat
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.LaunchedEffect
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,14 +78,27 @@ fun CreateVoyageScreen(
     val paypalFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(registrationState) {
-        if (registrationState is NetworkResponse.Success && uiState.isLoading) {
+        if (registrationState is NetworkResponse.Success) {
+            if(!(AppConstants.Travel_Now!!)){
+                AppConstants.sponsorList = arrayListOf()
+                AppConstants.sponsorList.add(
+                    Sponser(
+                    VoyagerUserId = AppConstants.USER_ID!!,
+                    VoyagerUserName = "",
+                    AmountToPay = 0.0,
+                    Status = ""
+                )
+                )
+            }
             navController.navigate(NavigationManager.CREATE_VOYAGE_RATE_CALC_SCREEN)
+            viewModel.resetNearbyPlaces()
         }
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
-            CustomTopBar(text = "Create Voyage", onImageClick = { println("clicked...") })
+            CustomTopBar(text = "Create Voyage", onImageClick = { navController.popBackStack() })
         },
         content = { innerPadding ->
             Column(
@@ -172,18 +177,21 @@ fun CreateVoyageScreen(
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
                         ),
                         text = "Want to travel now?"
                     )
                     Switch(
                         checked = uiState.travelNowSwitchState,
-                        onCheckedChange = { viewModel.onTravelNowSwitchChange(it) },
+                        onCheckedChange = {
+                            viewModel.onTravelNowSwitchChange(it)
+                            AppConstants.Travel_Now = it
+                        },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = colorResource(id = R.color.button_normal),
                             uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color(0xFFD9D9D9)
+                            uncheckedTrackColor = Color(0xFFD9D9D9),
+                            uncheckedBorderColor = Color.Transparent
                         )
                     )
                 }
@@ -194,7 +202,6 @@ fun CreateVoyageScreen(
                     style = TextStyle(
                         color = Color.Black,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
                     ),
                     text = "Want to book a voyage?"
                 )
@@ -218,6 +225,7 @@ fun CreateVoyageScreen(
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
                         focusRequester = dobFocusRequester,
+                        showBorder = false
                     )
                 }
 
@@ -240,6 +248,7 @@ fun CreateVoyageScreen(
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
                         focusRequester = dobFocusRequester,
+                        showBorder = false
                     )
                 }
 
@@ -254,23 +263,34 @@ fun CreateVoyageScreen(
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
                         ),
-                        text = "Spend Time on the voyage"
+                        text = "Want to Spend time on water?"
                     )
                     Switch(
                         checked = uiState.spendTimeSwitchState,
                         onCheckedChange = viewModel::onSpendTimeSwitchChange,
+
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = colorResource(id = R.color.button_normal),
                             uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color(0xFFD9D9D9)
+                            uncheckedTrackColor = Color(0xFFD9D9D9),
+                            uncheckedBorderColor = Color.Transparent
                         )
                     )
                 }
 
+
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 12.sp,
+                    ),
+                    text = "If you want to stay on water, please select duration by entering an end time."
+                )
                 Spacer(modifier = Modifier.height(15.dp))
+
 
                 if (uiState.spendTimeSwitchState) {
                     Box(
@@ -290,6 +310,7 @@ fun CreateVoyageScreen(
                             imeAction = ImeAction.Next,
                             keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
                             focusRequester = paypalFocusRequester,
+                            showBorder = false
                         )
                     }
                 }
@@ -299,7 +320,7 @@ fun CreateVoyageScreen(
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        viewModel.calculateFare(fromDockId = "someFromId", toDockId = "someToId")
+                        viewModel.calculateFare()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -375,7 +396,7 @@ fun MyTimePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
             .padding(20.dp),
             contentAlignment = Alignment.Center
         ) {
-            TimeInput(
+            TimePicker(
                 state = timePickerState
             )
         }

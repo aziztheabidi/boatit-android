@@ -2,6 +2,8 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 
 import android.widget.Toast
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,29 +54,39 @@ fun SponcersList(navController: NavController,
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.voyages_sponcer), onImageClick = {
                 navController.popBack()
             })
         },
-        containerColor = Color.White,
+
         content = { innerPadding ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().
-                padding(innerPadding),
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                   .padding(horizontal =8.dp)
             ) {
-                when (voyagesList) {
-                    is NetworkResponse.Loading -> {
-                        println("Loading")
-                    }
-                    is NetworkResponse.Error -> {
-                        println(voyagesList.message)
-                    }
-                    is NetworkResponse.Success -> {
-                        items(voyagesList.data!!.obj.size) { voyage ->
-                            SponsorVoyagerItems(
-                                navController = navController,
-                                notification = voyagesList.data!!.obj.get(voyage))
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                ) {
+                    when (voyagesList) {
+                        is NetworkResponse.Loading -> {
+                            println("Loading")
+                        }
+
+                        is NetworkResponse.Error -> {
+                            println(voyagesList.message)
+                        }
+
+                        is NetworkResponse.Success -> {
+                            items(voyagesList.data!!.obj.size) { voyage ->
+                                SponsorVoyagerItems(
+                                    navController = navController,
+                                    notification = voyagesList.data!!.obj.get(voyage)
+                                )
+                            }
                         }
                     }
                 }
@@ -83,9 +95,3 @@ fun SponcersList(navController: NavController,
     )
 }
 
-
-@Preview
-@Composable
-fun SponcersList() {
-    SponsorScreen(navController = rememberNavController())
-}

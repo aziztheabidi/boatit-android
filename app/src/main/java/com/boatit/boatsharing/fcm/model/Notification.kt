@@ -15,6 +15,7 @@ data class VoyageNotification(
     val DropOffDock: String?,
     val NoOfVoyager: String?,
     val TotalAmount: String?,
+    val Rating: String? = null,
     val PastVoyages: String?,
     val Title: String?,
     val Body: String?,

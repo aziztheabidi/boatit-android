@@ -1,26 +1,33 @@
 package com.boatit.boatsharing.ui.chat.view
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,81 +41,68 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
-import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
-import com.boatit.boatsharing.uihelpers.CustomTopBar
-import com.boatit.boatsharing.utils.AppConstants
-import org.koin.androidx.compose.koinViewModel
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.draw.alpha
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.res.colorResource
+import com.boatit.boatsharing.routes.popBack
+import com.boatit.boatsharing.ui.business.model.BusinessData
+import com.boatit.boatsharing.ui.chat.model.FollowRequest
 import com.boatit.boatsharing.ui.chat.model.VoyagerInfo
 import com.boatit.boatsharing.ui.chat.viewmodel.FollowViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageNotification
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureConfirmVoyagerItems
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.FutureVoyagerItems
+import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
+import com.boatit.boatsharing.utils.AppConstants
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun VoyagersListScreen(navController: NavController,
                        viewModel: VoyagersListViewModel = koinViewModel(),
-                       viewModelF: FollowViewModel = koinViewModel()
-                       ) {
+                       viewModelF: FollowViewModel = koinViewModel()) {
 
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val voyagesList by viewModel.loginState.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
-
+    var followed = viewModel.filteredBoatListFollowed
+    var allusers = viewModel.filteredBoatList
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("Followed", "All")
-    var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
-    var notification by remember { mutableStateOf<VoyageNotification?>(null) }
     val followState by viewModelF.nearbyPlaces.collectAsState()
+    val searchQuery = viewModel.searchQuery
+
+    when (voyagesList) {
+        is NetworkResponse.Loading -> {
+            println("Loading")
+        }
+        is NetworkResponse.Error -> {
+            println(voyagesList.message)
+            viewModel.resetNearbyPlaces()
+        }
+        is NetworkResponse.Success -> {
+            viewModel.onBoatList(voyagesList.data!!)
+            viewModel.resetNearbyPlaces()
+        }
+    }
 
     when (followState) {
         is NetworkResponse.Success -> {
-            if (isLoading) {
                 isLoading = false
                 isNetworkError = false
+                viewModelF.resetNearbyPlaces()
+                 viewModel.voyages()
                 Toast.makeText(context, "Voyager Followed", Toast.LENGTH_SHORT).show()
-                showVoyagerRequest = false
-                AppConstants.Voyage_ID = notification?.Id
-            }
         }
         is NetworkResponse.Error -> {
-            if (isLoading) {
                 isLoading = false
                 isNetworkError = false
+                viewModelF.resetNearbyPlaces()
                 Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-            }
         }
         else -> {}
     }
@@ -121,101 +115,115 @@ fun VoyagersListScreen(navController: NavController,
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFFF0F0F0))
-            .padding(10.dp)
+
     ) {
+        Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(20.dp))
                 .padding(5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.padding(start = 5.dp, end = 8.dp)
-            )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(20.dp))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            IconButton(
+                onClick = { navController.popBack()},
+                modifier = Modifier.padding(start = 5.dp, end = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = "Search messages",
-                    color = Color.Gray,
-                    fontSize = 16.sp
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
                 )
             }
+            TextField(
+                value = searchQuery,
+                onValueChange = {
+                        viewModel.updateSearchQuery(it)
+                },
+                placeholder = { Text("Search") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon",
+                        tint = Color.Gray
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent),
+                singleLine = true
+            )
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(8.dp))
-                .padding(15.dp)
+                .padding(0.dp)
         ) {
             Column(modifier = Modifier
                 .padding(
                     top = 15.dp,
-                    start = 20.dp,
-                    end = 20.dp,
+                    start = 10.dp,
+                    end = 10.dp,
                 )
                 .fillMaxSize()) {
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    contentColor = Color.White,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            color = Color.White // Make indicator transparent
+                Box(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(
+                            width = 0.5.dp,
+                            color = colorResource(R.color.button_normal),
+                            shape = RoundedCornerShape(10.dp)
                         )
-                    }
                 ) {
-                    tabTitles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.White)
+                    ) {
+                        tabTitles.forEachIndexed { index, title ->
+                            val isSelected = selectedTabIndex == index
+                            val shape = if (isSelected) {
+                                RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                            } else {
+                                RoundedCornerShape(0.dp)
+                            }
+                            val offsetModifier = if (isSelected) Modifier.offset(x = 0.dp, y = (-1).dp) else Modifier
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .then(offsetModifier)
+                                    .clip(shape)
+                                    .background(
+                                        if (isSelected) colorResource(R.color.button_normal) else Color.White
+                                    )
+                                    .clickable { selectedTabIndex = index },
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Text(
                                     text = title,
-                                    color = if (selectedTabIndex == index) Color.White else colorResource(R.color.button_normal)
+                                    color = if (isSelected) Color.White else colorResource(R.color.button_normal),
+                                    fontWeight = FontWeight.Medium
                                 )
-                            },
-                            modifier = Modifier.background(if (selectedTabIndex == index) colorResource(R.color.button_normal)else Color.White)
-                        )
+                            }
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
                 when (selectedTabIndex) {
                     0 ->  {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            when (voyagesList) {
-                                is NetworkResponse.Loading -> {
-                                    println("Loading")
-                                }
-                                is NetworkResponse.Error -> {
-                                    println(voyagesList.message)
-                                }
-                                is NetworkResponse.Success -> {
-                                    items(voyagesList.data!!.obj.Followed.size) { user ->
-                                        UserItemFollow(voyagesList.data!!.obj.Followed.get(user)) { dat ->
-                                            val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
-                                            println(chatId)
-                                            navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
-                                        }
-                                    }
+                            items(followed.size) { user ->
+                                UserItemFollow(followed.get(user)) { dat ->
+                                    val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
+                                    println(chatId)
+                                    navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
                                 }
                             }
                         }
@@ -224,21 +232,11 @@ fun VoyagersListScreen(navController: NavController,
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        when (voyagesList) {
-                            is NetworkResponse.Loading -> {
-                                println("Loading")
-                            }
-                            is NetworkResponse.Error -> {
-                                println(voyagesList.message)
-                            }
-                            is NetworkResponse.Success -> {
-                                items(voyagesList.data!!.obj.UnFollowed.size) { user ->
-                                    UserItem(voyagesList.data!!.obj.UnFollowed.get(user)) { dat ->
-                                        val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
-                                        println(chatId)
-                                        navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
-                                    }
-                                }
+                        items(allusers.size) { user ->
+                            UserItem(allusers.get(user)) { dat ->
+                                val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
+                                println(chatId)
+                                navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
                             }
                         }
                     }
@@ -253,13 +251,14 @@ fun generateChatId(userId1: String, userId2: String): String {
 }
 
 @Composable
-fun UserItem(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
-
+fun UserItem(user: VoyagerInfo,
+             viewModel: FollowViewModel = koinViewModel(),
+             onClick: (user: VoyagerInfo) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White, RoundedCornerShape(8.dp))
-            .padding(15.dp)
+            .padding(10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().
@@ -268,14 +267,20 @@ fun UserItem(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Column {
+            Column (
+                modifier = Modifier
+                .padding(start = 10.dp, end = 10.dp)){
                 Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
             }
 
             Button(
                 onClick = {
-
+                    viewModel.followFunc(
+                        FollowRequest(
+                            VoyagerUserId = user.UserId
+                        ),
+                    )
                 },
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
@@ -301,31 +306,52 @@ fun UserItemFollow(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White, RoundedCornerShape(8.dp))
-            .padding(15.dp)
+            .padding(10.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().
-            clickable { onClick(user) },
+            modifier = Modifier.fillMaxWidth()
+//            .clickable { onClick(user) }
+            ,
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Column {
+            Column (
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp)
+            ){
                 Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
             }
 
-            Box(
-                modifier = Modifier.background(colorResource(R.color.button_normal), CircleShape).size(25.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Back",
-                    tint = Color.White,
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp)
-                )
-            }
+
+                Button(
+                    onClick = {
+                        onClick(user)
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(35.dp)
+                        .border(
+                            width = 1.dp,
+                            color = colorResource(id = R.color.button_normal), // Border color
+                            shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                        ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+
+
+                ) {
+                    Text(
+                        text = "Message",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorResource(id = R.color.button_normal)
+                    )
+                }
+
+
+
         }
     }
 }

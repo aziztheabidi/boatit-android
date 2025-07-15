@@ -20,7 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -38,17 +37,12 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.routes.popBack
-import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainDocumentRequest
 import com.boatit.boatsharing.ui.signup.captain.viewmodel.CaptainDocsViewModel
-import com.boatit.boatsharing.ui.signup.captain.viewmodel.CaptainProfileViewModel
 import com.boatit.boatsharing.ui.signup.captain.viewmodel.GetCaptainDocsViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
-import com.boatit.boatsharing.utils.AppConstants
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -59,12 +53,10 @@ fun AddCaptainDocumentInfoScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-
     val registrationState by viewModel.registrationState.collectAsState()
     val fetchState by viewModelfetch.registrationState.collectAsState()
     var getingData by remember { mutableStateOf(true) }
 
-    // Handle success/failure of save
     LaunchedEffect(registrationState) {
         when (registrationState) {
             is NetworkResponse.Success -> {
@@ -80,7 +72,6 @@ fun AddCaptainDocumentInfoScreen(
         }
     }
 
-    // Fetch and prefill data
     LaunchedEffect(getingData) {
         if (getingData) viewModelfetch.GetDocs()
     }
@@ -93,6 +84,7 @@ fun AddCaptainDocumentInfoScreen(
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_document_info) + " 2/3") {
                 navController.popBackStack()
@@ -114,8 +106,6 @@ fun AddCaptainDocumentInfoScreen(
             FormStepsViews(3, activeColor = colorResource(id = R.color.button_normal), inactiveColor = Color.Gray, activeViewsCount = 2)
 
             Spacer(Modifier.height(30.dp))
-
-            // Input Fields
             DocumentField(label = R.string.license_label, value = viewModel.licenseNo, onValueChange = { viewModel.licenseNo = it }, errorCondition = viewModel.licenseNo.length <= 5)
             DocumentField(label = R.string.license_exp_label, value = viewModel.licenseNoExpiryDate, onValueChange = { viewModel.licenseNoExpiryDate = it }, errorCondition = viewModel.licenseNoExpiryDate.length <= 3)
             DocumentField(label = R.string.license_type_label, value = viewModel.licenseType, onValueChange = { viewModel.licenseType = it }, errorCondition = viewModel.licenseType.length <= 3)
@@ -123,7 +113,6 @@ fun AddCaptainDocumentInfoScreen(
             DocumentField(label = R.string.policy_number_label, value = viewModel.policyNo, onValueChange = { viewModel.policyNo = it }, errorCondition = viewModel.policyNo.length <= 3)
             DocumentField(label = R.string.policy_exp_label, value = viewModel.policyExpirationDate, onValueChange = { viewModel.policyExpirationDate = it }, errorCondition = viewModel.policyExpirationDate.length <= 3)
             Spacer(modifier = Modifier.height(40.dp))
-
             CustomButton(
                 text = stringResource(R.string.save_button_label),
                 isValidate = viewModel.isFormValid,

@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,7 +77,7 @@ fun FindBoat(navController: NavController,
     val showDialog = mutableStateOf(false)
     var pLocation by remember { mutableStateOf(pickupLocation) }
     var dLocation by remember { mutableStateOf(dropOffLocation) }
-    var category by remember { mutableStateOf("Category") }
+    var category by remember { mutableStateOf("") }
     var noOffPassengers by remember { mutableStateOf(totalPassengers) }
     var bookingDate by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
@@ -90,6 +91,17 @@ fun FindBoat(navController: NavController,
     }
 
     bookingDate = getDate()
+
+    LaunchedEffect(Unit) {
+        if(AppConstants.BusinessDock!!){
+            AppConstants.Busines_DOCK = false;
+            if(AppConstants.BusinessDockTYpe.equals("Pick")){
+                pLocation = AppConstants.Pick_Up_Loc?.second!!
+            }else{
+                dLocation = AppConstants.Drop_Off_Loc?.second!!
+            }
+        }
+    }
 
     Box(
         modifier = modifier,
@@ -126,52 +138,52 @@ fun FindBoat(navController: NavController,
                     modifier = Modifier
                         .weight(1f)
                 )
-
-                Card(
-                    modifier = Modifier
-                        .width(90.dp)
-                        .height(60.dp)
-                        .padding(3.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(0.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-
-                        if (showDialog.value) {
-                            MyDatePickerDialog(
-                                onDateSelected = { bookingDate = it },
-                                onDismiss = { showDialog.value = false }
-                            )
-                        }
-                        Icon(
-                            painter = painterResource(id = R.drawable.event_calender),
-                            contentDescription = "Icon",
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clickable {
-                                    showDialog.value = true
-                                },
-                            tint = colorResource(R.color.button_normal)
-                        )
-
-                        Text(
-                            text = "Create Event",
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            ),
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                }
+//
+//                Card(
+//                    modifier = Modifier
+//                        .width(90.dp)
+//                        .height(60.dp)
+//                        .padding(3.dp),
+//                    shape = RoundedCornerShape(8.dp),
+//                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+//                    colors = CardDefaults.cardColors(containerColor = Color.White)
+//                ) {
+//                    Column(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .padding(0.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                        verticalArrangement = Arrangement.Center
+//                    ) {
+//
+//                        if (showDialog.value) {
+//                            MyDatePickerDialog(
+//                                onDateSelected = { bookingDate = it },
+//                                onDismiss = { showDialog.value = false }
+//                            )
+//                        }
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.event_calender),
+//                            contentDescription = "Icon",
+//                            modifier = Modifier
+//                                .size(30.dp)
+//                                .clickable {
+//                                    showDialog.value = true
+//                                },
+//                            tint = colorResource(R.color.button_normal)
+//                        )
+//
+//                        Text(
+//                            text = "Create Event",
+//                            style = TextStyle(
+//                                fontSize = 10.sp,
+//                                fontWeight = FontWeight.Normal,
+//                                color = Color.Black
+//                            ),
+//                            modifier = Modifier.padding(top = 4.dp)
+//                        )
+//                    }
+//                }
             }
 
             Column(
@@ -222,21 +234,22 @@ fun FindBoat(navController: NavController,
                     ),
                     text = stringResource(R.string.categoy)
                 )
+                Spacer(Modifier.height(10.dp))
 
                 Box( modifier = Modifier.clickable { expanded = true }){
                     CustomDobField(
                         textValue = category,
                         placeholderText = stringResource(R.string.categoy),
-                        onTextChange = {},
-                        keyboardType = KeyboardType.Email,
+                        onTextChange = {category = it},
+                        keyboardType = KeyboardType.Text,
                         maxChars = 100,
                         errorMessage = null,
-                        isError = false,
+                        isError = false, 
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(id = R.drawable.location_icon),
+                                painter = painterResource(id = R.drawable.boat_icon),
                                 contentDescription = "Icon",
                                 modifier = Modifier.size(20.dp),
                                 tint = colorResource(R.color.button_normal)
@@ -250,8 +263,8 @@ fun FindBoat(navController: NavController,
                         onDismissRequest = { expanded = false },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                            .padding(vertical = 4.dp)
+                            .background( Color.White)
+                            .padding(horizontal = 16.dp,vertical = 4.dp)
                     ) {
                         AppConstants.Cates.forEach { categories ->
                             DropdownMenuItem(
@@ -270,7 +283,7 @@ fun FindBoat(navController: NavController,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        Color.White
                                     )
                             )
                         }
@@ -295,11 +308,10 @@ fun FindBoat(navController: NavController,
                         textValue = pLocation,
                         placeholderText = stringResource(R.string.pickup_location_lbl),
                         onTextChange = { pLocation = it },
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         maxChars = 100,
-                        errorMessage = if (pLocation.isNotEmpty()&& pLocation.length <= 3) stringResource(
-                            R.string.pickup_location_text) else null,
-                        isError = pLocation.isNotEmpty()&& pLocation.length <= 3,
+                        errorMessage = null,
+                        isError = false,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         leadingIcon = {
@@ -318,15 +330,15 @@ fun FindBoat(navController: NavController,
                         onDismissRequest = { expandedp = false },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                            .padding(vertical = 4.dp)
+                            .background( Color.White)
+                            .padding(horizontal = 16.dp,vertical = 4.dp)
                     ) {
                         AppConstants.PLACES.forEach { category ->
                             DropdownMenuItem(
                                 onClick = {
                                     expandedp = false
                                     pLocation = category.Name
-                                    AppConstants.Pick_Up_Loc = category.Name
+                                    AppConstants.Pick_Up_Loc = Pair(category.DockTypeId, category.Name)
                                 },
                                 text = {
                                     Text(
@@ -338,7 +350,7 @@ fun FindBoat(navController: NavController,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        Color.White
                                     )
                             )
                         }
@@ -363,10 +375,10 @@ fun FindBoat(navController: NavController,
                         textValue = dLocation,
                         placeholderText = stringResource(R.string.drop_off_location_lbl),
                         onTextChange = { dLocation = it },
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         maxChars = 100,
-                        errorMessage = if (dLocation.isNotEmpty()&&dLocation.length <= 3) stringResource(R.string.drop_off_location_text) else null,
-                        isError = dLocation.isNotEmpty()&&dLocation.length <= 3,
+                        errorMessage = null,
+                        isError = false,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         leadingIcon = {
@@ -384,15 +396,15 @@ fun FindBoat(navController: NavController,
                         onDismissRequest = { expandedd = false },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                            .padding(vertical = 4.dp)
+                            .background( Color.White)
+                            .padding(horizontal = 26.dp,vertical = 5.dp)
                     ) {
                         AppConstants.PLACES.forEach { category ->
                             DropdownMenuItem(
                                 onClick = {
                                     expandedd = false
                                     dLocation = category.Name
-                                    AppConstants.Drop_Off_Loc = category.Name
+                                    AppConstants.Drop_Off_Loc = Pair(category.DockTypeId, category.Name)
                                 },
                                 text = {
                                     Text(
@@ -404,7 +416,7 @@ fun FindBoat(navController: NavController,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        Color.White
                                     )
                             )
                         }
@@ -462,6 +474,7 @@ fun FindBoat(navController: NavController,
                         onClick = {
                             onFindBoatClick()
                         },
+                        enabled = category.isNotEmpty() && noOffPassengers.isNotEmpty() && dLocation.isNotEmpty() && pLocation.isNotEmpty(),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .weight(1f)
@@ -508,7 +521,6 @@ fun FindBoat(navController: NavController,
             painter = painterResource(id = R.drawable.wheel_icon),
             contentDescription = "Floating Icon",
             contentScale = ContentScale.FillBounds,
-
             modifier = Modifier
                 .size(90.dp)
                 .clickable { navController.navigate(NavigationManager.MENU_OPTIONS_SCREEN) }

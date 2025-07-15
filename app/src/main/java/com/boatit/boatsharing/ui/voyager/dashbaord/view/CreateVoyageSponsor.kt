@@ -65,6 +65,7 @@ import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileView
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookVoyageRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.FindBoatRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.BookVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FindBoatViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
@@ -72,6 +73,8 @@ import com.boatit.boatsharing.uihelpers.CustomDialog
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
+import com.boatit.boatsharing.uihelpers.MissingPaymentDialog
+import com.boatit.boatsharing.uihelpers.VoyageBookDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
@@ -79,6 +82,7 @@ import org.koin.androidx.compose.koinViewModel
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun CreateVoyageSponsorScreen(navController: NavController,
+      splitPayment: Boolean,
       viewModelFind: FindBoatViewModel = koinViewModel(),
       viewModel: BookVoyageViewModel = koinViewModel()) {
 
@@ -86,12 +90,11 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     val focusManager = LocalFocusManager.current
     val firstNameFocusRequester = remember { FocusRequester() }
     val lastNameFocusRequester = remember { FocusRequester() }
-    var firstName by remember { mutableStateOf("") }
+
     var findBoat by remember { mutableStateOf("Find Boat") }
     var dob by remember { mutableStateOf("") }
     var paypalEmail by remember { mutableStateOf("") }
-    val showDialog = mutableStateOf(false)
-    var bookingDate by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
 
 
     var isError by remember { mutableStateOf(false) }
@@ -101,25 +104,25 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     var isLoading by remember { mutableStateOf(false) }
     var getingData by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
+    var message by rememberSaveable { mutableStateOf("") }
     var showWaitingResponsePrompt by rememberSaveable { mutableStateOf(false) }
     var waitingResponsePromptValue by rememberSaveable { mutableStateOf("") }
     var splitPaymentSwitchState by rememberSaveable { mutableStateOf(false) }
 
     val isValidate = true
 
-    val handleError = {
-        errorMessage = null
-        isError = false
-    }
+
 
     val registrationState by viewModel.nearbyPlaces.collectAsState()
     val findState by viewModelFind.nearbyPlaces.collectAsState()
 
     LaunchedEffect(Unit) {
-        if(!AppConstants.Travel_Now!!){
+        if(AppConstants.Split!!){
             splitPaymentSwitchState = true;
             findBoat = "Book Voyage"
-            AppConstants.sponsorList.add(Sponser(VoyagerUserId = AppConstants.USER_ID!!))
+        }else if(!AppConstants.Travel_Now!!){
+            splitPaymentSwitchState = true;
+            findBoat = "Book Voyage"
         }
     }
 
@@ -143,8 +146,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = true
                 errorMessage = "Network error, please try again."
-                println( "Message" + (registrationState as NetworkResponse.Error).message)
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                showDialog = true
+                message = (registrationState as NetworkResponse.Error).message!!
             }
         }
         else -> {}
@@ -152,7 +155,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
     when (findState) {
         is NetworkResponse.Success -> {
-            if (showWaitingResponsePrompt) {
+            if (isLoading) {
                 showWaitingResponsePrompt = false
                 isLoading = false
                 isNetworkError = false
@@ -162,7 +165,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
             }
         }
         is NetworkResponse.Error -> {
-            if (showWaitingResponsePrompt) {
+            if (isLoading) {
                 showWaitingResponsePrompt = false
                 isLoading = false
                 isNetworkError = true
@@ -173,9 +176,10 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = "Create Voyage", onImageClick = {
-                println("clicked...")
+                navController.popBackStack()
             })
 
         },
@@ -199,15 +203,6 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     activeViewsCount = 1
                 )
 
-                if (showDialog.value) {
-                    MyDatePickerDialog(
-                        onDateSelected = {
-                            bookingDate = it
-                            dob = bookingDate },
-                        onDismiss = { showDialog.value = false }
-                    )
-                }
-
                 Spacer(Modifier.height(30.dp))
 
                 Text(
@@ -228,10 +223,11 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     onTextChange = {  },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
-                    onClearError = handleError,
+                    errorMessage = null,
+                    isError = false,
+                    onClearError = {},
                     imeAction = ImeAction.Next,
+                    isEditable = false,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
@@ -246,31 +242,6 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     }
                 )
 
-                Spacer(Modifier.height(15.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {  Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    text = "Split Payment"
-                )
-                    Switch(
-                        checked = splitPaymentSwitchState,
-                        onCheckedChange = {},
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = colorResource(id = R.color.button_normal),
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color(0xFFD9D9D9)
-                        )
-                    )                }
                 Spacer(Modifier.height(15.dp))
                 if (splitPaymentSwitchState){
                     Text(
@@ -291,7 +262,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                             .padding(3.dp),
                         shape = RoundedCornerShape(8.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                        colors = CardDefaults.cardColors(containerColor = White)
                     ) {
                         Column(
                             modifier = Modifier
@@ -333,9 +304,10 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                         onTextChange = {},
                         keyboardType = KeyboardType.Text,
                         maxChars = 100,
-                        errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                        isError = firstName.isNotEmpty()&& firstName.length <= 3,
-                        onClearError = handleError,
+                        errorMessage = null,
+                        isError = false,
+                        onClearError = {},
+                        isEditable = false,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(
                             onNext = { lastNameFocusRequester.requestFocus() }
@@ -372,10 +344,11 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     onTextChange = {  },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
-                    onClearError = handleError,
+                    errorMessage =  null,
+                    isError = false,
+                    onClearError = {  },
                     imeAction = ImeAction.Next,
+                    isEditable = false,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
@@ -405,15 +378,16 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
 
                 CustomTextField(
-                    textValue = AppConstants.Pick_Up_Loc!!,
-                    placeholderText = AppConstants.Pick_Up_Loc!!,
-                    onTextChange = { firstName = it },
+                    textValue = AppConstants.Pick_Up_Loc?.second!!,
+                    placeholderText = AppConstants.Pick_Up_Loc?.second!!,
+                    onTextChange = { },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = null,
                     isError = false,
-                    onClearError = handleError,
+                    onClearError = {},
                     imeAction = ImeAction.Next,
+                    isEditable = false,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
@@ -443,14 +417,15 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
 
                 CustomTextField(
-                    textValue = AppConstants.Drop_Off_Loc!!,
-                    placeholderText = AppConstants.Drop_Off_Loc!!,
-                    onTextChange = { firstName = it },
+                    textValue = AppConstants.Drop_Off_Loc?.second!!,
+                    placeholderText = AppConstants.Drop_Off_Loc?.second!!,
+                    onTextChange = {  },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = null,
                     isError = false,
-                    onClearError = handleError,
+                    onClearError = {},
+                    isEditable = false,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
@@ -476,20 +451,20 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     isLoading = isLoading,
                     onButtonClick = {
                         if(splitPaymentSwitchState){
-                            Toast.makeText(context, AppConstants.Event_Date.toString() , Toast.LENGTH_SHORT).show()
                             viewModel.bookVoyageVMfunc(
                                 BookVoyageRequest(
                                     VoyagerUserId = AppConstants.USER_ID!!,
+                                    Name = AppConstants.Event_Name!!,
                                     VoyageCategoryId = AppConstants.Cat_id!!,
-                                    PickupDockId = 1,
-                                    DropOffDockId= 2,
+                                    PickupDockId = AppConstants.Pick_Up_Loc?.first!!,
+                                    DropOffDockId= AppConstants.Drop_Off_Loc?.first!!,
                                     NoOfVoyagers= AppConstants.No_Of_Voyagers!!,
                                     IsImmediately= AppConstants.Travel_Now!!,
                                     IsSplitPayment = true,
                                     BookingDate = AppConstants.Event_Date.toString(),
-                                    StartTime = "10:00:00",
+                                    StartTime = AppConstants.Event_Time!!,
                                     IsStayOnWater =  AppConstants.Stay_on_water!!,
-                                    EndTime= "12:12:00",
+                                    EndTime= AppConstants.Event_Time_End!!,
                                     PerHourRate= AppConstants.Per_Hour_Rate!!,
                                     DurationInHours= AppConstants.No_of_Hour!!,
                                     NoOfSponsers= AppConstants.sponsorList.size,
@@ -501,9 +476,10 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                             viewModelFind.fetchNearbyPlaces(
                                 FindBoatRequest(
                                     VoyagerUserId = AppConstants.USER_ID!!,
+                                    Name = AppConstants.Event_Name!!,
                                     VoyageCategoryId = AppConstants.Cat_id!!,
-                                    PickupDockId = 1,
-                                    DropOffDockId= 2,
+                                    PickupDockId = AppConstants.Pick_Up_Loc?.first!!,
+                                    DropOffDockId= AppConstants.Drop_Off_Loc?.first!!,
                                     NoOfVoyagers= AppConstants.No_Of_Voyagers!!,
                                     EstimatedCost = AppConstants.Total_Cost!!,
                                     IsImmediately = true,
@@ -519,13 +495,16 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
+                if (showDialog) {
+                    VoyageBookDialog(
+                        name = message,
+                        onPayNow = {
+                            showDialog = false
+                        },
+                        onDismissRequest = {  }
+                    )
+                }
             }
         },
     )
-}
-
-@Preview
-@Composable
-fun CreateVoyageSponsorScreen() {
-    CreateVoyageSponsorScreen(navController = rememberNavController())
 }

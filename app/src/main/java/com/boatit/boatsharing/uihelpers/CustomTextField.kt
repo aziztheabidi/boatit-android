@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.boatit.boatsharing.R
 
+
 @Composable
 fun CustomTextField(
     textValue: String,
@@ -57,27 +58,27 @@ fun CustomTextField(
     maxLines: Int? = null,
     minLines: Int = 1,
     leadingIcon: @Composable (() -> Unit)? = null,
-
+    isEditable: Boolean = true, // ✅ New param
 ) {
-
     val localFocusRequester = remember { focusRequester }
     val isFocused = remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = textValue,
         onValueChange = {
-            if (maxChars == null || it.length <= maxChars) {
+            if (isEditable && (maxChars == null || it.length <= maxChars)) {
                 onTextChange(it)
             }
         },
+        enabled = isEditable,
+        readOnly = !isEditable,
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
             .background(Color.Transparent)
             .focusRequester(localFocusRequester)
-            .onFocusChanged { focusState -> isFocused.value = focusState.isFocused
-    },
+            .onFocusChanged { focusState -> isFocused.value = focusState.isFocused },
         placeholder = { Text(placeholderText) },
         singleLine = singleLine,
         maxLines = maxLines ?: if (singleLine) 1 else Int.MAX_VALUE,
@@ -88,7 +89,7 @@ fun CustomTextField(
             imeAction = imeAction
         ),
         keyboardActions = keyboardActions,
-        trailingIcon = if (showTrailingIcon && textValue.isNotEmpty()) {
+        trailingIcon = if (showTrailingIcon && isEditable && textValue.isNotEmpty()) {
             {
                 IconButton(
                     onClick = {
@@ -107,7 +108,7 @@ fun CustomTextField(
         leadingIcon = leadingIcon,
         isError = isError,
         visualTransformation = inputType,
-        textStyle = TextStyle(textAlign = textAlign),
+        textStyle = TextStyle(color = Color.Black, textAlign = textAlign),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = if (isError) Color.Red else colorResource(R.color.button_normal),
             unfocusedBorderColor = if (isError) Color.Red else Color.Gray,
@@ -117,7 +118,8 @@ fun CustomTextField(
     )
 
     if (isError && !errorMessage.isNullOrEmpty()) {
-        Text( modifier = Modifier.padding(start = 12.dp),
+        Text(
+            modifier = Modifier.padding(start = 12.dp),
             style = TextStyle(
                 color = Color.Red,
                 fontSize = 12.sp,
@@ -126,9 +128,9 @@ fun CustomTextField(
             textAlign = TextAlign.Start,
             text = errorMessage
         )
-
     }
 }
+
 
 @Composable
 fun ComposableUtilsTextField(

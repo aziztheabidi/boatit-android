@@ -44,7 +44,7 @@ class GetActiveVoyageRepository(private val httpClient: HttpClient) {
                 Result.failure(Exception("API Error: ${result.Message}"))
             }
         } catch (e: Exception) {
-            Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
+            Result.failure(Exception("Network Error: ${e.message}", e))
         }
     }
 }

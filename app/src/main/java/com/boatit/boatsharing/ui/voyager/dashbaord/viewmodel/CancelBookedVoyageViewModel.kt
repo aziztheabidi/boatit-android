@@ -34,8 +34,8 @@ class CancelBookedVoyageViewModel(
         result.onSuccess { placesResponse ->
             _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
         }.onFailure { exception ->
-            Log.e("viewModel", "Error fetching places: ${exception.localizedMessage}", exception)
-            _nearbyPlaces.value = NetworkResponse.Error("An error occurred: ${exception.localizedMessage}")
+            Log.e("viewModel", "${exception.localizedMessage}", exception)
+            _nearbyPlaces.value = NetworkResponse.Error("${exception.localizedMessage}")
         }
     }
 

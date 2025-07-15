@@ -1,6 +1,8 @@
 package com.boatit.boatsharing.ui.business.view
 
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,8 +23,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,16 +35,24 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +60,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -58,29 +70,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.business.model.BusinessData
+import com.boatit.boatsharing.ui.business.model.BusinessRequest
 import com.boatit.boatsharing.ui.business.model.DockDropdownItem
+import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
-import com.boatit.boatsharing.uihelpers.CustomDropDown
-import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewModel = koinViewModel(),) {
+fun BusinessDashboard(navController: NavController,
+    viewModelUpdate: BusinessDashViewModel = koinViewModel(),
+    viewModel: GetBusinessViewModel = koinViewModel()) {
 
     val focusManager = LocalFocusManager.current
     val businessDescriptionFocusRequester = remember { FocusRequester() }
@@ -89,36 +103,60 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
     var shores by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
     var zones by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
     var island by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
-    var zone by remember { mutableStateOf("") }
-    var shore by remember { mutableStateOf("") }
-    var islnd by remember { mutableStateOf("") }
+    val zone = remember { mutableStateOf<Pair<Int, String>?>(Pair(1, "")) }
+    val shore = remember { mutableStateOf<Pair<Int, String>?>(Pair(1, "")) }
+    val islnd = remember { mutableStateOf<Pair<Int, String>?>(Pair(1, "")) }
     var selectedOption by remember { mutableStateOf("") }
     var businessDescription by remember { mutableStateOf("") }
+    val context = LocalContext.current
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
-    val isValidate = businessDescription.isNotEmpty()&&selectedOption.isNotEmpty()
     val fetchState by viewModel.loginState.collectAsState()
+    val registrationState by viewModelUpdate.registrationState.collectAsState()
     val fetchDocksState by viewModel.docksState.collectAsState()
+    val logoutEvent by viewModel.logoutEvent.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var expandeds by remember { mutableStateOf(false) }
     var expandedi by remember { mutableStateOf(false) }
+    var isEditing by remember { mutableStateOf(false) }
+    val editableList = remember(BDetail?.BusinessHours) {
+        BDetail?.BusinessHours?.distinctBy { it.Day }?.map { it.copy() }?.toMutableStateList() ?: mutableStateListOf()
+    }
 
-    val dummyImageUrls = listOf(
-        "https://picsum.photos/200/300?random=1",
-        "https://picsum.photos/200/300?random=2",
-        "https://picsum.photos/200/300?random=3",
-        "https://picsum.photos/200/300?random=4",
-        "https://picsum.photos/200/300?random=5",
-        "https://picsum.photos/200/300?random=6"
-    )
+    when (registrationState) {
+        is NetworkResponse.Success -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = false
+                viewModel.resetNearbyPlaces()
+                viewModel.voyages()
+                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+            }
+        }
+        is NetworkResponse.Error -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = true
+                errorMessage = "Network error, please try again."
+                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                viewModel.resetNearbyPlaces()
+            }
+        }
+        else -> {}
+    }
 
     when (fetchState) {
         is NetworkResponse.Success -> {
             BDetail = fetchState.data?.obj
+            zone.value = Pair(BDetail?.ZoneId!!, BDetail?.ZoneName!!)
+            shore.value = Pair(BDetail?.ShoreId!!, BDetail?.ShoreName!!)
+            islnd.value = Pair(BDetail?.IslandId!!, BDetail?.IslandName!!)
+            AppConstants.Busines_DOCK = BDetail?.IsDock!!
             isLoading = false
+            viewModel.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {}
         else -> {}
@@ -129,6 +167,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
             zones = fetchDocksState.data?.obj?.Zone
             shores = fetchDocksState.data?.obj?.Shore
             island = fetchDocksState.data?.obj?.Island
+            viewModel.resetDocks()
         }
         is NetworkResponse.Error -> {}
         else -> {}
@@ -167,7 +206,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White) // 👈 White background
+                        .background(White)
                 ) {
                     Column(
                         modifier = Modifier
@@ -187,18 +226,22 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                 .padding(start = 20.dp, top = 20.dp),
                             contentAlignment = Alignment.TopStart,
                         ) {
+
+
                             Image(
                                 painter = painterResource(id = R.drawable.wheel_icon),
                                 contentDescription = "Icon Image",
                                 modifier = Modifier
                                     .size(width = 80.dp, height = 80.dp)
                                     .clickable {
-                                        navController.navigate(NavigationManager.CAPTAIN_MENU_OPTIONS_SCREEN)
+                                        navController.navigate(NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN)
                                     }
                             )
 
                         }
 
+
+                        Spacer(Modifier.height(50.dp))
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -207,26 +250,37 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                             verticalArrangement = Arrangement.Center
                         ) {
 
-                            AsyncImage(
-                                model = "https://testbyfarhan.squarecod.com/" + BDetail?.LogoPath,
-                                contentDescription = "Grid Image",
+                            Card(
+                                shape = RoundedCornerShape(15.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                border = BorderStroke(1.dp, color = colorResource(R.color.black)),
                                 modifier = Modifier
+                                    .width(110.dp)
                                     .height(110.dp)
-                                    .width(110.dp)// Keeps all grid items square
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
+                            ) {
+                                AsyncImage(
+                                    model = AppConstants.IMG_PATH + BDetail?.LogoPath,
+                                    contentDescription = "Grid Image",
+                                    modifier = Modifier
+                                        .height(110.dp)
+                                        .width(110.dp)// Keeps all grid items square
+                                        .clip(RoundedCornerShape(15.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
                             Spacer(Modifier.height(20.dp))
 
                             Text(
                                 style = TextStyle(
-                                    color = Color.Blue,
+                                    color = colorResource(id = R.color.button_normal),
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = "Sky Boating Ltd"
+                                text = BDetail?.Name!!
                             )
+
+                            Spacer(Modifier.height(10.dp))
 
                             Text(
                                 style = TextStyle(
@@ -244,7 +298,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                 shape = RoundedCornerShape(10.dp), // Corner radius
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(40.dp)
+                                    .height(35.dp)
                                     .border(
                                         width = 1.dp,
                                         color = Color.Gray, // Border color
@@ -253,14 +307,15 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                 colors = ButtonDefaults.buttonColors(containerColor = White)
                             ) {
                                 Text(
-                                    text = "Established In : 19 November 2010",
+                                    text = "Established In : " + BDetail?.YearOfEstablishment,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.Bold,
                                     color = colorResource(id = R.color.black) // Text color matches border
                                 )
                             }
 
-                            Spacer(Modifier.height(10.dp))
+                            Spacer(Modifier.height(20.dp))
+
 
                             Text(
                                 style = TextStyle(
@@ -269,7 +324,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                                text = BDetail?.Description!!,
                             )
                         }
 
@@ -286,91 +341,143 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
 
                         Spacer(Modifier.height(20.dp))
 
+
+                        val imageCount = 7
+                        val columns = 3
+                        val itemSize = 90.dp
+                        val spacing = 8.dp
+                        val rows = (imageCount + columns - 1) / columns
+                        val totalHeight = (itemSize * rows) + (spacing * (rows - 1)) + 16.dp
+
                         LazyVerticalGrid(
-                            columns = GridCells.Fixed(3),
+                            columns = GridCells.Fixed(columns),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(250.dp),
+                                .height(totalHeight), // Calculated exact height
+                            userScrollEnabled = false,
                             contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(spacing),
+                            horizontalArrangement = Arrangement.spacedBy(spacing)
                         ) {
-                            items(dummyImageUrls.size) { url ->
-                                AsyncImage(
-                                    model = dummyImageUrls[url],
-                                    contentDescription = "Grid Image",
-                                    modifier = Modifier
-                                        .aspectRatio(1f) // Keeps all grid items square
-                                        .clip(RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Normal
-                            ),
-                            text = "Location"
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(45.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = White)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(10.dp),
-                            ) {
-                                Text(
-                                    text = BDetail?.Location!!,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Normal
-                            ),
-                            text = "Business Hours"
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = White)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(10.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                BDetail?.BusinessHours?.distinctBy { it.Day }?.forEach { hour ->
-                                    Text(
-                                        text = "${hour.Day}: ${hour.StartTime} - ${hour.EndTimeTime}",
-                                        style = MaterialTheme.typography.bodyMedium
+                            items(BDetail?.ImagesPath?.size!!) { urlIndex ->
+                                Card(
+                                    shape = RoundedCornerShape(12.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                                    border = BorderStroke(1.dp, color = colorResource(R.color.black)),
+                                    modifier = Modifier.size(itemSize)
+                                ) {
+                                    AsyncImage(
+                                        model = AppConstants.IMG_PATH + BDetail?.ImagesPath?.get(urlIndex),
+                                        contentDescription = "Grid Image",
+                                        modifier = Modifier
+                                            .size(itemSize)
+                                            .clip(RoundedCornerShape(15.dp)),
+                                        contentScale = ContentScale.Crop,
+                                        placeholder = painterResource(id = R.drawable.business_placeholder),
+                                        error = painterResource(id = R.drawable.business_placeholder)
                                     )
                                 }
                             }
+                        }
+
+                        Spacer(Modifier.height(20.dp))
+
+                        EditableLocationSection(
+                            navController,
+                            location = BDetail?.Location ?: ""
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Business Hours",
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 16.sp
+                            )
+                            IconButton(onClick = { isEditing = !isEditing }) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit",
+                                    tint = colorResource(R.color.button_normal)
+                                )
+                            }
+                        }
+
+
+                        Spacer(Modifier.height(10.dp))
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // Removed elevation
+                            border = BorderStroke(1.dp, Color.Black), // Added black border
+                            colors = CardDefaults.cardColors(containerColor = White)
+                        ) {
+                            val scrollState = rememberScrollState()
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(scrollState)
+                                    .padding(10.dp), // Add padding to the container
+                                verticalArrangement = Arrangement.spacedBy(12.dp) // Spacing between rows
+                            ) {
+                                editableList.forEachIndexed { index, hour ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        if (isEditing) {
+                                            TextField(
+                                                value = hour.Day.orEmpty(),
+                                                onValueChange = {
+                                                    editableList[index] = hour.copy(Day = it)
+                                                },
+                                                modifier = Modifier.weight(1f).background(Color.White),
+                                                textStyle = MaterialTheme.typography.bodySmall,
+                                                label = { Text("Day") }
+                                            )
+                                            TextField(
+                                                value = hour.StartTime.orEmpty(),
+                                                onValueChange = {
+                                                    editableList[index] = hour.copy(StartTime = it)
+                                                },
+                                                modifier = Modifier.weight(1f).background(Color.White),
+                                                textStyle = MaterialTheme.typography.bodySmall,
+                                                label = { Text("Start") }
+                                            )
+                                            TextField(
+                                                value = hour.EndTimeTime.orEmpty(),
+                                                onValueChange = {
+                                                    editableList[index] = hour.copy(EndTimeTime = it)
+                                                },
+                                                modifier = Modifier.weight(1f).background(Color.White),
+                                                textStyle = MaterialTheme.typography.bodySmall,
+                                                label = { Text("End") }
+                                            )
+                                        } else {
+                                            Text(
+                                                text = hour.Day.orEmpty(),
+                                                modifier = Modifier.weight(1f),
+                                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                            )
+                                            Text(
+                                                text = "${hour.StartTime} - ${hour.EndTimeTime}",
+                                                modifier = Modifier.weight(2f),
+                                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
                         }
 
                         Spacer(Modifier.height(10.dp))
@@ -388,14 +495,13 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
 
                         Box( modifier = Modifier.clickable { expandeds = true }){
                             CustomDobField(
-                                textValue = shore,
+                                textValue = shore.value?.second!!,
                                 placeholderText = stringResource(R.string.shores),
-                                onTextChange = { shore = it },
+                                onTextChange = { },
                                 keyboardType = KeyboardType.Email,
                                 maxChars = 100,
-                                errorMessage = if (shore.isNotEmpty()&& shore.length <= 3) stringResource(
-                                    R.string.pickup_location_text) else null,
-                                isError = shore.isNotEmpty()&& shore.length <= 3,
+                                errorMessage = null,
+                                isError = false,
                                 onClearError = handleError,
                                 imeAction = ImeAction.Next,
                                 leadingIcon = {
@@ -424,7 +530,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                     DropdownMenuItem(
                                         onClick = {
                                             expandeds = false
-                                            shore = category.Name
+                                           shore.value = Pair(category.Id, category.Name)
                                         },
                                         text = {
                                             Text(
@@ -458,14 +564,13 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
 
                         Box( modifier = Modifier.clickable { expanded = true }){
                             CustomDobField(
-                                textValue = zone,
+                                textValue = zone.value?.second!!,
                                 placeholderText = stringResource(R.string.zones),
-                                onTextChange = { zone = it },
+                                onTextChange = {},
                                 keyboardType = KeyboardType.Email,
                                 maxChars = 100,
-                                errorMessage = if (zone.isNotEmpty()&& zone.length <= 3) stringResource(
-                                    R.string.pickup_location_text) else null,
-                                isError = zone.isNotEmpty()&& zone.length <= 3,
+                                errorMessage = null,
+                                isError = false,
                                 onClearError = handleError,
                                 imeAction = ImeAction.Next,
                                 leadingIcon = {
@@ -494,7 +599,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                     DropdownMenuItem(
                                         onClick = {
                                             expanded = false
-                                            zone = category.Name
+                                            zone.value = Pair(category.Id, category.Name)
                                         },
                                         text = {
                                             Text(
@@ -528,14 +633,13 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
 
                         Box( modifier = Modifier.clickable { expandedi = true }){
                             CustomDobField(
-                                textValue = islnd,
+                                textValue = islnd.value?.second!!,
                                 placeholderText = stringResource(R.string.island),
-                                onTextChange = { islnd = it },
+                                onTextChange = {},
                                 keyboardType = KeyboardType.Email,
                                 maxChars = 100,
-                                errorMessage = if (islnd.isNotEmpty()&& islnd.length <= 3) stringResource(
-                                    R.string.pickup_location_text) else null,
-                                isError = islnd.isNotEmpty()&& islnd.length <= 3,
+                                errorMessage = null,
+                                isError = false,
                                 onClearError = handleError,
                                 imeAction = ImeAction.Next,
                                 leadingIcon = {
@@ -564,7 +668,7 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                                     DropdownMenuItem(
                                         onClick = {
                                             expandedi = false
-                                            islnd = category.Name
+                                            islnd.value = Pair(category.Id, category.Name)
                                         },
                                         text = {
                                             Text(
@@ -583,23 +687,55 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(Modifier.height(10.dp))
 
+                        AddDockSection(BDetail?.IsDock!!,BDetail?.Name!!, BDetail?.Address!!, BDetail?.Description!!)
+
+                        Spacer(modifier = Modifier.height(40.dp))
                         CustomButton(
                             text = "Save Changes",
-                            isValidate = isValidate,
+                            isValidate = true,
                             isLoading = isLoading,
                             onButtonClick = {
-                                isButtonEnabled = true
+                                viewModelUpdate.saveBusinessProfile( profile =
+                                    BusinessRequest(
+                                        AppConstants.Busines_Location!!,
+                                        BusinessHours = BDetail?.BusinessHours!!,
+                                        IsDock = AppConstants.Busines_DOCK!!,
+                                        Name = BDetail?.Name!!,
+                                        ZoneId = zone.value?.first!!,
+                                        ShoreId = shore.value?.first!!,
+                                        IslandId = islnd.value?.first!!,
+                                        State = AppConstants.Busines_State!!,
+                                        City = AppConstants.Busines_City!!,
+                                        ZipCode = AppConstants.Busines_Zip!!,
+                                        ShoreLine = shore.value?.second!!,
+                                        Address = BDetail?.Address!!,
+                                        Latitude = AppConstants.Busines_Lat!!,
+                                        Longitude = AppConstants.Busines_Lont!!,
+                                    ),
+                                )
                                 isLoading = true
-                                focusManager.clearFocus()
-                                println("perform network call")
-
                             }
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
 
+                    }
+
+                    if(logoutEvent){
+                        AlertDialog(
+                            onDismissRequest = { },
+                            title = { Text("Session Expired") },
+                            text = { Text("Login Again") },
+                            confirmButton = {
+                                Button(onClick = {
+                                    navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+                                }) {
+                                    Text("OK")
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -607,8 +743,177 @@ fun BusinessDashboard(navController: NavController, viewModel: GetBusinessViewMo
     )
 }
 
-@Preview
 @Composable
-fun PreviewBusinessDashboard() {
-    BusinessDashboard(navController = rememberNavController())
+fun EditableLocationSection(
+    navController: NavController,
+    location: String?
+) {
+    var isEditing by remember { mutableStateOf(false) }
+    var address by remember { mutableStateOf(location ?: "") }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val selectedAddress = navBackStackEntry
+        ?.savedStateHandle
+        ?.get<String>("selected_address")
+
+    LaunchedEffect(selectedAddress) {
+        if (!selectedAddress.isNullOrBlank()) {
+            address = selectedAddress
+            isEditing = false
+            navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Location",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+            IconButton(onClick = {
+                isEditing = true
+                navController.navigate("map_picker")
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit",
+                    tint = colorResource(R.color.button_normal)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        if (isEditing) {
+            OutlinedTextField(
+                value = address,
+                onValueChange = {}, // Read-only
+                readOnly = true,
+                placeholder = {
+                    Text(
+                        "Address line 1\nAddress line 2\nAddress line 3",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorResource(R.color.button_normal),
+                    unfocusedBorderColor = colorResource(R.color.black),
+                    unfocusedTextColor = Color.Gray
+                ),
+                shape = RoundedCornerShape(12.dp),
+                maxLines = 6,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .background(White)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
+                    .background(White)
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = if (address.isBlank()) "Address line 1\nAddress line 2\nAddress line 3" else address,
+                    color = if (address.isBlank()) Color.Gray else Color.Black,
+                    fontSize = 14.sp
+                )
+            }
+        }
+    }
 }
+
+@Composable
+fun AddDockSection(isDock : Boolean ,businessname: String, businessaddress: String, businessdescription: String) {
+    var isDockEnabled by remember { mutableStateOf(isDock) }
+    var name by remember { mutableStateOf(businessname) }
+    var address by remember { mutableStateOf(businessaddress) }
+    var description by remember { mutableStateOf(businessdescription) }
+
+    Column(modifier = Modifier.padding(10.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Add Dock", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+
+            Switch(
+                checked = isDockEnabled,
+                onCheckedChange = {
+                    isDockEnabled = it
+                    AppConstants.Busines_DOCK = isDockEnabled
+                },
+
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = White,
+                    checkedTrackColor = colorResource(id = R.color.button_normal),
+                    uncheckedThumbColor = White,
+                    uncheckedTrackColor = Color(0xFFD9D9D9),
+                    uncheckedBorderColor = Color.Transparent
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (isDockEnabled!!) {
+            Text("Name", fontWeight = FontWeight.Medium)
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholder = { Text("John") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.Gray
+                )
+            )
+
+            Text("Address", fontWeight = FontWeight.Medium)
+            OutlinedTextField(
+                value = address,
+                onValueChange = { address = it },
+                placeholder = { Text("Street no 8......") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.Gray
+                )
+            )
+
+            Text("Description", fontWeight = FontWeight.Medium)
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                placeholder = { Text("Details ............") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .padding(vertical = 4.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.Gray
+                )
+            )
+        }
+    }
+}
+

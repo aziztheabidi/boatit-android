@@ -1,8 +1,10 @@
 package com.boatit.boatsharing.network.di
 
 import LocationViewModel
+import com.boatit.boatsharing.ui.business.repository.BusinessDashboardRepository
 import com.boatit.boatsharing.ui.business.repository.GetBusinessDocksRepo
 import com.boatit.boatsharing.ui.business.repository.GetBusinessRepo
+import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.ui.captain.availablitystatus.repository.UpdateStatusRepository
 import com.boatit.boatsharing.ui.captain.availablitystatus.viewmodel.UpdateStatusViewModel
@@ -31,6 +33,18 @@ import com.boatit.boatsharing.ui.forgotpassword.viewmodel.ForgotPassViewModel
 import com.boatit.boatsharing.ui.login.repository.LoginRepository
 import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
+import com.boatit.boatsharing.ui.signup.business.repository.BusinessAboutRepository
+import com.boatit.boatsharing.ui.signup.business.repository.BusinessInfoRepository
+import com.boatit.boatsharing.ui.signup.business.repository.BusinessLogoRepository
+import com.boatit.boatsharing.ui.signup.business.repository.BusinessProfileRepository
+import com.boatit.boatsharing.ui.signup.business.repository.GetBusinessInfoRepository
+import com.boatit.boatsharing.ui.signup.business.repository.GetBusinessProfileRepository
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessAboutViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessInfoViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessProfileViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessInfoViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessProfileViewModel
 import com.boatit.boatsharing.ui.signup.captain.repository.CaptainBoatRepository
 import com.boatit.boatsharing.ui.signup.captain.repository.CaptainDocsRepository
 import com.boatit.boatsharing.ui.signup.captain.repository.CaptainProfileRepository
@@ -63,6 +77,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchBusinessRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchCategoryRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchNearByVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FindBoatRepo
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FollowBusinessRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FollowedVoyagerRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FutureVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.GetActiveVoyageRepository
@@ -93,6 +108,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfi
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TrackingLocationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TravelNowViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerFollowBusinessViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerVoyagesViewModel
 import com.boatit.boatsharing.utils.prefmanager.RoleProvider
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
@@ -266,8 +282,31 @@ val Modules = module {
     single { GetBusinessDocksRepo(get()) }
     viewModel { GetBusinessViewModel(get(),get())}
 
+    single { GetBusinessProfileRepository(get()) }
+    viewModel { GetBusinessProfileViewModel(get()) }
+
+    single { BusinessProfileRepository(get()) }
+    viewModel { BusinessProfileViewModel(get()) }
+
+    single { BusinessInfoRepository(get()) }
+    viewModel { BusinessInfoViewModel(get()) }
+
+    single { GetBusinessInfoRepository(get()) }
+    viewModel { GetBusinessInfoViewModel(get()) }
+
+    single { BusinessAboutRepository(get()) }
+    viewModel { BusinessAboutViewModel(get()) }
+
+    single { BusinessLogoRepository(get()) }
+    viewModel { BusinessLogoViewModel(get()) }
+
+    single { BusinessDashboardRepository(get()) }
+    viewModel { BusinessDashViewModel(get()) }
+
     single { TravelNowRepo(get()) }
     viewModel { TravelNowViewModel(get(), get(), get()) }
 
+    single { FollowBusinessRepository(get()) }
+    viewModel { VoyagerFollowBusinessViewModel(get()) }
 
 }

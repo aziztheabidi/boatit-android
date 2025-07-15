@@ -2,6 +2,8 @@ package com.boatit.boatsharing.network.di
 
 object ApiConstants {
     const val BASE_URL = "https://testbyfarhan.squarecod.com/api"
+    const val PRIVACY_POLICY = "https://www.boatit.com/legal/privacy-policy"
+
     object Endpoints {
         const val LOGIN = "/Account/Login"
         const val REFRESH = "/Account/RefreshToken"
@@ -19,6 +21,7 @@ object ApiConstants {
         const val BOOK_VOYAGE = "/Voyage/Book"
         const val CALCULATE_FAIR = "/Voyage/CaculateFair"
         const val FOLLOW_VOYAGER = "/Voyager/Follow"
+        const val COMPLAIN_VOYAGER = "/Voyage/Complain"
         const val SAVE_VOYAGER_PROFILE = "/VoyagerProfile/Save"
         const val GET_VOYAGER_PROFILE = "/VoyagerProfile/GetByUserId"
         const val SAVE_CAPTAIN_PROFILE = "/CaptainProfile/Save"
@@ -26,15 +29,18 @@ object ApiConstants {
         const val SAVE_BUSINESS_PROFILE = "/BusinessProfile/Save"
         const val GET_BUSINESS_PROFILE = "/BusinessProfile/GetByUserId"
         const val SAVE_BUSINESS_INFO_PROFILE = "/BusinessInfo/Save"
+        const val SAVE_BUSINESS_DASH_PROFILE = "/Business/Save"
         const val GET_BUSINESS_INFO_PROFILE = "/BusinessInfo/GetByUserId"
         const val SAVE_BUSINESS_ABOUT = "/BusinessInfo/SaveAbout"
-        const val SAVE_BUSINESS_LOGO = "/BusinessInfo/SaveLogo"
+        const val SAVE_BUSINESS_LOGO = "/BusinessInfo/SaveMedia"
         const val SAVE_CAPTAIN_BOAT = "/CaptainBoat/Save"
         const val UPDATE_CAPTAIN_STATUS = "/CaptainProfile/Availability"
         const val ACCEPT_REQUEST = "/Voyage/Accept"
         const val START_VOYAGE = "/Voyage/Start"
         const val CAPTAIN_FEEDBACK = "/Voyage/CaptainFeedback"
         const val VOYAGER_FEEDBACK = "/Voyage/VoyagerFeedback"
+        const val VOYAGER_FOLLOW_BUSINESS = "/Voyager/FollowBusiness"
+        const val VOYAGER_UNFOLLOW_BUSINESS = "/Voyager/UnFollowBusiness"
         const val COMPLETE_VOYAGE = "/Voyage/Complete"
         const val PAYMENT = "/Voyage/PaymentInitiate"
         const val PAYMENT_COMFIRMATION = "/Voyage/PaymentConfirmation"
@@ -53,6 +59,8 @@ object ApiConstants {
         const val GET_NOW_BOOKED_VOYAGES = "/Voyager/GetImmediatelyBookedVoyage"
         const val CONFIRM_BOOKED_VOYAGE = "/Voyage/Confirm"
         const val CANCEL_VOYAGE = "/Voyage/Cancel"
+
+
 
     }
 }

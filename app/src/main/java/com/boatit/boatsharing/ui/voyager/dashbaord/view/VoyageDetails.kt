@@ -35,14 +35,16 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.ActiveVoyageDetails
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
 fun VoyageDetails(navController: NavController,
-      OTP: Int?,
-      CaptainName: String?,
-      BoatName: String?,
-      BoatModel: String?) {
+                  voyage: ActiveVoyageDetails,
+                  OTP: Int?,
+                  CaptainName: String?,
+                  BoatName: String?,
+                  BoatModel: String?) {
 
 
     val context = LocalContext.current
@@ -82,21 +84,21 @@ fun VoyageDetails(navController: NavController,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .border(1.dp, Color(0xFF3366FF), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "12\nMinutes",
-                            color = Color(0xFF3366FF),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+//
+//                    Box(
+//                        modifier = Modifier
+//                            .border(1.dp, Color(0xFF3366FF), RoundedCornerShape(10.dp))
+//                            .padding(horizontal = 12.dp, vertical = 8.dp),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Text(
+//                            text = "12\nMinutes",
+//                            color = Color(0xFF3366FF),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 14.sp,
+//                            textAlign = TextAlign.Center
+//                        )
+//                    }
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
@@ -170,7 +172,8 @@ fun VoyageDetails(navController: NavController,
                             color = Color.Gray
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "4.9", fontWeight = FontWeight.Bold)
+                            Text(text = voyage.Rating.toString(),
+                                fontWeight = FontWeight.Bold)
                             repeat(5) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.location_icon_two), // Anchor rating icon
@@ -268,15 +271,4 @@ fun VoyageDetails(navController: NavController,
                 .clickable { navController.navigate(NavigationManager.MENU_OPTIONS_SCREEN) }
         )
     }
-}
-@Preview
-@Composable
-fun PreviewVoyageDetails() {
-    VoyageDetails(
-        navController = rememberNavController(),
-        OTP = 34455,
-        CaptainName = "Johnvsbsb Doebbh",
-        BoatName = "Sea Explorer",
-        BoatModel = "WaveRunner FX"
-    )
 }

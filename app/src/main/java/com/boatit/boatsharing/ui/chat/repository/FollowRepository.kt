@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.chat.repository
 
 import android.content.Context
 import com.boatit.boatsharing.network.di.ApiConstants
+import com.boatit.boatsharing.ui.chat.model.ComplainRequest
 import com.boatit.boatsharing.ui.chat.model.FollowRequest
 import com.boatit.boatsharing.ui.chat.model.FollowResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyageResponse
@@ -23,6 +24,24 @@ class FollowRepository(
     suspend fun findboat(profile: FollowRequest): Result<FollowResponse> {
         return try {
             val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.FOLLOW_VOYAGER}") {
+                contentType(ContentType.Application.Json)
+                setBody(profile)
+            }
+            if (response.status == HttpStatusCode.Created) {
+                val placesResponse: FollowResponse = response.body()
+                Result.success(placesResponse)
+            } else {
+                val placesResponse: FollowResponse = response.body()
+                Result.failure(Exception(placesResponse.Message))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error fetching places: ${e.localizedMessage}", e))
+        }
+    }
+
+    suspend fun complian(profile: ComplainRequest): Result<FollowResponse> {
+        return try {
+            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.COMPLAIN_VOYAGER}") {
                 contentType(ContentType.Application.Json)
                 setBody(profile)
             }

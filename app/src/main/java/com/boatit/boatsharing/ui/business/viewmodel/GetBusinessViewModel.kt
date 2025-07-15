@@ -41,14 +41,20 @@ class GetBusinessViewModel(private val repository: GetBusinessRepo, private val 
     private val _docksState = MutableStateFlow<NetworkResponse<DocksDropdownResponse>>(NetworkResponse.Loading())
     val docksState: StateFlow<NetworkResponse<DocksDropdownResponse>> = _docksState
 
+    private val _logoutEvent = MutableStateFlow(false)
+    val logoutEvent = _logoutEvent.asStateFlow()
+
     fun voyages() {
         viewModelScope.launch {
             _loginState.value = NetworkResponse.Loading()
             val result = repository.voyages()
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
-            }.onFailure { error ->
-                _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
+            }.onFailure { exception ->
+                if (exception.message?.contains("401")!!) {
+                    _logoutEvent.value = true
+                }
+                _loginState.value = NetworkResponse.Error(exception.message ?: "Login failed")
             }
         }
     }

@@ -38,6 +38,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.ui.userroles.viewmodel.FCMTokenViewModel
 import com.boatit.boatsharing.ui.userroles.viewmodel.RoleViewModel
 import com.boatit.boatsharing.uihelpers.ClickTopBarIcon
@@ -65,17 +66,20 @@ fun SelectRole(
                     viewModelFcm.fcm(AppConstants.USER_ID.toString(), token)
                 }
             }
-
             when (selectedRole) {
-                "Voyager" -> navController.navigate("$DASHBOARD_SCREEN/null")
-                "Captain" -> navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
-                else -> navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
+                "Voyager" -> {
+                    navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
+                    viewModel.resetNearbyPlaces()
+                }
+                "Captain" -> {navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
+                    viewModel.resetNearbyPlaces()}
+                else -> {navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN)
+                    viewModel.resetNearbyPlaces()}
             }
         }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -125,9 +129,14 @@ fun SelectRole(
                         viewModel.selectRole(AppConstants.USER_ID.toString(), "Captain")
                     }
                 )
+            }
 
-                Spacer(Modifier.width(15.dp))
+            Spacer(Modifier.height(15.dp))
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
                 RoleCard(
                     imageResId = R.drawable.business,
                     size = 100.dp,
@@ -142,27 +151,27 @@ fun SelectRole(
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Button(
-                onClick = { navController.navigate("$DASHBOARD_SCREEN/null") },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
-            ) {
-                Text(
-                    text = stringResource(R.string.guest_button_text),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
-            }
-
-            Spacer(Modifier.height(30.dp))
-        }
+//        Column(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .padding(16.dp)
+//        ) {
+//            Button(
+//                onClick = { navController.navigate("$DASHBOARD_SCREEN/null") },
+//                shape = RoundedCornerShape(10.dp),
+//                modifier = Modifier.fillMaxWidth().height(50.dp),
+//                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
+//            ) {
+//                Text(
+//                    text = stringResource(R.string.guest_button_text),
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.SemiBold,
+//                    color = Color.White
+//                )
+//            }
+//
+//            Spacer(Modifier.height(30.dp))
+//        }
     }
 
     if (isLoading) {
@@ -180,6 +189,6 @@ fun SelectRole(
 
 @Preview
 @Composable
-fun PreviewBusinessOnboardingOnboardingScreen() {
+fun PreviewSelectRoleScreen() {
     SelectRole(navController = rememberNavController())
 }

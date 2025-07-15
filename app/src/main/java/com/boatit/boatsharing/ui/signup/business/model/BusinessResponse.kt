@@ -29,10 +29,13 @@ data class GetBusinessProfileResponse(
 
 @Serializable
 data class BusinessProfileData(
+    val PhoneNumber: String,
+    val FirstName: String,
+    val LastName: String,
+    val Address: String,
+    val DateOfBirth: String,
+    val StripeEmail: String,
     val UserId: String,
-    val BusinessName: String?,
-    val Address: String?,
-    val PhoneNumber: String?,
-    val Email: String?,
-    val Website: String?
+    val ChangedOn: String,
+    val ChangedBy: String
 )

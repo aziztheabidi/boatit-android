@@ -45,6 +45,7 @@ data class ActiveVoyageDetails(
     val Id: String,
     val CaptainUserId: String,
     val CaptainName: String,
+    val Name:String,
     val PickupDock: String,
     val PickupDockLatitude: Double,
     val PickupDockLongitude: Double,
@@ -53,7 +54,12 @@ data class ActiveVoyageDetails(
     val DropOffDockLongitude: Double,
     val BoatName: String,
     val BoatModel: String,
-    val OTP: Int,
+    val OTP: Int? = null,
     val AmountToPay: Double,
-    val Status: String
+    val Rating: Double? = null,
+    val Status: String,
+    val Duration: String? = null,
+    val NoOfVoyagers: String,
+    val WaterStay: String,
+    val BookingDateTime:String
 )

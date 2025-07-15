@@ -52,27 +52,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.application.StripeSheetActivity
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookedVoyage
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.ConfirmBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.FutureBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagerPayment
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageDetails
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.NearByVoyagesViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
-import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -84,49 +72,49 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
     var loading by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(8.dp)
-            .border(1.dp, Color.Blue, RoundedCornerShape(8.dp)),
+        modifier = Modifier.fillMaxWidth().padding(10.dp)
+            .border(0.5.dp,  colorResource(id = R.color.button_normal), RoundedCornerShape(8.dp)),
 
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(Color.White)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(
-                    top = 20.dp,
-                    start = 16.dp, end = 16.dp, bottom = 16.dp
+                    top = 5.dp,
+                    start = 5.dp, end = 5.dp, bottom = 5.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Boat Info Card
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
+
+                modifier = Modifier.fillMaxWidth().padding(10.dp)
 
 
             ) {
                 Column() {
+
+                    Spacer(Modifier.height(5.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
+
                         Text(
                             style = TextStyle(
                                 color = Color.Black,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Normal
                             ),
-                            text = "Sunday, 12 April | 10:00 am"
+                            text = notification?.BookingDateTime!!
                         )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
 
-
-                        }
                     }
 
                     Spacer(Modifier.height(7.dp))
@@ -137,7 +125,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "Event Conference"
+                        text = notification?.Name!!
                     )
                     Spacer(Modifier.height(7.dp))
                     Text(
@@ -146,7 +134,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "2025"
+                        text = notification?.BookingDateTime!!
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -155,9 +143,8 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W500
                         ),
-                        text = "Voyagees details"
+                        text = "Voyagees Details"
                     )
                     Spacer(Modifier.height(10.dp))
 
@@ -173,13 +160,13 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(135.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -191,15 +178,15 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
+                                                fontSize = 12.sp,
                                                 fontWeight = FontWeight.W400
                                             ),
-                                            text = "12"
+                                            text = notification.NoOfVoyagers.toString()
                                         )
                                     }
 
@@ -214,7 +201,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
@@ -222,7 +209,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                                 fontSize = 16.sp,
                                                 fontWeight = FontWeight.Bold
                                             ),
-                                            text = notification?.AmountToPay.toString()
+                                            text = notification.AmountToPay.toString()
                                         )
                                     }
 
@@ -239,15 +226,15 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
+                                                fontSize = 12.sp,
                                                 fontWeight = FontWeight.W400
                                             ),
-                                            text = "12 PM"
+                                            text = notification.Duration.toString()
                                         )
                                     }
                                 }
@@ -259,7 +246,7 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(175.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
@@ -277,12 +264,12 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
+                                                fontSize = 12.sp,
                                                 fontWeight = FontWeight.W400
                                             ),
                                             text = notification?.PickupDock!!
@@ -300,16 +287,16 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Red
+                                            tint = Color.Unspecified
 
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
+                                                fontSize = 12.sp,
                                                 fontWeight = FontWeight.W400
                                             ),
-                                            text = notification?.DropOffDock!!
+                                            text = notification.DropOffDock!!
                                         )
                                     }
 
@@ -326,15 +313,15 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
+                                                fontSize = 12.sp,
                                                 fontWeight = FontWeight.W400
                                             ),
-                                            text = "No Time Spent"
+                                            text = notification.WaterStay!!
                                         )
                                     }
                                 }
@@ -348,53 +335,74 @@ fun FutureConfirmVoyagerItems(navController: NavController, notification : Booke
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {},
-                shape = RoundedCornerShape(10.dp), // Corner radius
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .border(
-                        width = 1.dp,
-                        color = colorResource(id = R.color.black), // Border color
-                        shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
-                    ),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    .padding(horizontal = 10.dp) // Only left and right padding
             ) {
-                Text(
-                    text = notification?.OTP.toString(),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = colorResource(id = R.color.black) // Text color matches border
-                )
+                Button(
+                    onClick = {},
+                    shape = RoundedCornerShape(10.dp), // Corner radius
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .border(
+                            width = 0.5.dp,
+                            color = colorResource(id = R.color.black), // Border color
+                            shape = RoundedCornerShape(8.dp) // Apply same corner radius to border
+                        ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {
+                    Text(
+                        text = notification?.OTP.toString(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = colorResource(id = R.color.black) // Text color matches border
+                    )
+                }
+
+            }
+            Spacer(Modifier.height(10.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp) // Only left and right padding
+            ) {
+                Button(
+                    onClick = {
+                        viewModelCancel.fetchNearbyPlaces(
+                            CancelBookedVoyages(
+                                notification?.Id!!,
+                                ""
+                            )
+                        )
+                        loading = true
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 1.dp)
+                        .border(
+                            width = 0.5.dp,
+                            color = colorResource(id = R.color.button_normal), // Border color
+                            shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                        ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {
+                    Text(
+                        text = "Cancel Voyage",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorResource(id = R.color.button_normal), // Border color
+                    )
+                }
+
             }
 
             Spacer(Modifier.height(10.dp))
-
-            Button(
-                onClick = {
-                    viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!, ""))
-                    loading =true                },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(horizontal = 1.dp)
-                    .border(
-                        width = 1.dp,
-                        color = colorResource(id = R.color.button_normal), // Border color
-                        shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
-                    ),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-            ) {
-                Text(
-                    text = "Cancel Voyage",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colorResource(id = R.color.button_normal), // Border color
-                )
-            }
         }
     }
 

@@ -1,6 +1,9 @@
 package com.boatit.boatsharing.ui.login.view
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
@@ -102,129 +106,140 @@ fun LoginScreen(
 
     when (loginState) {
         is NetworkResponse.Success -> {
-                Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                performLogin((loginState as NetworkResponse.Success<LoginResponse>).data)
+            Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
+            performLogin((loginState as NetworkResponse.Success<LoginResponse>).data)
         }
+
         is NetworkResponse.Error -> {
-                val error = (loginState as NetworkResponse.Error).message
-                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                viewModel.resetNearbyPlaces()
+            val error = (loginState as NetworkResponse.Error).message
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            viewModel.resetNearbyPlaces()
         }
+
         else -> {}
     }
 
-    Scaffold(
-        topBar = {
-            CustomTopBar(
-                text = stringResource(R.string.login_h1),
-                onImageClick = { println("clicked...") }
-            )
-        },
-        content = { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(
-                        top = innerPadding.calculateTopPadding() + 15.dp,
-                        start = 20.dp,
-                        end = 20.dp,
-                        bottom = innerPadding.calculateTopPadding() + 25.dp,
-                    )
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Spacer(Modifier.height(30.dp))
+        Scaffold(
+            containerColor = Color.White,
+            topBar = {
+                CustomTopBar(
+                    text = stringResource(R.string.login_h1),
+                    onImageClick = {
+                        navController.popBackStack()
 
-                Text(
-                    text = stringResource(R.string.email),
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    )
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                CustomTextField(
-                    textValue = email,
-                    placeholderText = stringResource(R.string.email_placeholder),
-                    onTextChange = viewModel::onEmailChange,
-                    keyboardType = KeyboardType.Email,
-                    maxChars = 100,
-                    errorMessage = if (!viewModel.isEmailValid && email.isNotEmpty())
-                        stringResource(R.string.email_validation_text)
-                    else null,
-                    isError = !viewModel.isEmailValid && email.isNotEmpty(),
-                    onClearError = { viewModel.errorMessage = null },
-                    imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { passwordFocusRequester.requestFocus() }
-                    ),
-                    focusRequester = emailFocusRequester
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(R.string.password),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                PasswordTextField(
-                    value = password,
-                    onValueChange = viewModel::onPasswordChange,
-                    errorMessage = if (!viewModel.isPasswordValid && password.isNotEmpty())
-                        stringResource(R.string.password_validation_text)
-                    else null,
-                    isError = !viewModel.isPasswordValid && password.isNotEmpty(),
-                    onClearError = { viewModel.errorMessage = null },
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done,
-                    keyboardActions = KeyboardActions(
-                        onDone = { focusManager.clearFocus() }
-                    ),
-                    focusRequester = passwordFocusRequester
-                )
-
-                Spacer(Modifier.height(40.dp))
-
-                CustomButton(
-                    text = stringResource(R.string.login),
-                    isValidate = isFormValid,
-                    isLoading = isLoading,
-                    onButtonClick = {
-                        focusManager.clearFocus()
-                        viewModel.login()
                     }
                 )
-
-                Spacer(Modifier.height(10.dp))
-
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+            },
+            content = { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            top = innerPadding.calculateTopPadding() + 15.dp,
+                            start = 20.dp,
+                            end = 20.dp,
+                            bottom = innerPadding.calculateTopPadding() + 25.dp,
+                        )
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    CustomClickableTextView(
-                        text = stringResource(R.string.forgot_password),
-                        onTextClick = {
-                            navController.navigate(NavigationManager.FORGOT_PASSWORD_SCREEN)
+                    Spacer(Modifier.height(30.dp))
+
+                    Text(
+                        text = stringResource(R.string.email),
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    CustomTextField(
+                        textValue = email,
+                        placeholderText = stringResource(R.string.email_placeholder),
+                        onTextChange = viewModel::onEmailChange,
+                        keyboardType = KeyboardType.Email,
+                        maxChars = 100,
+                        errorMessage = if (!viewModel.isEmailValid && email.isNotEmpty())
+                            stringResource(R.string.email_validation_text)
+                        else null,
+                        isError = !viewModel.isEmailValid && email.isNotEmpty(),
+                        onClearError = { viewModel.errorMessage = null },
+                        imeAction = ImeAction.Next,
+                        keyboardActions = KeyboardActions(
+                            onNext = { passwordFocusRequester.requestFocus() }
+                        ),
+                        focusRequester = emailFocusRequester
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+
+                    Text(
+                        text = stringResource(R.string.password),
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    PasswordTextField(
+                        value = password,
+                        onValueChange = viewModel::onPasswordChange,
+                        errorMessage = if (!viewModel.isPasswordValid && password.isNotEmpty())
+                            stringResource(R.string.password_validation_text)
+                        else null,
+                        isError = !viewModel.isPasswordValid && password.isNotEmpty(),
+                        onClearError = { viewModel.errorMessage = null },
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done,
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
+                        focusRequester = passwordFocusRequester
+                    )
+
+                    Spacer(Modifier.height(40.dp))
+
+                    CustomButton(
+                        text = stringResource(R.string.login),
+                        isValidate = isFormValid,
+                        isLoading = isLoading,
+                        onButtonClick = {
+                            focusManager.clearFocus()
+                            viewModel.login()
                         }
                     )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CustomClickableTextView(
+                            text = stringResource(R.string.forgot_password),
+                            onTextClick = {
+                                navController.navigate(NavigationManager.FORGOT_PASSWORD_SCREEN)
+                            }
+                        )
+                    }
                 }
+            },
+            bottomBar = {
+                TermsAndPrivacyView(
+                    onClick = {
+                        val url = ApiConstants.PRIVACY_POLICY
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                )
             }
-        },
-        bottomBar = {
-            TermsAndPrivacyView(
-                onClick = {}
-            )
-        }
-    )
+        )
+
 }
 
 @Preview

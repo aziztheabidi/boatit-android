@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +21,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -58,12 +61,14 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookedVoyage
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.ConfirmBookedVoyages
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.TravelNowObj
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
+import com.boatit.boatsharing.uihelpers.MissingPaymentDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
@@ -74,12 +79,11 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                   viewModelCancel: CancelBookedVoyageViewModel = koinViewModel(),
                   viewModelStripe: SponsorPaymentSheetConfigViewModel = koinViewModel(),
                   viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel()
-
 ) {
+
     val ConfirmState by viewModelConfirm.nearbyPlaces.collectAsState()
     val stripeState by viewModelStripe.loginState.collectAsState()
     val paymentState by viewModelP.loginState.collectAsState()
-
     val context = LocalContext.current
 
     var loading by remember { mutableStateOf(false) }
@@ -89,6 +93,8 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
     var id by remember { mutableStateOf<String?>(null) }
     var PaymentIntentid by remember { mutableStateOf<String?>(null) }
     var ephemeralKeySecret by remember { mutableStateOf<String?>(null) }
+
+    var showDialog by remember { mutableStateOf(false) }
 
     val stripeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -135,8 +141,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
         is NetworkResponse.Error -> {
             if(ConfirmState.message.equals("An error occurred: Please Pay Completely first then you can confirm your voyage"))
             {
-                viewModelStripe.paymentConfig(SponsorVoyagePaymentRequest(notification?.Id!!,
-                    AppConstants.USER_ID.toString(),""))
+                showDialog = true
             }
             else{
                 Toast.makeText(context, ConfirmState.message, Toast.LENGTH_SHORT).show()
@@ -148,35 +153,32 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
 
     when (paymentState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
         }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
-
-        }
+        is NetworkResponse.Error -> {}
         else -> {}
     }
 
+    Spacer(modifier = Modifier.height(5.dp))
     Card(
         modifier = Modifier.fillMaxWidth().padding(8.dp)
-            ,
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(Color.White)
+
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(top = 15.dp,
+                .padding(top = 10.dp,
                     start = 12.dp, end = 12.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Boat Info Card
+
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(4.dp),
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().
-                border(1.dp, Color.Blue, RoundedCornerShape(8.dp))
+                modifier = Modifier.fillMaxWidth().border(0.5.dp,  colorResource(id = R.color.button_normal), RoundedCornerShape(8.dp))
+
+
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp)
@@ -192,7 +194,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Normal
                             ),
-                            text = "Sunday, 12 April | 10:00 am"
+                            text = notification?.BookingDateTime!!
                         )
 
                     }
@@ -205,7 +207,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "Event Conference"
+                        text = notification?.Name!!
                     )
                     Spacer(Modifier.height(7.dp))
                     Text(
@@ -214,7 +216,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "2025"
+                        text = notification?.BookingDateTime!!
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -223,9 +225,9 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W500
+
                         ),
-                        text = "Voyagees details"
+                        text = "Voyagees Details"
                     )
                     Spacer(Modifier.height(10.dp))
 
@@ -241,13 +243,13 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(135.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -259,15 +261,14 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+                                                fontSize = 12.sp,
                                             ),
-                                            text = "12"
+                                            text = notification.NoOfVoyagers.toString()
                                         )
                                     }
 
@@ -282,15 +283,15 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
                                                 fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontWeight = FontWeight.Bold
                                             ),
-                                            text = notification?.AmountToPay.toString()
+                                            text = notification.AmountToPay.toString()
                                         )
                                     }
 
@@ -307,15 +308,14 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
+                                                fontSize = 12.sp,
                                             ),
-                                            text = "12 PM"
+                                            text = notification.Duration.toString()
                                         )
                                     }
                                 }
@@ -327,13 +327,13 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(175.dp),
+                                    .weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -345,16 +345,17 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
-                                            ),
-                                            text = notification?.PickupDock!!
-                                        )
+                                        notification.PickupDock.let {
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 12.sp,
+                                                ),
+                                                text = it )
+                                        }
+
                                     }
 
                                     Divider(
@@ -368,17 +369,18 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Red
+                                            tint = Color.Unspecified
 
                                         )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
-                                            ),
-                                            text = notification?.DropOffDock!!
-                                        )
+                                        notification.DropOffDock.let {
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 12.sp,
+                                                ),
+                                                text = it)
+                                        }
+
                                     }
 
                                     Divider(
@@ -394,16 +396,10 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.W400
-                                            ),
-                                            text = notification?.PickupDock!!
-                                        )
+                                        notification.WaterStay
+
                                     }
                                 }
                             }
@@ -416,143 +412,18 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-
-            Text(
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W500
-                ),
-                text = "Sponsors"
-            )
-
-            Spacer(Modifier.height(5.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(165.dp) // Set a fixed height for the inner Card
-                    .background(color = Color.White)
-                    .padding(5.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // Add elevation
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Person Icon",
-                            modifier = Modifier
-                                .size(25.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-                                .background(Color.Gray) // Optional: Add background color to the circle
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            text = "Myself"
-                        )
-                        Spacer(Modifier.width(170.dp))
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Person Icon",
-                            tint = Color.Green,
-                            modifier = Modifier
-                                .size(22.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(15.dp)) // Space between rows
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Phone Icon",
-                            modifier = Modifier
-                                .size(25.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-                                .background(Color.Gray) // Optional: Add background color to the circle
-                        )
-                        Spacer(Modifier.width(5.dp))
-
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            text = "Chadwick"
-                        )
-                        Spacer(Modifier.width(150.dp))
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Person Icon",
-                            tint = Color.Gray,
-                            modifier = Modifier
-                                .size(22.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(15.dp)) // Space between rows
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Email Icon",
-                            modifier = Modifier
-                                .size(25.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-                                .background(Color.Gray) // Optional: Add background color to the circle
-                        )
-                        Spacer(Modifier.width(5.dp))
-
-
-                        Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.W400
-                            ),
-                            text = "Anderson"
-                        )
-                        Spacer(Modifier.width(150.dp))
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Person Icon",
-                            tint = Color.Gray,
-                            modifier = Modifier
-                                .size(22.dp) // Adjust icon size
-                                .clip(CircleShape) // Make the icon circular
-
-                        )
-                    }
-                }
-            }
+            SponsorsList(notification?.Sponsers!!)
 
             Spacer(Modifier.height(10.dp))
-
-            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = { viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
-                              loading = true
-                              },
+                    onClick = {
+                                    viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
+                                    loading = true
+                          },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier
                         .weight(1f)
@@ -593,10 +464,89 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                     )
                 }
             }
+
+            if (showDialog) {
+                MissingPaymentDialog(
+                    name = "users name from sponsors list....",
+                    onCancel = { showDialog = false },
+                    onPayNow = {
+                        showDialog = false
+                        viewModelStripe.paymentConfig(SponsorVoyagePaymentRequest(notification?.Id!!,
+                            AppConstants.USER_ID.toString(),""))
+                    },
+                    onDismissRequest = { showDialog = false }
+                )
+            }
         }
     }
 
 
+}
+
+
+@Composable
+fun SponsorsList(users : List<Sponser>) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(12.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column {
+            users.forEachIndexed { index, user ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.sample_profile_img),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = user.VoyagerUserName,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Image(
+                        painter =  if(user.Status.equals("Pending")){
+                            painterResource(
+                                id = R.drawable.uncheck_icon
+                            )
+                        } else{
+                            painterResource(
+                                id = R.drawable.checked_icon
+                            )
+                        } ,
+                        contentDescription = "Selected",
+                        modifier = Modifier
+                            .size(18.dp)
+                    )
+                }
+
+                if (index != users.lastIndex) {
+                    Divider(
+                        modifier = Modifier.padding(start = 72.dp),
+                        color = Color(0xFFEFEFEF),
+                        thickness = 1.dp
+                    )
+                }
+            }
+        }
+    }
 }
 
 

@@ -1,6 +1,5 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,27 +16,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -47,29 +37,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.ActiveVoyageDetails
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
 
 fun ConfirmBooking(
-                   navController: NavController,
-                   onCancelClick: () -> Unit,
-                   onPayNowClick: () -> Unit) {
+    navController: NavController,
+    voyage: ActiveVoyageDetails,
+    onCancelClick: () -> Unit,
+    onPayNowClick: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Box(
 
         modifier = Modifier.height(screenHeight * 0.65f),
         contentAlignment = Alignment.TopCenter
     ) {
-        // Main Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,8 +81,6 @@ fun ConfirmBooking(
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                // Boat Info Card
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(10.dp),
@@ -112,7 +98,7 @@ fun ConfirmBooking(
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = "Sunday, 12 April | 10:00 am"
+                                text = voyage.BookingDateTime
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
@@ -121,15 +107,15 @@ fun ConfirmBooking(
                                     modifier = Modifier
                                         .size(25.dp) // Adjust size as needed
                                         .padding(end = 5.dp), // Add some space between text and icon
-                                    tint = Color.Blue // Change color of the icon
+                                    tint = Color.Unspecified // Change color of the icon
                                 )
                                 Text(
                                     style = TextStyle(
                                         color = Color(0xFF797979),
-                                        fontSize = 14.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.W500
                                     ),
-                                    text = "Pending"
+                                    text = voyage.Status
                                 )
 
                             }
@@ -140,19 +126,19 @@ fun ConfirmBooking(
                         Text(
                             style = TextStyle(
                                 color = Color(0xFF6A6969),
-                                fontSize = 24.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.W500
                             ),
-                            text = "Event Conference"
+                            text = voyage.Name
                         )
                         Spacer(Modifier.height(7.dp))
                         Text(
                             style = TextStyle(
                                 color = Color(0xFF6A6969),
-                                fontSize = 24.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.W500
                             ),
-                            text = "2025"
+                            text = voyage.BookingDateTime
                         )
 
                         Spacer(Modifier.height(10.dp))
@@ -161,7 +147,6 @@ fun ConfirmBooking(
                             style = TextStyle(
                                 color = Color.Black,
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.W500
                             ),
                             text = "Voyagees details"
                         )
@@ -189,7 +174,6 @@ fun ConfirmBooking(
                                             .fillMaxSize(),
                                         verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                     ) {
-                                        // First row with icon and text
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.passengers),
@@ -197,15 +181,15 @@ fun ConfirmBooking(
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = "Home"
+                                                text = voyage.NoOfVoyagers.toString()
                                             )
                                         }
                                         Divider(
@@ -219,12 +203,12 @@ fun ConfirmBooking(
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
                                                 text = AppConstants.Estimated_Cost.toString()!!
@@ -236,7 +220,6 @@ fun ConfirmBooking(
                                             thickness = 1.dp
                                         )
 
-                                        // Third row with icon and text
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.clock),
@@ -244,12 +227,12 @@ fun ConfirmBooking(
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
                                                 text = AppConstants.Event_Time!!
@@ -282,15 +265,15 @@ fun ConfirmBooking(
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Pick_Up_Loc!!
+                                                text = voyage.PickupDock
                                             )
                                         }
 
@@ -305,16 +288,16 @@ fun ConfirmBooking(
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Red
+                                                tint = Color.Unspecified
 
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Drop_Off_Loc!!
+                                                text = voyage.DropOffDock
                                             )
                                         }
 
@@ -323,7 +306,6 @@ fun ConfirmBooking(
                                             thickness = 1.dp
                                         )
 
-                                        // Third row with icon and text
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.flag),
@@ -331,15 +313,15 @@ fun ConfirmBooking(
                                                 modifier = Modifier
                                                     .size(30.dp)
                                                     .padding(end = 10.dp),
-                                                tint = Color.Blue
+                                                tint = Color.Unspecified
                                             )
                                             Text(
                                                 style = TextStyle(
                                                     color = Color.Black,
-                                                    fontSize = 16.sp,
+                                                    fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = "Home"
+                                                text = voyage.WaterStay
                                             )
                                         }
                                     }
@@ -413,13 +395,4 @@ fun ConfirmBooking(
 
 
 
-}
-@Preview
-@Composable
-fun PreviewConfirmBooking() {
-    ConfirmBooking(
-        navController = rememberNavController(),
-        onCancelClick = {},
-        onPayNowClick = {}
-    )
 }

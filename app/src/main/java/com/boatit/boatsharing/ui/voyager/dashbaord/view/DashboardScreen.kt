@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -58,6 +59,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.ActiveVoyageDetails
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
@@ -101,7 +103,7 @@ fun DashboardScreen(navController: NavController, value: String?,
     val context = LocalContext.current
     val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedLocation by rememberSaveable { mutableStateOf<List<String>?>(null) }
     val defaultLatLng = LatLng(40.792240, -73.138260)
     var currentLatLng by rememberSaveable { mutableStateOf(defaultLatLng) }
@@ -133,6 +135,7 @@ fun DashboardScreen(navController: NavController, value: String?,
     val coroutineScope = rememberCoroutineScope()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val markerState = remember { MarkerState(position = defaultLatLng) }
+    val logoutEvent by viewModel.logoutEvent.collectAsState()
     var currentSheetTarget by remember {
         mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded)
     }
@@ -151,6 +154,8 @@ fun DashboardScreen(navController: NavController, value: String?,
         navController.currentBackStackEntry?.savedStateHandle?.remove<String>("result_key")
     }
 
+
+
     PermissionsToAccessLocation(
         fusedLocationProviderClient = fusedLocationProviderClient,
         onPermissionGranted = { userLatLng ->
@@ -158,8 +163,13 @@ fun DashboardScreen(navController: NavController, value: String?,
             markerState.position = userLatLng
             cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLatLng, 17f))
         },
-        onPermissionDenied = {}
+        onPermissionDenied = {},
+        content = {
+            // Composable to show once permission is granted
+            Text("Permission Granted")
+        }
     )
+
 
     val nearbyPlacesState by viewModel.nearbyPlaces.collectAsState()
     val currentState by viewModelCurrent.loginState.collectAsState()
@@ -253,20 +263,18 @@ fun DashboardScreen(navController: NavController, value: String?,
                 showConfirmBooking = false
                 showStartBooking = true
                 showFindBoat = true
+                voyageDetail = currentState.data?.obj
                 AppConstants.Voyage_ID = currentState.data!!.obj.Id
                 AppConstants.Estimated_Cost = currentState.data!!.obj.AmountToPay
                 AppConstants.Event_Time = currentState.data!!.obj.AmountToPay.toString()
-                AppConstants.Pick_Up_Loc = currentState.data!!.obj.PickupDock
-                AppConstants.Drop_Off_Loc = currentState.data!!.obj.DropOffDock
             }else if(currentState.data?.obj?.Status?.equals("Accepted")!!){
                 showConfirmBooking = true
                 showFindBoat = true
                 showVoyageDetails = false
+                voyageDetail = currentState.data?.obj
                 AppConstants.Voyage_ID = currentState.data!!.obj.Id
                 AppConstants.Estimated_Cost = currentState.data!!.obj.AmountToPay
                 AppConstants.Event_Time = currentState.data!!.obj.AmountToPay.toString()
-                AppConstants.Pick_Up_Loc = currentState.data!!.obj.PickupDock
-                AppConstants.Drop_Off_Loc = currentState.data!!.obj.DropOffDock
             }else if(currentState.data?.obj?.Status?.equals("Paid")!!){
                 showVoyageDetails = true
                 showConfirmBooking = false
@@ -274,22 +282,29 @@ fun DashboardScreen(navController: NavController, value: String?,
                 voyageDetail = currentState.data?.obj
                 println("ID" + voyageDetail?.Id)
             }else if(currentState.data?.obj?.Status?.equals("Completed")!!){
+                voyageDetail = currentState.data?.obj
                 showConfirmBooking = false
                 showFindBoat = false
                 showVoyageDetails = false
                 navController.navigate(NavigationManager.VOYAGER_FEEDBACK_SCREEN)
+            }else if(AppConstants.BusinessDock!!){
+                showFindBoat = true
             }
             viewModelCurrent.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {
+            println(currentState.message)
         }
         else -> {}
     }
 
     LaunchedEffect(notificationState) {
+        if(AppConstants.BusinessDock!!){
+            showFindBoat = true
+        }
         viewModel.fetchNearbyPlaces()
         viewModel.fetchCategories()
-//        viewModelCurrent.voyages()
+        viewModelCurrent.voyages()
     }
 
     Box(modifier = Modifier.fillMaxSize()
@@ -331,7 +346,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                     }
                 }
             }
-
         }
 
         Box(
@@ -342,7 +356,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                 .padding(start = 20.dp, top = 40.dp)
                 .then(if (isMenuIconVisible) Modifier else Modifier.alpha(0f)),
                  contentAlignment = Alignment.TopStart,
-            )  {
+        )  {
 
             Image(
                 painter = painterResource(id = R.drawable.wheel_icon),
@@ -374,12 +388,10 @@ fun DashboardScreen(navController: NavController, value: String?,
             }
 
         }
-
         if(showFindBoat){
             ModalBottomSheet(
+                sheetState = sheetState,
                 onDismissRequest = {
-                    coroutineScope.launch { sheetState.partialExpand() // Always revert to partial expansion
-                    }
                     showFindBoat = false
                     selectedLocation = null
                 },
@@ -408,6 +420,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                 if(showConfirmBooking){
                     ConfirmBooking(
                         navController,
+                        voyageDetail!!,
                         onCancelClick = {
                             showConfirmBooking= false
                             selectedLocation = null
@@ -419,14 +432,14 @@ fun DashboardScreen(navController: NavController, value: String?,
                     )
                 }
                 else if(showStartBooking){
-                    StartVoyage(navController)
+                    StartVoyage(navController, voyageDetail!!)
                 }
                 else if (showVoyageDetails){
-                    VoyageDetails(navController, voyageDetail?.OTP, voyageDetail?.CaptainName, voyageDetail?.BoatName, voyageDetail?.BoatModel)
+                    VoyageDetails(navController, voyageDetail!!, voyageDetail?.OTP, voyageDetail?.CaptainName, voyageDetail?.BoatName, voyageDetail?.BoatModel)
                 }
                 else{
                     FindBoat(
-                        navController, modifier = Modifier.fillMaxWidth().height(screenHeight * 0.75f),
+                        navController, modifier = Modifier.fillMaxWidth().height(screenHeight * 0.9f),
                         "", "", "",
                         onCancelClick = {
                             showFindBoat = false
@@ -455,6 +468,20 @@ fun DashboardScreen(navController: NavController, value: String?,
                     }
                 },
                 )
+        }
+        if(logoutEvent){
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Session Expired") },
+                text = { Text("Login Again") },
+                confirmButton = {
+                    Button(onClick = {
+                        navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+                    }) {
+                        Text("OK")
+                    }
+                }
+            )
         }
     }
 

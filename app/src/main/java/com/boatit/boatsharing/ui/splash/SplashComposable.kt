@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.splash
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -38,14 +39,7 @@ fun SplashComposable(navController: NavController,
         navigationBarColor = colorResource(R.color.bars_colour),
     )
 
-    Box(modifier = Modifier.fillMaxSize()){
-        Image(
-            painter = painterResource(id = R.drawable.splash_bg),
-            contentDescription = "Splash Background",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)){
         Image(
             painter = painterResource(id = R.drawable.boatit_logo),
             contentDescription = "Logo of the app",
@@ -58,19 +52,18 @@ fun SplashComposable(navController: NavController,
     val userData = viewModel.getUserData()
     val userStatus = viewModelS.getCaptainStatus()
     AppConstants.USER_ID = userData?.UserId
+    AppConstants.USER_NAME = userData?.Username
     println("userid" + AppConstants.USER_ID)
+
     LaunchedEffect(Unit) {
         delay(5000)
         if (userData != null) {
             if(userData.Role.equals("Voyager")){
                 navController.navigate(route = "$DASHBOARD_SCREEN/null")
-//                navController.navigate(NavigationManager.FUTURE_VOYAGES_SCREEN)
             }else if(userData.Role.equals("Captain")){
                 if(userStatus){navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)} else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
-//                navController.navigate(NavigationManager.CAPTAIN_FEEDBACK_SCREEN)
             }else if(userData.Role.equals("Business")){
                 navController.navigate(NavigationManager.BUSINESS_SCREEN)
-//                navController.navigate(NavigationManager.CAPTAIN_FEEDBACK_SCREEN)
             }else{
                 navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
             }

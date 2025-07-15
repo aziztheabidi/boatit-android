@@ -111,7 +111,7 @@ fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNoti
                             horizontalAlignment = Alignment.End
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("4.8", fontWeight = FontWeight.SemiBold)
+                                Text(notification?.Rating.toString(), fontWeight = FontWeight.SemiBold)// Rating not in api
                                 Icon(
                                     painter = painterResource(id = R.drawable.location_icon_two),
                                     contentDescription = "Rating Icon",

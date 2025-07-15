@@ -4,7 +4,15 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.view
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.layout.*
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +41,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -40,6 +49,7 @@ import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
+import androidx.compose.foundation.layout.height
 
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookedVoyageObj
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
@@ -65,7 +75,7 @@ fun FutureVoyages(navController: NavController,
 
     when (CancelState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, CancelState.message.toString(), Toast.LENGTH_SHORT).show()
             getingData = true
             viewModel.voyages()
             viewModelCancel.resetNearbyPlaces()
@@ -85,12 +95,14 @@ fun FutureVoyages(navController: NavController,
                 getingData = false
                 voyages = voyagesList.data?.obj
                 Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
+                viewModel.resetNearbyPlaces()
             }
         }
         is NetworkResponse.Error -> {
             getingData = true
             println("Message" + voyagesList.message)
             Toast.makeText(context, voyagesList.message, Toast.LENGTH_SHORT).show()
+            viewModel.resetNearbyPlaces()
         }
         else -> {}
     }
@@ -99,6 +111,7 @@ fun FutureVoyages(navController: NavController,
         is NetworkResponse.Success -> {
             Toast.makeText(context, "Voyage Confirmed", Toast.LENGTH_SHORT).show()
             viewModel.voyages()
+            getingData = true
             viewModelConfirm.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {}
@@ -115,85 +128,116 @@ fun FutureVoyages(navController: NavController,
                 navController.popBack()
             })
         },
-        containerColor = Color.White,
+        containerColor = White,
         content = { innerPadding ->
-            if (getingData) {
-                Dialog(
-                    onDismissRequest = {},
-                    DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-                ){
-                    Box(
-                        contentAlignment=  Alignment.Center,
+            Box {
+                if (!getingData){
+                    Column(
                         modifier = Modifier
-                            .size(100.dp)
-                            .background(White, shape = RoundedCornerShape(8.dp))
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-            }
-            else {
-                Column(modifier = Modifier
-                    .padding(
-                        top = innerPadding.calculateTopPadding() + 15.dp,
-                        start = 20.dp,
-                        end = 20.dp,
-                    )
-                    .fillMaxSize()) {
-                    TabRow(
-                        selectedTabIndex = selectedTabIndex,
-                        contentColor = Color.White,
-                        indicator = { tabPositions ->
-                            TabRowDefaults.Indicator(
-                                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                                color = Color.White // Make indicator transparent
+                            .padding(
+                                top = innerPadding.calculateTopPadding() + 15.dp,
+                                start = 5.dp,
+                                end = 5.dp,
                             )
-                        }
+                            .fillMaxSize()
                     ) {
-                        tabTitles.forEachIndexed { index, title ->
-                            Tab(
-                                selected = selectedTabIndex == index,
-                                onClick = { selectedTabIndex = index },
-                                text = {
-                                    Text(
-                                        text = title,
-                                        color = if (selectedTabIndex == index) Color.White else colorResource(R.color.button_normal)
-                                    )
-                                },
-                                modifier = Modifier.background(if (selectedTabIndex == index) colorResource(R.color.button_normal)else Color.White)
-                            )
-                        }
-                    }
-                    when (selectedTabIndex) {
-                        0 ->  {
-                            Column(
+                        Box(
+                            modifier = Modifier
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .border(
+                                    width = 0.5.dp,
+                                    color = colorResource(R.color.button_normal),
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                        ) {
+                            Row(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .verticalScroll(rememberScrollState())
-                                    .padding(innerPadding),
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(White)
                             ) {
-                                if(!(voyages?.UnConfirmed?.Id.equals(""))){
-                                    FutureVoyagerItems(
+                                tabTitles.forEachIndexed { index, title ->
+                                    val isSelected = selectedTabIndex == index
+
+                                    val shape = if (isSelected) {
+                                        RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                                    } else {
+                                        RoundedCornerShape(0.dp)
+                                    }
+                                    val offsetModifier = if (isSelected) Modifier.offset(
+                                        x = 0.dp,
+                                        y = (-1).dp
+                                    ) else Modifier
+
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight()
+                                            .then(offsetModifier)
+                                            .clip(shape)
+                                            .background(
+                                                if (isSelected) colorResource(R.color.button_normal) else White
+                                            )
+                                            .clickable { selectedTabIndex = index },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = title,
+                                            color = if (isSelected) White else colorResource(R.color.button_normal),
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        when (selectedTabIndex) {
+                            0 -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(rememberScrollState())
+                                ) {
+                                    if (!(voyages?.UnConfirmed?.Id.equals(""))) {
+                                        FutureVoyagerItems(
+                                            navController = navController,
+                                            notification = voyages?.UnConfirmed
+                                        )
+                                    }
+
+                                }
+                            }
+
+                            1 -> LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                            ) {
+                                items(voyages?.Confirmed?.size!!) { voyage ->
+                                    FutureConfirmVoyagerItems(
                                         navController = navController,
-                                        notification = voyages?.UnConfirmed
+                                        notification = voyages?.Confirmed?.get(voyage)
                                     )
                                 }
-
                             }
-                        }
-                        1 ->  LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                        ) {
-                            items(voyages?.Confirmed?.size!!) { voyage ->
-                                FutureConfirmVoyagerItems(
-                                    navController = navController,
-                                    notification = voyages?.Confirmed?.get(voyage))
-                            }
-                        }
                         }
                     }
+                }
+                if (getingData) {
+                    Dialog(
+                        onDismissRequest = {},
+                        DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                    ){
+                        Box(
+                            contentAlignment=  Alignment.Center,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .background(White, shape = RoundedCornerShape(8.dp))
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
             }
         },
     )

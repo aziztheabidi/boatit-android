@@ -43,11 +43,9 @@ class UpdateStatusViewModel(
     private val _isOnline = MutableStateFlow(false)
     val isOnline: StateFlow<Boolean> = _isOnline
 
-    // Navigation event as one-time event using SharedFlow
     private val _navigateToDashboard = MutableSharedFlow<Unit>()
     val navigateToDashboard = _navigateToDashboard.asSharedFlow()
 
-    // Toast event as one-time event using SharedFlow
     private val _toastMessage = MutableSharedFlow<String>()
     val toastMessage = _toastMessage.asSharedFlow()
 
@@ -55,7 +53,6 @@ class UpdateStatusViewModel(
     val loginState: StateFlow<NetworkResponse<CaptainAvailabilityResponse>> = _loginState
 
     fun toggleStatus(userId: String) {
-        // If already loading, ignore clicks
         if (_isLoading.value) return
 
         val newStatus = !_isOnline.value
@@ -63,7 +60,6 @@ class UpdateStatusViewModel(
         _isLoading.value = true
         _errorMessage.value = null
 
-        // Update UI immediately
         if (newStatus) {
             _title.value = "You are Online!"
             _subtitle.value = "Start accepting voyager and help voyagers reach their destinations."
@@ -82,17 +78,13 @@ class UpdateStatusViewModel(
                 _isOnline.value = newStatus
                 _isLoading.value = false
                 _toastMessage.emit(response.Message ?: "Status updated")
-
                 if (newStatus) {
-                    // Navigate only when going online successfully
                     _navigateToDashboard.emit(Unit)
                 }
             }.onFailure { error ->
                 _loginState.value = NetworkResponse.Error(error.message ?: "Status update failed")
                 _errorMessage.value = error.message ?: "Network error, please try again."
                 _isLoading.value = false
-
-                // Revert UI state on failure
                 _title.value = if (_isOnline.value) "You are Online!" else "Welcome!"
                 _subtitle.value = if (_isOnline.value)
                     "Start accepting voyager and help voyagers reach their destinations."

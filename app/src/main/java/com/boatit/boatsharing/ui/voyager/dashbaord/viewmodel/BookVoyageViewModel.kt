@@ -32,7 +32,7 @@ class BookVoyageViewModel(
             _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
         }.onFailure { exception ->
             Log.e("viewModel", "Error fetching places: ${exception.localizedMessage}", exception)
-            _nearbyPlaces.value = NetworkResponse.Error("An error occurred: ${exception.localizedMessage}")
+            _nearbyPlaces.value = NetworkResponse.Error("${exception.localizedMessage}")
         }
     }
 

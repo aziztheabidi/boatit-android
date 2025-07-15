@@ -59,7 +59,7 @@ fun VoyageStartedScreenVoyager(navController: NavController) {
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f)
+            modifier = Modifier.fillMaxSize()
 
         )
         Column(

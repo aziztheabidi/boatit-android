@@ -3,6 +3,7 @@ package com.boatit.boatsharing.network.di
 import android.content.Context
 import com.boatit.boatsharing.network.networkreposne.RefreshRequest
 import com.boatit.boatsharing.network.networkreposne.TokenResponse
+import com.boatit.boatsharing.ui.splash.SplashComposable
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.prefmanager.TokenProvider
 import io.ktor.client.HttpClient
@@ -38,28 +39,6 @@ fun createKtorClient(tokenProvider: TokenProvider): HttpClient {
                 loadTokens {
                     tokenProvider.getAccessToken()?.let { token ->
                         BearerTokens(token, tokenProvider.getRefreshToken() ?: "")
-                    }
-                }
-                refreshTokens {
-                    val accessToken = tokenProvider.getAccessToken()
-                    val refreshToken = tokenProvider.getRefreshToken()
-                    if (!refreshToken.isNullOrEmpty()) {
-                        try {
-                                val responses: HttpResponse = client.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.REFRESH}") {
-                                    markAsRefreshTokenRequest()
-                                    contentType(ContentType.Application.Json)
-                                    setBody(RefreshRequest(accessToken,refreshToken))
-                            }
-                            println("helooooo " + responses)
-                            val result = responses.body<TokenResponse>()
-                            tokenProvider.saveTokens(result.obj.Accesstoken, result.obj.Refreshtoken)
-                            BearerTokens(result.obj.Accesstoken, result.obj.Refreshtoken)
-                        } catch (e: Exception) {
-                            println("Token refresh failed: ${e.localizedMessage}")
-                            null
-                        }
-                    } else {
-                        null
                     }
                 }
             }

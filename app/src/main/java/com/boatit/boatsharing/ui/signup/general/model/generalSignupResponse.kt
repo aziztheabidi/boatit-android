@@ -4,16 +4,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RegistrationRequest(
-    val Username: String,
-    val PhoneNumber: String,
-    val Email: String
+    val Username: String? = null,
+    val PhoneNumber: String? = null,
+    val Email: String? = null
 )
 
 @Serializable
 data class RegistrationResponse(
     val Status: Int? = null,
     val Message: String? = null,
-    val obj: Int? = null
+    val obj: String? = null
 )
 
 @Serializable

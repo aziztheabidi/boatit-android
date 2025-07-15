@@ -1,5 +1,7 @@
 package com.boatit.boatsharing.ui.signup.general.view
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
@@ -71,8 +74,9 @@ fun UserBasicInfoScreen(
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
-            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 1/3", onImageClick = { })
+            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 1/3", onImageClick = {  navController.popBackStack()})
         },
         content = { innerPadding ->
             Column(
@@ -166,7 +170,11 @@ fun UserBasicInfoScreen(
             }
         },
         bottomBar = {
-            TermsAndPrivacyView(onClick = {})
+            TermsAndPrivacyView(onClick = {
+                val url = ApiConstants.PRIVACY_POLICY
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+            })
         }
     )
 }

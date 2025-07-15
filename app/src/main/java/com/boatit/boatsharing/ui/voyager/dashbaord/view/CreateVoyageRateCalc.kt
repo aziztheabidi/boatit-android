@@ -1,11 +1,8 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.annotation.SuppressLint
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,24 +16,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,27 +48,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
-import com.boatit.boatsharing.routes.popBack
-import com.boatit.boatsharing.ui.signup.general.model.VoyagerProfileRequest
-import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileViewModel
-import com.boatit.boatsharing.ui.signup.general.repository.VoyagerProfileViewModel
+import com.boatit.boatsharing.routes.NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
 import com.boatit.boatsharing.uihelpers.CustomButton
-import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.utils.AppConstants
-import kotlinx.coroutines.delay
-import org.koin.androidx.compose.koinViewModel
-import java.util.Calendar
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -87,39 +70,36 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
     val firstNameFocusRequester = remember { FocusRequester() }
     val lastNameFocusRequester = remember { FocusRequester() }
-
-    var firstName by remember { mutableStateOf("") }
+    var splitPaymentSwitchState by rememberSaveable { mutableStateOf(false) }
+    var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var dob by remember { mutableStateOf("") }
     var paypalEmail by remember { mutableStateOf("") }
     val showDialog = mutableStateOf(false)
-    var bookingDate by remember { mutableStateOf("") }
-    var eventTime = AppConstants.Event_Time
-
+    var bookingDate = AppConstants.Event_Date
+    var eventTime = AppConstants.No_of_Hour
 
     val isEmailValid = paypalEmail.contains("@") && paypalEmail.contains(".")
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var getingData by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
-
-
-    val isValidate = true
-
+    val isValidate = firstName.isNotEmpty()
     val handleError = {
         errorMessage = null
         isError = false
     }
 
     Scaffold(
+
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = "Create Voyage", onImageClick = {
-                println("clicked...")
+                navController.popBackStack()
             })
 
         },
@@ -143,15 +123,6 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                     activeViewsCount = 1
                 )
 
-                if (showDialog.value) {
-                    MyDatePickerDialog(
-                        onDateSelected = {
-                            bookingDate = it
-                            dob = bookingDate },
-                        onDismiss = { showDialog.value = false }
-                    )
-                }
-
                 Spacer(Modifier.height(30.dp))
 
                 Row(
@@ -173,53 +144,30 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                             .weight(1f)
                             .padding(end = 8.dp)
                     )
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(5.dp))
 
-                    Card(
-                        modifier = Modifier
-                            .width(70.dp)
-                            .height(70.dp)
-                            .padding(3.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(0.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-
-                            if (showDialog.value) {
-                                MyDatePickerDialog(
-                                    onDateSelected = { bookingDate = it },
-                                    onDismiss = { showDialog.value = false }
-                                )
-                            }
-
-                            Icon(
-                                painter = painterResource(id = R.drawable.event_calender),
-                                contentDescription = "Icon",
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clickable {
-                                        showDialog.value = true
-                                    },
-                                tint = colorResource(R.color.button_normal)
-                            )
-
-                            Text(
-                                text = bookingDate,
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Black
-                                ),
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
+                        Text(
+                            style = TextStyle(
+                                color = Color.Black,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            text = stringResource(R.string.selected_booking_date)
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            style = TextStyle(
+                                color = Color.Black,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            text = bookingDate.toString()
+                        )
                     }
                 }
 
@@ -239,13 +187,15 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
 
 
                 CustomTextField(
-                    textValue = AppConstants.Event_Name!!,
-                    placeholderText = AppConstants.Event_Name!!,
-                    onTextChange = { firstName = it },
+                    textValue = firstName,
+                    placeholderText = firstName,
+                    onTextChange = {
+                        firstName = it
+                        AppConstants.Event_Name = firstName },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    errorMessage = null,
+                    isError = false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -254,7 +204,7 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                     focusRequester = firstNameFocusRequester,
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.passengers),
+                            painter = painterResource(id = R.drawable.event_calender),
                             contentDescription = "Icon",
                             modifier = Modifier.size(20.dp),
                             tint = Color.Unspecified
@@ -279,13 +229,14 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                 CustomTextField(
                     textValue = AppConstants.No_Of_Voyagers.toString()!!,
                     placeholderText = AppConstants.No_Of_Voyagers.toString()!!,
-                    onTextChange = { firstName = it },
+                    onTextChange = { },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    errorMessage =  null,
+                    isError = false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
+                    isEditable =  false,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
@@ -317,13 +268,14 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                 CustomTextField(
                     textValue = AppConstants.Per_Hour_Rate.toString()!!,
                     placeholderText = AppConstants.Per_Hour_Rate.toString()!!,
-                    onTextChange = { firstName = it },
+                    onTextChange = { },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    errorMessage = null,
+                    isError = false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
+                    isEditable =  false,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
@@ -355,20 +307,21 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                 CustomTextField(
                     textValue = AppConstants.Estimated_Cost.toString()!!,
                     placeholderText = AppConstants.Estimated_Cost.toString()!!,
-                    onTextChange = { firstName = it },
+                    onTextChange = {},
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    errorMessage = null,
+                    isError = false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
+                    isEditable =  false,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
                     focusRequester = firstNameFocusRequester,
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.calculator),
+                            painter = painterResource(id = R.drawable.dollar),
                             contentDescription = "Icon",
                             modifier = Modifier.size(20.dp),
                             tint = Color.Unspecified
@@ -384,20 +337,20 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W500
                     ),
-                    text = "Time"
+                    text = "Duration"
                 )
 
                 Spacer(Modifier.height(5.dp))
 
-
                 CustomTextField(
-                    textValue = eventTime!!,
-                    placeholderText = eventTime,
-                    onTextChange = { firstName = it },
+                    textValue = eventTime.toString(),
+                    placeholderText = eventTime.toString(),
+                    onTextChange = {},
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    errorMessage =  null,
+                    isError = false,
+                    isEditable =  false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -427,15 +380,15 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
 
                 Spacer(Modifier.height(5.dp))
 
-
                 CustomTextField(
-                    textValue = AppConstants.Pick_Up_Loc!!,
-                    placeholderText = AppConstants.Pick_Up_Loc!!,
-                    onTextChange = { firstName = it },
+                    textValue = AppConstants.Pick_Up_Loc?.second!!,
+                    placeholderText = AppConstants.Pick_Up_Loc?.second!!,
+                    onTextChange = {},
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = null,
                     isError =false,
+                    isEditable =  false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -467,13 +420,14 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
 
 
                 CustomTextField(
-                    textValue =  AppConstants.Drop_Off_Loc!!,
-                    placeholderText =  AppConstants.Drop_Off_Loc!!,
-                    onTextChange = { firstName = it },
+                    textValue =  AppConstants.Drop_Off_Loc?.second!!,
+                    placeholderText =  AppConstants.Drop_Off_Loc?.second!!,
+                    onTextChange = { },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = null,
                     isError =false,
+                    isEditable =  false,
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -490,9 +444,39 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                     }
                 )
 
+                Spacer(Modifier.height(15.dp))
+
+                if(AppConstants.Travel_Now!!){
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {  Text(
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        text = "Split Payment"
+                    )
+
+                        Switch(
+                            checked = splitPaymentSwitchState,
+                            onCheckedChange = {
+                                splitPaymentSwitchState = it
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = colorResource(id = R.color.button_normal),
+                                uncheckedThumbColor = Color.White,
+                                uncheckedTrackColor = Color(0xFFD9D9D9),
+                                uncheckedBorderColor = Color.Transparent
+                            )
+                        )
 
 
-
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -501,7 +485,20 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {
-                        navController.navigate(NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN)
+                        AppConstants.Event_Name = firstName
+                        AppConstants.Split = splitPaymentSwitchState
+                        if(splitPaymentSwitchState){
+                            AppConstants.sponsorList = arrayListOf()
+                            AppConstants.sponsorList.add(
+                                Sponser(
+                                    VoyagerUserId = AppConstants.USER_ID!!,
+                                    VoyagerUserName = "",
+                                    AmountToPay = 0.0,
+                                    Status = ""
+                                )
+                            )
+                        }
+                        navController.navigate(route = "$CREATE_VOYAGE_SPONSOR_SCREEN/{$splitPaymentSwitchState}")
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

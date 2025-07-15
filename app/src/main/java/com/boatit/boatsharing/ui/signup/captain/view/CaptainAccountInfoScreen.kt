@@ -62,76 +62,100 @@ import java.util.Calendar
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun CaptainAccountInfoScreen(
-    navController: NavController,
-    viewModel: CaptainProfileViewModel = koinViewModel(),
-    viewModelfeth: GetCaptainProfileViewModel = koinViewModel()
-) {
-    val uiState by viewModel.uiState.collectAsState()
-    val registrationState by viewModel.registrationState.collectAsState()
-    val fetchState by viewModelfeth.registrationState.collectAsState()
+fun CaptainAccountInfoScreen(navController: NavController, viewModel: CaptainProfileViewModel = koinViewModel(), viewModelfeth: GetCaptainProfileViewModel = koinViewModel()) {
+
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val firstNameFocusRequester = remember { FocusRequester() }
     val lastNameFocusRequester = remember { FocusRequester() }
-    val isEmailValid = uiState.stripeEmail.contains("@") && uiState.stripeEmail.contains(".")
-    val isValid = uiState.firstName.isNotBlank() &&
-            uiState.lastName.isNotBlank() &&
-            uiState.phoneNumber.isNotBlank() &&
-            uiState.address.isNotBlank() &&
-            uiState.dateOfBirth.isNotBlank() &&
-            isEmailValid
+    val phoneNumberFocusRequester = remember { FocusRequester() }
+    val addressFocusRequester = remember { FocusRequester() }
+    val dobFocusRequester = remember { FocusRequester() }
+    val paypalFocusRequester = remember { FocusRequester() }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var dob by remember { mutableStateOf("") }
+    var paypalEmail by remember { mutableStateOf("") }
+    val showDialog = mutableStateOf(false)
+    var bookingDate by remember { mutableStateOf("") }
+    val isEmailValid = paypalEmail.contains("@") && paypalEmail.contains(".")
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isButtonEnabled by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var getingData by remember { mutableStateOf(true) }
+    var isNetworkError by remember { mutableStateOf(false) }
 
-    if (uiState.isSuccess) {
-        Toast.makeText(context, "Profile saved", Toast.LENGTH_SHORT).show()
-        viewModel.resetSuccessState()
+
+    val isValidate = firstName.isNotEmpty()
+            && lastName.isNotEmpty()
+            && phoneNumber.isNotEmpty()
+            && address.isNotEmpty()
+            && dob.isNotEmpty()
+            && paypalEmail.isNotEmpty()
+            && isEmailValid
+
+    val handleError = {
+        errorMessage = null
+        isError = false
+    }
+
+    val registrationState by viewModel.registrationState.collectAsState()
+    val fetchState by viewModelfeth.registrationState.collectAsState()
+
+    fun performLogin(){
         navController.navigate(NavigationManager.CAPTAIN_DOCUMENT_INFO_SCREEN)
     }
 
-    if (uiState.errorMessage != null) {
-        Toast.makeText(context, uiState.errorMessage, Toast.LENGTH_SHORT).show()
-    }
+    when (registrationState) {
+        is NetworkResponse.Success -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = false
+                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                performLogin()
+            }
 
-    if (uiState.showDateDialog) {
-        MyDatePickerDialog(
-            onDateSelected = {
-                viewModel.updateDateOfBirth(it)
-            },
-            onDismiss = { viewModel.toggleDatePicker(false) }
-        )
-    }
-
-    LaunchedEffect(Unit) {
-        viewModelfeth.GetCaptainProfile()
+        }
+        is NetworkResponse.Error -> {
+            isLoading = false
+            isNetworkError = true
+            errorMessage = "Network error, please try again."
+            Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+        }
+        else -> {}
     }
 
     when (fetchState) {
         is NetworkResponse.Success -> {
-            val data = fetchState.data?.obj
-            LaunchedEffect(Unit) {
-                viewModel.onFieldChange {
-                    it.copy(
-                        phoneNumber = data?.PhoneNumber.orEmpty(),
-                        firstName = data?.FirstName.orEmpty(),
-                        lastName = data?.LastName.orEmpty(),
-                        address = data?.Address.orEmpty(),
-                        dateOfBirth = data?.DateOfBirth.orEmpty(),
-                        stripeEmail = data?.StripeEmail.orEmpty()
-                    )
-                }
+            if(getingData) {
+                phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
+                firstName = fetchState.data?.obj?.FirstName.toString()
+                lastName = fetchState.data?.obj?.LastName.toString()
+                address = fetchState.data?.obj?.Address.toString()
+                dob = fetchState.data?.obj?.DateOfBirth.toString()
+                paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
+                getingData = false
             }
         }
+        is NetworkResponse.Error -> {
+            getingData = false
+        }
+        else -> {}
+    }
 
-        is NetworkResponse.Error -> Unit
-        else -> Unit
+    LaunchedEffect(getingData) {
+        viewModelfeth.GetCaptainProfile()
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
-            CustomTopBar(
-                text = "${stringResource(R.string.add_your_info)} 1/3",
-                onImageClick = {}
-            )
+            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 1/3", onImageClick = {
+               navController.popBackStack()
+            })
         },
         content = { innerPadding ->
             Column(
@@ -140,7 +164,7 @@ fun CaptainAccountInfoScreen(
                         top = innerPadding.calculateTopPadding() + 15.dp,
                         start = 20.dp,
                         end = 20.dp,
-                        bottom = innerPadding.calculateTopPadding() + 25.dp
+                        bottom = innerPadding.calculateTopPadding() + 25.dp,
                     )
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -153,47 +177,222 @@ fun CaptainAccountInfoScreen(
                     activeViewsCount = 1
                 )
 
-                // -- Example for first field only, you can replicate similarly for others --
+                if (showDialog.value) {
+                    MyDatePickerDialog(
+                        onDateSelected = {
+                            bookingDate = it
+                            dob = bookingDate
+                        },
+                        onDismiss = { showDialog.value = false }
+                    )
+                }
+
+                Spacer(Modifier.height(30.dp))
 
                 Text(
-                    text = stringResource(R.string.firstname_label),
-                    style = TextStyle(color = Color.Black, fontSize = 18.sp)
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = stringResource(R.string.firstname_label)
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
 
                 CustomTextField(
-                    textValue = uiState.firstName,
+                    textValue = firstName,
                     placeholderText = stringResource(R.string.firstname_placeholder),
-                    onTextChange = { viewModel.onFieldChange { it.copy(firstName = it.toString()) } },
+                    onTextChange = { firstName = it },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (uiState.firstName.isNotEmpty() && uiState.firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = uiState.firstName.isNotEmpty() && uiState.firstName.length <= 3,
-                    onClearError = { viewModel.onFieldChange { it.copy(errorMessage = null) } },
+                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
+                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
                     ),
                     focusRequester = firstNameFocusRequester
                 )
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // 👇 replicate the same pattern for lastName, phoneNumber, address, dob, stripeEmail...
+                Text(
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = stringResource(R.string.lastname_label)
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                CustomTextField(
+                    textValue = lastName,
+                    placeholderText = stringResource(R.string.lastname_placeholder),
+                    onTextChange = { lastName = it },
+                    keyboardType = KeyboardType.Text,
+                    maxChars = 100,
+                    errorMessage = if (lastName.isNotEmpty()&& lastName.length <= 3) stringResource(R.string.lastname_validation_text) else null,
+                    isError = lastName.isNotEmpty()&& lastName.length <= 3,
+                    onClearError = handleError,
+                    imeAction = ImeAction.Next,
+                    keyboardActions = KeyboardActions(
+                        onNext = { phoneNumberFocusRequester.requestFocus() }
+                    ),
+                    focusRequester = lastNameFocusRequester
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+
+
+                Text(
+                    text = stringResource(R.string.phone_label),
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                CustomTextField(
+                    textValue = phoneNumber,
+                    placeholderText = stringResource(R.string.phone_placeholder),
+                    onTextChange = { phoneNumber = it },
+                    keyboardType = KeyboardType.Number,
+                    maxChars = 15,
+                    errorMessage = if (phoneNumber.isNotEmpty() && phoneNumber.length <= 3) stringResource(
+                        R.string.phone_validation_text
+                    ) else null,
+                    isError = phoneNumber.isNotEmpty()&& phoneNumber.length <= 3,
+                    onClearError = handleError,
+                    imeAction = ImeAction.Next,
+                    keyboardActions = KeyboardActions(
+                        onNext = { addressFocusRequester.requestFocus() }
+                    ),
+                    focusRequester = phoneNumberFocusRequester
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = stringResource(R.string.address_label),
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                CustomTextField(
+                    textValue = address,
+                    placeholderText = stringResource(R.string.address_placeholder),
+                    onTextChange = { address = it },
+                    keyboardType = KeyboardType.Text,
+                    singleLine = false,
+                    maxLines = 3,
+                    maxChars = 200,
+                    errorMessage = if (address.isNotEmpty() && address.length <= 3) stringResource(R.string.address_validation_text) else null,
+                    isError = address.isNotEmpty() && address.length <= 3,
+                    onClearError = handleError,
+                    imeAction = ImeAction.Next,
+                    keyboardActions = KeyboardActions(
+                        onNext = { dobFocusRequester.requestFocus() }
+                    ),
+                    focusRequester = addressFocusRequester
+                )
+
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = stringResource(R.string.dob_label),
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Box(
+                    modifier = Modifier.clickable { showDialog.value = true }
+                ) {
+                    CustomDobField(
+                        textValue = dob,
+                        placeholderText = stringResource(R.string.dob_placeholder),
+                        onTextChange = { dob = it },
+                        keyboardType = KeyboardType.Text,
+                        maxChars = 40,
+                        errorMessage = if (dob.isNotEmpty() && dob.length <= 3) stringResource(R.string.dob_validation_text) else null,
+                        isError = dob.isNotEmpty() && dob.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
+                        focusRequester = dobFocusRequester,
+                    )
+                }
+
+                Spacer(Modifier.height(20.dp))
+                Text(
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = stringResource(R.string.paypal_email_label)
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+
+                CustomTextField(
+                    textValue = paypalEmail,
+                    placeholderText = stringResource(R.string.email_placeholder),
+                    onTextChange = { paypalEmail = it },
+                    keyboardType = KeyboardType.Email,
+                    maxChars = 100,
+                    errorMessage = if (!isEmailValid && paypalEmail.isNotEmpty()) stringResource(R.string.email_validation_text) else null,
+                    isError = !isEmailValid && paypalEmail.isNotEmpty(),
+                    onClearError = handleError,
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.clearFocus() }
+                    ),
+                    focusRequester = paypalFocusRequester
+                )
+
+
 
                 Spacer(modifier = Modifier.height(40.dp))
 
                 CustomButton(
                     text = stringResource(R.string.save_button_label),
-                    isValidate = isValid,
-                    isLoading = uiState.isLoading,
+                    isValidate = isValidate,
+                    isLoading = isLoading,
                     onButtonClick = {
-                        viewModel.saveProfile(AppConstants.USER_ID.toString())
+                        viewModel.saveProfile(CaptainProfileRequest(
+                            UserId = AppConstants.USER_ID.toString(),
+                            PhoneNumber = phoneNumber,
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Address = address,
+                            DateOfBirth = dob,
+                            StripeEmail = paypalEmail)
+                        )
+                        isButtonEnabled = true
+                        isLoading = true
                         focusManager.clearFocus()
+                        println("perform network call")
                     }
                 )
+                Spacer(modifier = Modifier.height(10.dp))
             }
-        }
-    )
+        },
+
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -212,7 +411,7 @@ fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-based, so add 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
-        String.format("%04d-%02d-%02d", year, day, month)
+        String.format("%04d-%02d-%02d", year, month, day)
     } ?: ""
 
     DatePickerDialog(

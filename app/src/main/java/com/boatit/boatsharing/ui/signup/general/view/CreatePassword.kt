@@ -1,5 +1,7 @@
 package com.boatit.boatsharing.ui.signup.general.view
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
@@ -74,7 +77,7 @@ fun CreatePassword(
     val registrationState by viewModel.registrationState.collectAsState()
 
     val isValidate = password.isNotEmpty()
-    val isLoading = registrationState is NetworkResponse.Loading
+    val isLoading = viewModel.isLoading.collectAsState()
 
     LaunchedEffect(registrationState) {
         when (registrationState) {
@@ -98,10 +101,11 @@ fun CreatePassword(
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(
                 text = "${stringResource(R.string.add_your_info)} 3/3",
-                onImageClick = { println("clicked...") }
+                onImageClick = { navController.popBackStack() }
             )
         },
         content = { innerPadding ->
@@ -158,7 +162,7 @@ fun CreatePassword(
                 CustomButton(
                     text = stringResource(R.string.continue_button_text),
                     isValidate = isValidate,
-                    isLoading = isLoading,
+                    isLoading = isLoading.value,
                     onButtonClick = {
                         viewModel.passwordReg(password, value)
                         focusManager.clearFocus()
@@ -168,7 +172,11 @@ fun CreatePassword(
         },
         bottomBar = {
             TermsAndPrivacyView(
-                onClick = {}
+                onClick = {
+                    val url = ApiConstants.PRIVACY_POLICY
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    context.startActivity(intent)
+                }
             )
         }
     )

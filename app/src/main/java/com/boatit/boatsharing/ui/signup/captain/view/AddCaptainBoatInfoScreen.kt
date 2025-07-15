@@ -61,14 +61,32 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AddCaptainBoatInfoScreen(
     navController: NavController,
-    viewModel: CaptainBoatViewModel = koinViewModel()
+    viewModel: CaptainBoatViewModel = koinViewModel(),
+    viewModelfetch: GetCaptainBoatViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-
+    var getingData by remember { mutableStateOf(true) }
+    val fetchState by viewModelfetch.registrationState.collectAsState()
     val registrationState by viewModel.registrationState.collectAsState()
 
-    // Handle success and error once when the user clicks the button
+    when (fetchState) {
+        is NetworkResponse.Success -> {
+            if(getingData) {
+                viewModel.loadInitialData(fetchState.data)
+                getingData = false
+            }
+        }
+        is NetworkResponse.Error -> {
+            getingData = false
+        }
+        else -> {}
+    }
+
+    LaunchedEffect(getingData) {
+        viewModelfetch.GetCaptainBoat()
+    }
+
     LaunchedEffect(registrationState) {
         if (viewModel.isButtonClicked) {
             when (val state = registrationState) {
@@ -82,13 +100,13 @@ fun AddCaptainBoatInfoScreen(
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                     viewModel.onRegistrationHandled()
                 }
-
                 else -> {}
             }
         }
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_boat_info) + " 3/3") {
                 navController.popBackStack()

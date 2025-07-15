@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.signup.business
 
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -33,26 +36,33 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.popBack
+import com.boatit.boatsharing.ui.signup.business.model.SaveBusinessAboutRequest
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessAboutViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessInfoViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDropDown
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
+import com.boatit.boatsharing.utils.AppConstants
 import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AddBusinessDescriptions(navController: NavController) {
+fun AddBusinessDescriptions(navController: NavController,
+    viewModel: BusinessAboutViewModel = koinViewModel()) {
 
     val focusManager = LocalFocusManager.current
 
     val businessDescriptionFocusRequester = remember { FocusRequester() }
     val options = listOf("Yes", "No")
-
+    var selectedOptionBolean by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
     var businessDescription by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isButtonEnabled by remember { mutableStateOf(false) }
@@ -67,30 +77,34 @@ fun AddBusinessDescriptions(navController: NavController) {
         isError = false
     }
 
+    val registrationState by viewModel.registrationState.collectAsState()
 
-    suspend fun performLogin(): Boolean {
-        delay(2000)
-        return false
+    fun performLogin(){
+        navController.navigate(NavigationManager.BUSINESS_LOGO_SCREEN)
     }
 
-    LaunchedEffect(isButtonEnabled) {
-        if (isLoading) {
-            val networkSuccess = performLogin()
-            isLoading = false
-            if (networkSuccess) {
+    when (registrationState) {
+        is NetworkResponse.Success -> {
+            if(isLoading){
+                isLoading = false
                 isNetworkError = false
-                println("info added")
-
-
-            } else {
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                navController.navigate(NavigationManager.BUSINESS_LOGO_SCREEN)
-
+                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                performLogin()
             }
         }
+        is NetworkResponse.Error -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = true
+                errorMessage = "Network error, please try again."
+                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+            }
+        }
+        else -> {}
     }
+
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 3/4", onImageClick = {
                 println("clicked...")
@@ -164,7 +178,13 @@ fun AddBusinessDescriptions(navController: NavController) {
                 CustomDropDown(
                     options = options,
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it },
+                    onOptionSelected = { selectedOption = it
+                          if(selectedOption.equals("yes")){
+                              selectedOptionBolean = true
+                          }   else{
+                              selectedOptionBolean = false
+                          }
+                    },
                     placeholderText = stringResource(R.string.business_dock_placeholder),
                     isError = false
                 )
@@ -178,12 +198,15 @@ fun AddBusinessDescriptions(navController: NavController) {
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {
-
-                        isButtonEnabled = true
                         isLoading = true
+                        viewModel.saveBusinessAbout(
+                            SaveBusinessAboutRequest(
+                                AppConstants.USER_ID!!,
+                                Description = businessDescription,
+                                IsDock = selectedOptionBolean,
+                            ),
+                        )
                         focusManager.clearFocus()
-                        println("perform network call")
-
                     }
                 )
 

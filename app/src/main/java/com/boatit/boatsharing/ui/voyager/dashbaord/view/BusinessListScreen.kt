@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,10 +70,12 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.chat.model.VoyagerInfo
 import com.boatit.boatsharing.ui.chat.viewmodel.FollowViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BusinessData
@@ -123,49 +126,82 @@ fun BusinessListScreen(navController: NavController,
         viewModel.voyages()
     }
 
+    Scaffold(
+        topBar = {
+            CustomTopBar(text = stringResource(R.string.businesses), onImageClick = {
+                navController.popBack()
+            })
+        },
+        containerColor = White,
+        content = { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF0F0F0))
-            .padding(10.dp)
+            .padding(innerPadding)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(8.dp))
-                .padding(15.dp)
+                .padding()
         ) {
             Column(modifier = Modifier
                 .padding(
                     top = 15.dp,
-                    start = 20.dp,
-                    end = 20.dp,
+                    start = 5.dp,
+                    end = 5.dp,
                 )
                 .fillMaxSize()) {
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    contentColor = Color.White,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            color = Color.White
+                Box(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(
+                            width = 0.5.dp,
+                            color = colorResource(R.color.button_normal),
+                            shape = RoundedCornerShape(10.dp)
                         )
-                    }
                 ) {
-                    tabTitles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.White)
+                    ) {
+                        tabTitles.forEachIndexed { index, title ->
+                            val isSelected = selectedTabIndex == index
+
+                            val shape = if (isSelected) {
+                                RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                            } else {
+                                RoundedCornerShape(0.dp)
+                            }
+                            val offsetModifier = if (isSelected) Modifier.offset(x = 0.dp, y = (-1).dp) else Modifier
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .then(offsetModifier)
+                                    .clip(shape)
+                                    .background(
+                                        if (isSelected) colorResource(R.color.button_normal) else Color.White
+                                    )
+                                    .clickable { selectedTabIndex = index },
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Text(
                                     text = title,
-                                    color = if (selectedTabIndex == index) Color.White else colorResource(R.color.button_normal)
+                                    color = if (isSelected) Color.White else colorResource(R.color.button_normal),
+                                    fontWeight = FontWeight.Medium
                                 )
-                            },
-                            modifier = Modifier.background(if (selectedTabIndex == index) colorResource(R.color.button_normal)else Color.White)
-                        )
+                            }
+                        }
                     }
                 }
+
+                Spacer(Modifier.height(15.dp))
+
+
                 when (selectedTabIndex) {
                     0 ->  {
                         LazyColumn(
@@ -180,13 +216,19 @@ fun BusinessListScreen(navController: NavController,
                                     println(voyagesList.message)
                                 }
                                 is NetworkResponse.Success -> {
-                                    items(voyagesList.data!!.obj.Followed.size) {}
+                                    items(voyagesList.data!!.obj.Followed.size) { user ->
+                                        UserItem(voyagesList.data!!.obj.Followed.get(user)) { dat ->
+                                            AppConstants.Business = dat
+                                            AppConstants.Business_Status = true
+                                            navController.navigate(NavigationManager.BUSINESS_DETAIL_SCREEN)
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                     1 ->   LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(start = 10.dp, end = 10.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         when (voyagesList) {
@@ -200,6 +242,7 @@ fun BusinessListScreen(navController: NavController,
                                 items(voyagesList.data!!.obj.UnFollowed.size) { user ->
                                     UserItem(voyagesList.data!!.obj.UnFollowed.get(user)) { dat ->
                                         AppConstants.Business = dat
+                                        AppConstants.Business_Status = false
                                         navController.navigate(NavigationManager.BUSINESS_DETAIL_SCREEN)
                                     }
                                 }
@@ -210,28 +253,29 @@ fun BusinessListScreen(navController: NavController,
             }
         }
     }
+
+        },
+    )
 }
 
 
 @Composable
 fun UserItem(user: BusinessData, onClick: (user: BusinessData) -> Unit) {
-
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(15.dp),
         modifier = Modifier.fillMaxWidth().
-        padding(10.dp).
-        border(1.dp, Color.Blue, RoundedCornerShape(8.dp))
+        border(0.5.dp, colorResource(id = R.color.button_normal), RoundedCornerShape(15.dp))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(8.dp))
-                .padding(15.dp)
+                .padding(5.dp)
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth().padding(10.dp)
                     .clickable {onClick(user)},
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -239,16 +283,26 @@ fun UserItem(user: BusinessData, onClick: (user: BusinessData) -> Unit) {
 
                 Column {
                     Row {
-                        AsyncImage(
-                            model = "https://picsum.photos/200/300?random=1",
-                            contentDescription = "Grid Image",
+                        Card(
+                            shape = RoundedCornerShape(15.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                            border = BorderStroke(1.dp, color = colorResource(R.color.black)),
                             modifier = Modifier
-                                .width(80.dp)
-                                .height(80.dp)
-                                .aspectRatio(1f) // Keeps all grid items square
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
-                        )
+                                .width(60.dp)
+                                .height(60.dp)
+                        ) {
+                            AsyncImage(
+                                model = "",
+                                contentDescription = "Grid Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(15.dp)) ,
+                                placeholder = painterResource(id = R.drawable.business_placeholder),
+                                error = painterResource(id = R.drawable.business_placeholder)
+                            )
+                        }
+
 
                         Spacer(Modifier.width(10.dp))
 
@@ -257,6 +311,7 @@ fun UserItem(user: BusinessData, onClick: (user: BusinessData) -> Unit) {
                             Text(text = user.BusinessType, fontWeight = FontWeight.Normal, fontSize = 14.sp)
                         }
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(text = user.Description, color = Color.Gray, fontSize = 12.sp)
                 }
 

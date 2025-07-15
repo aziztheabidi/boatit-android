@@ -33,6 +33,7 @@ class FutureVoyagesViewModel(private val repository: FutureVoyagesRepo) : ViewMo
     private val _loginState = MutableStateFlow<NetworkResponse<FutureBookedVoyages>>(NetworkResponse.Loading())
     val loginState: StateFlow<NetworkResponse<FutureBookedVoyages>> = _loginState
 
+
     fun voyages() {
         viewModelScope.launch {
             _loginState.value = NetworkResponse.Loading()
@@ -43,6 +44,10 @@ class FutureVoyagesViewModel(private val repository: FutureVoyagesRepo) : ViewMo
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
             }
         }
+    }
+
+    fun resetNearbyPlaces() {
+        _loginState.value = NetworkResponse.Loading()
     }
 }
 

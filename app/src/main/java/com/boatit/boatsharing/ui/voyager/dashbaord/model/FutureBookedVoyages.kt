@@ -11,13 +11,14 @@ data class FutureBookedVoyages(
 
 @Serializable
 data class BookedVoyageObj(
-    val UnConfirmed: BookedVoyage,
-    val Confirmed: List<BookedVoyage>
+    val UnConfirmed: BookedVoyage? = null,
+    val Confirmed: List<BookedVoyage> = emptyList()
 )
 
 @Serializable
 data class BookedVoyage(
     val Id: String,
+    val Name: String,
     val CaptainUserId: String,
     val CaptainName: String,
     val PickupDock: String,
@@ -29,12 +30,12 @@ data class BookedVoyage(
     val BoatName: String,
     val BoatModel: String,
     val OTP: Int,
+    val NoOfVoyagers: Int,
     val AmountToPay: Double,
-//    val Status: String,
-    val Sponsers: List<FutureSponser> = emptyList()
+    val WaterStay: String,
+    val Duration: String,
+    val BookingDateTime: String,
+    val Sponsers: List<Sponser>
 )
 
-@Serializable
-data class FutureSponser(
-    val VoyagerUserId: String? = null // If sponsor object structure expands, update accordingly
-)
+

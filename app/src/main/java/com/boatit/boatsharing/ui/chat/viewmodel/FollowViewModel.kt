@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.ui.chat.model.ComplainRequest
 import com.boatit.boatsharing.ui.chat.model.FollowRequest
 import com.boatit.boatsharing.ui.chat.model.FollowResponse
 import com.boatit.boatsharing.ui.chat.repository.FollowRepository
@@ -34,6 +35,17 @@ class FollowViewModel(
     fun followFunc(profile: FollowRequest) = viewModelScope.launch {
         _nearbyPlaces.value = NetworkResponse.Loading()
         val result = repository.findboat(profile)
+        result.onSuccess { placesResponse ->
+            _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
+        }.onFailure { exception ->
+            Log.e("viewModel", "Error fetching places: ${exception.localizedMessage}", exception)
+            _nearbyPlaces.value = NetworkResponse.Error("An error occurred: ${exception.localizedMessage}")
+        }
+    }
+
+    fun complainFunc(profile: ComplainRequest) = viewModelScope.launch {
+        _nearbyPlaces.value = NetworkResponse.Loading()
+        val result = repository.complian(profile)
         result.onSuccess { placesResponse ->
             _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
         }.onFailure { exception ->

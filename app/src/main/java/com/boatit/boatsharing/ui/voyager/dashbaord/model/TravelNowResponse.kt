@@ -29,6 +29,6 @@ data class TravelNowObj(
     val WaterStay: String,
     val Duration: String,
     val BookingDateTime: String,
-    val Sponsers: List<String>
+    val Sponsers: List<Sponser>
 )
 

@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainBoatResponse
+import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainDocumentResponse
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatResponse
 import com.boatit.boatsharing.ui.signup.captain.repository.CaptainBoatRepository
@@ -73,6 +75,15 @@ class CaptainBoatViewModel(private val repository: CaptainBoatRepository) : View
     fun onRegistrationHandled() {
         isLoading = false
         isButtonClicked = false
+    }
+
+    fun loadInitialData(data: GetCaptainBoatResponse?) {
+        boatName = data?.obj?.Name .orEmpty()
+        boatMake = data?.obj?.Make.orEmpty()
+        boatModel = data?.obj?.Model.orEmpty()
+        boatYear = data?.obj?.Year.toString().orEmpty()
+        boatSize = data?.obj?.Size.toString().orEmpty()
+        boatCapacity = data?.obj?.Capacity.toString().orEmpty()
     }
 }
 

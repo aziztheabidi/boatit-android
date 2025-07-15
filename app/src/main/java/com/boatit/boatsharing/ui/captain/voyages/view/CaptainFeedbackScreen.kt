@@ -87,7 +87,7 @@ fun CaptainFeedbackScreen(navController: NavController,notification : String,
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f)
+            modifier = Modifier.fillMaxSize()
 
         )
         Column(
@@ -109,7 +109,7 @@ fun CaptainFeedbackScreen(navController: NavController,notification : String,
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Thenk you for your services, give reviews to the user so that next voyager can get benefited",
+                text = "Thank you for your services, give reviews to the user so that next voyager can get benefited",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.Black,

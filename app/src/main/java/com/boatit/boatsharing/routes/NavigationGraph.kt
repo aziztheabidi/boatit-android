@@ -9,6 +9,7 @@ import com.boatit.boatsharing.routes.NavigationManager.CAPTAIN_FEEDBACK_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.VOYAGER_FEEDBACK_SCREEN
@@ -26,6 +27,7 @@ import com.boatit.boatsharing.ui.chat.view.ChatScreen
 import com.boatit.boatsharing.ui.chat.view.VoyagersListScreen
 import com.boatit.boatsharing.ui.forgotpassword.view.ForgotPasswordScreen
 import com.boatit.boatsharing.ui.login.view.LoginScreen
+import com.boatit.boatsharing.ui.menu.BusinessMenuOptions
 import com.boatit.boatsharing.ui.menu.CaptainMenuOptions
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.DashboardScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.FindDestinationLocationScreen
@@ -36,6 +38,7 @@ import com.boatit.boatsharing.ui.onboardingscreens.VoyagerOnboarding
 import com.boatit.boatsharing.ui.signup.business.AddBusinessDescriptions
 import com.boatit.boatsharing.ui.signup.business.AddBusinessLogo
 import com.boatit.boatsharing.ui.signup.business.AddGeneralBusinessInfo
+import com.boatit.boatsharing.ui.signup.business.view.BusinessAccountInfoScreen
 import com.boatit.boatsharing.ui.signup.captain.AddCaptainBoatInfoScreen
 import com.boatit.boatsharing.ui.signup.captain.AddCaptainDocumentInfoScreen
 import com.boatit.boatsharing.ui.signup.captain.view.CaptainAccountInfoScreen
@@ -60,6 +63,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponcersList
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponsorScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.TravelNow
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.VoyagerVoyages
+import com.boatit.boatsharing.uihelpers.MapPickerScreen
 
 
 object NavigationManager {
@@ -90,6 +94,8 @@ object NavigationManager {
     const val FIND_LOCATION_SCREEN = "FindLocationScreen"
     const val MENU_OPTIONS_SCREEN = "MenuOptionsScreen"
     const val CAPTAIN_MENU_OPTIONS_SCREEN = "CaptainMenuOptionsScreen"
+    const val BUSINESS_MENU_OPTIONS_SCREEN = "BusinessMenuOptionsScreen"
+
     const val VOYAGE_STARTED_SCREEN = "VoyageStartedScreen"
     const val VOYAGE_PAST_SCREEN = "VoyagePastScreen"
     const val VOYAGE_STARTED_SCREEN_Voyager = "VoyageStartedScreenVoyager"
@@ -106,6 +112,8 @@ object NavigationManager {
     const val VOYAGER_FEEDBACK_SCREEN = "VoyagerFeedbackScreen"
     const val VOYAGER_BUSINESS_SCREEN = "VoyagerBusinessScreen"
     const val BUSINESS_SCREEN = "BusinessScreen"
+    const val BUSINESS_ACCT_INFO_SCREEN = "BusinessACCINFOScreen"
+    const val BUSINESS_DESC_SCREEN = "BusinessDescScreen"
     const val BUSINESS_DETAIL_SCREEN = "BusinessDetailScreen"
     const val TRAVER_NOW_SCREEN = "TravelScreen"
 
@@ -188,15 +196,22 @@ fun AppNavGraph(navController: NavHostController ) {
            composable(NavigationManager.SPONSOR_SCREEN) {
                SponsorScreen(navController)
            }
-           composable(NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN) {
-               CreateVoyageSponsorScreen(navController)
+
+           composable("$CREATE_VOYAGE_SPONSOR_SCREEN/{value}") { backStackEntry ->
+               val comingFrom = backStackEntry.arguments?.getBoolean("value")
+               CreateVoyageSponsorScreen(navController, comingFrom!!)
            }
+
            composable(NavigationManager.CONFIRM_VOYAGE_SCREEN) {
                ConfirmVoyageScreen(navController)
            }
 
            composable(NavigationManager.VOYAGE_BOOKED_SCREEN) {
                VoyageBookedScreenVoyager(navController)
+           }
+
+           composable(NavigationManager.BUSINESS_ACCT_INFO_SCREEN) {
+               BusinessAccountInfoScreen(navController)
            }
 
            composable(NavigationManager.SPONSOR_LIST_SCREEN) {
@@ -311,13 +326,17 @@ fun AppNavGraph(navController: NavHostController ) {
                CaptainMenuOptions(navController)
                }
 
-           composable(NavigationManager.CAPTAIN_MENU_OPTIONS_SCREEN) {
-               CaptainMenuOptions(navController)
+           composable(NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN) {
+               BusinessMenuOptions(navController)
                }
 
            composable("$VOYAGER_FEEDBACK_SCREEN/{value}") { backStackEntry ->
                val data = backStackEntry.arguments?.getString("value")
                VoyagerFeedbackScreen(navController, data!!)
+           }
+
+           composable("map_picker") {
+               MapPickerScreen(navController)
            }
 
     }

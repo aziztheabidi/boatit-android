@@ -20,6 +20,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -44,13 +46,13 @@ import kotlin.math.sin
 fun MenuOptions(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
 
     val items = listOf(
-        MenuItem(R.drawable.current_marker, "Business"),
-        MenuItem(R.drawable.current_marker, "Sponsors"),
-        MenuItem(R.drawable.current_marker, "Profile"),
-        MenuItem(R.drawable.current_marker, "Travel Now"),
-        MenuItem(R.drawable.current_marker, "Chat Screen"),
-        MenuItem(R.drawable.current_marker, "Logout"),
-        MenuItem(R.drawable.current_marker, "Upcoming Voyages")
+        MenuItem(R.drawable.businesses_icon, "Business"),
+        MenuItem(R.drawable.sponsor_menu, "Sponsors"),
+        MenuItem(R.drawable.profile_menu_icon, "Profile"),
+        MenuItem(R.drawable.travel_now_menu, "Travel Now"),
+        MenuItem(R.drawable.message_menu_icon, "Connect with voyagers"),
+        MenuItem(R.drawable.logout_menu, "Logout"),
+        MenuItem(R.drawable.upcoming_voyages_menu, "Upcoming Voyages")
     )
 
     Box(modifier = Modifier.fillMaxSize()
@@ -59,7 +61,7 @@ fun MenuOptions(navController: NavController, viewModel: LoginViewModel = koinVi
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize() .graphicsLayer(alpha = 0.1f)
+            modifier = Modifier.fillMaxSize()
 
         )
         RotatingWheelMenu(items, navController =  navController, viewModel = viewModel)
@@ -76,27 +78,26 @@ fun RotatingWheelMenu(
     var rotationAngle by remember { mutableFloatStateOf(0f) }
     val wheelRadius = with(LocalDensity.current) { wheelSize.toPx() } / 2.3f
 
-    // Increase the distance of menu items from the center of the wheel by adding extra padding
-    val adjustedRadius = wheelRadius * 1.3f  // Increase this multiplier to control the spacing
+    // Increased distance between the center and menu items
+    val adjustedRadius = wheelRadius * 1.45f
 
     Box(
         modifier = Modifier
-            .fillMaxSize() // Fill the entire screen to allow centering
-            .wrapContentSize(Alignment.Center) // Center the Box in the parent container
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
             .pointerInput(Unit) {
                 detectDragGestures { _, delta ->
-                    rotationAngle += delta.x / 2  // Adjust rotation sensitivity
+                    rotationAngle -= delta.x / 2
                 }
             }
     ) {
-        // **Rotating Wheel Image**
         Image(
             painter = painterResource(id = R.drawable.wheel),
             contentDescription = "Wheel",
             modifier = Modifier
-                .size(wheelSize) // Set size for the wheel
-                .rotate(rotationAngle) // The wheel rotates based on the rotation angle
-                .align(Alignment.Center) // Ensure it's centered in the Box
+                .size(wheelSize)
+                .rotate(rotationAngle)
+                .align(Alignment.Center)
         )
 
         Image(
@@ -105,9 +106,9 @@ fun RotatingWheelMenu(
             contentScale = ContentScale.FillBounds,
             modifier = Modifier
                 .size(70.dp)
-                .align(Alignment.Center).
-                clickable {
-                    navController.popBack()
+                .align(Alignment.Center)
+                .clickable {
+                    navController.popBackStack()
                 }
         )
 
@@ -117,42 +118,44 @@ fun RotatingWheelMenu(
             val x = cos(radians) * adjustedRadius
             val y = sin(radians) * adjustedRadius
 
-            // Apply zoom effect to the item closest to the center (top position)
             val isTop = abs(y) > (adjustedRadius * 0.9) && y < 0
-
-            val scale = when {
-                isTop -> 1.2f  // Top item zoom
-              //  isBottom -> 1.0f // Bottom item zoom
-                else -> 1.0f // Rest of the items stay at normal size
-            }
+            val scale = if (isTop) 1.2f else 1.0f
 
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(x.toInt(), y.toInt()) } // Position items around the wheel
-                    .scale(scale) // Apply zoom effect
+                    .offset { IntOffset(x.toInt(), y.toInt()) }
+                    .scale(scale)
                     .align(Alignment.Center)
                     .clickable {
-
-                        onItemClick(item,navController,viewModel)
+                        onItemClick(item, navController, viewModel)
                     }
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Adjusted icon size
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         painter = painterResource(id = item.icon),
                         contentDescription = item.label,
                         modifier = Modifier.size(if (isTop) 34.dp else 24.dp),
                         tint = Color.Unspecified
                     )
-                    // Adjusted text size
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     Text(
                         text = item.label,
-                        fontSize = if (isTop ) 14.sp else 10.sp, // Adjust text size
-                        fontWeight = if (isTop ) FontWeight.Bold else FontWeight.Normal,
-                        color = colorResource(R.color.button_normal)
+                        fontSize = if (isTop) 14.sp else 10.sp,
+                        fontWeight = if (isTop) FontWeight.Bold else FontWeight.Normal,
+                        color = colorResource(R.color.button_normal),
+                        textAlign = TextAlign.Center,
+                        lineHeight = 10.sp,
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .then(
+                                if (!isTop) Modifier.widthIn(max = 55.dp) else Modifier.wrapContentWidth()
+                            )
                     )
+
+
+
                 }
             }
         }
@@ -173,7 +176,7 @@ fun onItemClick(item: MenuItem, navController: NavController, viewModel: LoginVi
         "Travel Now" -> {
             navController.navigate(NavigationManager.TRAVER_NOW_SCREEN)
         }
-        "Chat Screen" -> {
+        "Connect with voyagers" -> {
             navController.navigate(NavigationManager.VOYAGER_CHAT_SCREEN)
         }
         "Logout" -> {

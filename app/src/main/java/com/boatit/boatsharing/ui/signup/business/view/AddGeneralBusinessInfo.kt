@@ -2,6 +2,7 @@
 
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -42,20 +45,30 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.popBack
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessInfoViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessInfoViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessProfileViewModel
+import com.boatit.boatsharing.ui.signup.captain.viewmodel.CaptainDocsViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.view.MyTimePickerDialog
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
  @SuppressLint("UnrememberedMutableState")
 @Composable
-fun AddGeneralBusinessInfo(navController: NavController) {
-
+fun AddGeneralBusinessInfo(navController: NavController,
+     viewModel: BusinessInfoViewModel = koinViewModel(),
+     viewModelfetch: GetBusinessInfoViewModel = koinViewModel()
+ ) {
+     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val businessNameFocusRequester = remember { FocusRequester() }
     val businessTypeFocusRequester = remember { FocusRequester() }
@@ -63,62 +76,67 @@ fun AddGeneralBusinessInfo(navController: NavController) {
     val businessPhoneNoFocusRequester = remember { FocusRequester() }
     val establishmentYearFocusRequester = remember { FocusRequester() }
     val businessTimeFocusRequester = remember { FocusRequester() }
-
-
-    var businessName by remember { mutableStateOf("") }
-    var businessType by remember { mutableStateOf("") }
-    var businessAddress by remember { mutableStateOf("") }
-    var businessPhoneNo by remember { mutableStateOf("") }
-    var establishmentYear by remember { mutableStateOf("") }
-    var businessTime by remember { mutableStateOf("") }
     val showDialog = mutableStateOf(false)
-    var bookingDate by remember { mutableStateOf("") }
-
-
+    val showTimeDialog = mutableStateOf(false)
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var isNetworkError by remember { mutableStateOf(false) }
+    var isNetworkError by remember { mutableStateOf(false)}
+    var getingData by remember { mutableStateOf(true) }
+     val fetchState by viewModelfetch.registrationState.collectAsState()
 
-
-    val isValidate = businessName.isNotEmpty()
-            && businessType.isNotEmpty()
-            && businessAddress.isNotEmpty()
-            && businessPhoneNo.isNotEmpty()
-            && establishmentYear.isNotEmpty()
-            && businessTime.isNotEmpty()
+    val isValidate = viewModel.businessName.isNotEmpty()
+            && viewModel.businessType.isNotEmpty()
+            && viewModel.businessAddress.isNotEmpty()
+            && viewModel.businessPhoneNo.isNotEmpty()
+            && viewModel.establishmentYear.isNotEmpty()
+            && viewModel.businessTime.isNotEmpty()
 
     val handleError = {
         errorMessage = null
         isError = false
     }
 
+     val registrationState by viewModel.registrationState.collectAsState()
 
-    suspend fun performLogin(): Boolean {
-        delay(2000)
-        return false
+     fun performLogin(){
+         navController.navigate(NavigationManager.BUSINESS_DESCRIPTIONS_SCREEN)
+     }
+
+     when (registrationState) {
+         is NetworkResponse.Success -> {
+             if(isLoading){
+                 isLoading = false
+                 isNetworkError = false
+                 Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                 performLogin()
+             }
+         }
+         is NetworkResponse.Error -> {
+             if(isLoading){
+                 isLoading = false
+                 isNetworkError = true
+                 errorMessage = "Network error, please try again."
+                 Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+             }
+         }
+         else -> {}
+     }
+
+    LaunchedEffect(getingData) {
+     if (getingData) viewModelfetch.GetBusinessProfile()
     }
 
-    LaunchedEffect(isButtonEnabled) {
-        if (isLoading) {
-            val networkSuccess = performLogin()
-            isLoading = false
-            if (networkSuccess) {
-                isNetworkError = false
-                println("info added")
+     LaunchedEffect(fetchState) {
+         if (fetchState is NetworkResponse.Success && getingData) {
+             viewModel.loadInitialData(fetchState.data)
+             getingData = false
+         }
+     }
 
-
-            } else {
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-
-                 navController.navigate(NavigationManager.BUSINESS_DESCRIPTIONS_SCREEN)
-
-            }
-        }
-    }
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 2/4", onImageClick = {
                 println("clicked...")
@@ -148,10 +166,20 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                 if (showDialog.value) {
                     MyDatePickerDialog(
                         onDateSelected = {
-                            bookingDate = it
-                            establishmentYear = bookingDate
+                            viewModel.bookingDate = it
+                            viewModel.establishmentYear = viewModel.bookingDate
                         },
                         onDismiss = { showDialog.value = false }
+                    )
+                }
+
+                if (showTimeDialog.value) {
+                    MyTimePickerDialog(
+                        onDateSelected = {
+                            viewModel.businessTime =  it + ":00"
+                            showTimeDialog.value = false
+                        },
+                        onDismiss = { showTimeDialog.value = false}
                     )
                 }
 
@@ -168,13 +196,13 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                 Spacer(Modifier.height(10.dp))
 
                 CustomTextField(
-                    textValue = businessName,
+                    textValue = viewModel.businessName,
                     placeholderText = stringResource(R.string.business_name_placeholder),
-                    onTextChange = { businessName = it },
+                    onTextChange = { viewModel.businessName = it },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (businessName.isNotEmpty()&& businessName.length <= 3) stringResource(R.string.business_name_validation_text) else null,
-                    isError = businessName.isNotEmpty(),
+                    errorMessage = if (viewModel.businessName.isNotEmpty()&& viewModel.businessName.length <= 3) stringResource(R.string.business_name_validation_text) else null,
+                    isError = viewModel.businessName.isNotEmpty(),
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -198,13 +226,13 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                 Spacer(Modifier.height(10.dp))
 
                 CustomTextField(
-                    textValue = businessType,
+                    textValue = viewModel.businessType,
                     placeholderText = stringResource(R.string.business_type_placeholder),
-                    onTextChange = { businessType = it },
+                    onTextChange = { viewModel.businessType = it },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage = if (businessType.isNotEmpty()&& businessType.length <= 3) stringResource(R.string.business_type_validation_text) else null,
-                    isError = businessType.isNotEmpty(),
+                    errorMessage = if (viewModel.businessType.isNotEmpty()&& viewModel.businessType.length <= 3) stringResource(R.string.business_type_validation_text) else null,
+                    isError = viewModel.businessType.isNotEmpty(),
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -227,17 +255,17 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 CustomTextField(
-                    textValue = businessAddress,
+                    textValue = viewModel.businessAddress,
                     placeholderText = stringResource(R.string.business_address_placeholder),
-                    onTextChange = { businessAddress = it },
+                    onTextChange = { viewModel.businessAddress = it },
                     keyboardType = KeyboardType.Text,
                     maxChars = 500,
                     singleLine = false,
                     maxLines = 3,
-                    errorMessage = if (businessAddress.isNotEmpty() && businessAddress.length <= 3) stringResource(
+                    errorMessage = if (viewModel.businessAddress.isNotEmpty() && viewModel.businessAddress.length <= 3) stringResource(
                         R.string.business_address_validation_text
                     ) else null,
-                    isError = businessAddress.isNotEmpty(),
+                    isError = viewModel.businessAddress.isNotEmpty(),
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -258,13 +286,13 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 CustomTextField(
-                    textValue = businessPhoneNo,
+                    textValue = viewModel.businessPhoneNo,
                     placeholderText = stringResource(R.string.business_contact_no_placeholder),
-                    onTextChange = { businessPhoneNo = it },
+                    onTextChange = { viewModel.businessPhoneNo = it },
                     keyboardType = KeyboardType.Number,
                     maxChars = 50,
-                    errorMessage = if (businessPhoneNo.isNotEmpty() && businessPhoneNo.length <= 5) stringResource(R.string.business_contact_no_validation_text) else null,
-                    isError = businessPhoneNo.isNotEmpty(),
+                    errorMessage = if (viewModel.businessPhoneNo.isNotEmpty() && viewModel.businessPhoneNo.length <= 5) stringResource(R.string.business_contact_no_validation_text) else null,
+                    isError = viewModel.businessPhoneNo.isNotEmpty(),
                     onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
@@ -290,13 +318,13 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                     modifier = Modifier.clickable { showDialog.value = true }
                 ) {
                     CustomDobField(
-                        textValue = establishmentYear,
+                        textValue = viewModel.establishmentYear,
                         placeholderText = stringResource(R.string.business_starting_year_placeholder),
-                        onTextChange = { establishmentYear = it },
+                        onTextChange = { viewModel.establishmentYear = it },
                         keyboardType = KeyboardType.Number,
                         maxChars = 4,
-                        errorMessage = if (establishmentYear.isNotEmpty() && establishmentYear.length <= 4) stringResource(R.string.business_starting_year_validation_text) else null,
-                        isError = establishmentYear.isNotEmpty(),
+                        errorMessage = null,
+                        isError = viewModel.establishmentYear.isNotEmpty(),
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(
@@ -318,24 +346,28 @@ fun AddGeneralBusinessInfo(navController: NavController) {
 
                 Spacer(Modifier.height(10.dp))
 
-
-                CustomTextField(
-                    textValue = businessTime,
-                    placeholderText = stringResource(R.string.business_time_placeholder),
-                    onTextChange = { businessTime = it },
-                    keyboardType = KeyboardType.Text,
-                    maxChars = 50,
-                    errorMessage = if  (businessTime.isNotEmpty() && businessTime.length <= 5)stringResource(R.string.business_time_validation_text) else null,
-                    isError =  businessTime.isNotEmpty(),
-                    onClearError = handleError,
-                    imeAction = ImeAction.Done,
-                    keyboardActions = KeyboardActions(
-                        onNext = { focusManager.clearFocus() }
-                    ),
-                    focusRequester = businessTimeFocusRequester
-                )
-
-
+                Box(
+                    modifier = Modifier.clickable {
+                        showTimeDialog.value = true
+                    }
+                ) {
+                    CustomDobField(
+                        textValue = viewModel.businessTime,
+                        placeholderText = stringResource(R.string.business_time_placeholder),
+                        onTextChange = { viewModel.businessTime = it },
+                        keyboardType = KeyboardType.Text,
+                        maxChars = 40,
+                        errorMessage = if  (viewModel.businessTime.isNotEmpty() && viewModel.businessTime.length <= 5)stringResource(R.string.business_time_validation_text) else null,
+                        isError =  viewModel.businessTime.isNotEmpty(),
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.clearFocus() }
+                        ),
+                        focusRequester = businessTimeFocusRequester,
+                        showBorder = false
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -344,12 +376,9 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {
-
-                        isButtonEnabled = true
                         isLoading = true
+                        viewModel.saveBusinessProfile()
                         focusManager.clearFocus()
-                        println("perform network call")
-
                     }
                 )
 
@@ -392,6 +421,7 @@ fun AddGeneralBusinessInfo(navController: NavController) {
                  Text(text = "OK")
              }
          },
+
          dismissButton = {
              Button(onClick = {
                  onDismiss()

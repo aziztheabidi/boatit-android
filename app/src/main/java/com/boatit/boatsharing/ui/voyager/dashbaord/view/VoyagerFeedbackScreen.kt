@@ -1,6 +1,5 @@
 package com.boatit.boatsharing.ui.captain.availablitystatus
 
-import VoyageData
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,9 +43,8 @@ import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
-import com.boatit.boatsharing.ui.captain.dashbaord.model.CaptainFeedbackRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainFeedbackViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagerFeedbackRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerFeedbackViewModel
 import com.gowtham.ratingbar.RatingBar
@@ -72,7 +70,7 @@ fun VoyagerFeedbackScreen(navController: NavController,notification : String,
             if (isLoading) {
                 isLoading = false
                 Toast.makeText(context, "Feedback Submitted", Toast.LENGTH_SHORT).show()
-                navController.navigateWithClearStack(NavigationManager.CAPTAIN_DASHBOARD_SCREEN, clearStack = true)
+                navController.navigateWithClearStack(route = "$DASHBOARD_SCREEN/null", clearStack = true)
             }
         }
         is NetworkResponse.Error -> {
@@ -85,16 +83,13 @@ fun VoyagerFeedbackScreen(navController: NavController,notification : String,
     }
 
 
-
-
-
     Box(modifier = Modifier.fillMaxSize()
     ) {
         Image(
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f)
+            modifier = Modifier.fillMaxSize()
 
         )
         Column(

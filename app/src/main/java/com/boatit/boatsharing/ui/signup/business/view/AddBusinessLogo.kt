@@ -1,7 +1,9 @@
 package com.boatit.boatsharing.ui.signup.business
 
 
+import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -43,37 +47,37 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.rememberAsyncImagePainter
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.popBack
+import com.boatit.boatsharing.ui.signup.business.model.SaveBusinessAboutRequest
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessAboutViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
+import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.permissions.PermissionsToAccessGallery
 import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
+import java.io.File
 
 
 @Composable
-fun AddBusinessLogo(navController: NavController) {
-
+fun AddBusinessLogo(navController: NavController,
+    viewModel: BusinessLogoViewModel = koinViewModel()
+) {
     val focusManager = LocalFocusManager.current
-
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var triggerGallery by remember { mutableStateOf(false) }
-
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
-
-
     val isValidate = selectedImageUri!= null
-
-    val handleError = {
-        errorMessage = null
-        isError = false
-    }
-
+    val context = LocalContext.current
 
     if (triggerGallery) {
         PermissionsToAccessGallery(
@@ -90,31 +94,48 @@ fun AddBusinessLogo(navController: NavController) {
         )
     }
 
-    suspend fun performLogin(): Boolean {
-        delay(2000)
-        return false
-    }
+    val registrationState by viewModel.registrationState.collectAsState()
 
-    LaunchedEffect(isButtonEnabled) {
-        if (isLoading) {
-            val networkSuccess = performLogin()
-            isLoading = false
-            if (networkSuccess) {
-                isNetworkError = false
-                println("info added")
-
-
-            } else {
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-
-
-                // navController.navigate(NavigationManager.Home)
-
+    fun uriToFile(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val tempFile = File.createTempFile("upload", ".jpg", context.cacheDir)
+            tempFile.outputStream().use { outputStream ->
+                inputStream?.copyTo(outputStream)
             }
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
+
+    fun performLogin(){
+        navController.navigate(NavigationManager.BUSINESS_SCREEN)
+    }
+
+    when (registrationState) {
+        is NetworkResponse.Success -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = false
+                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                performLogin()
+            }
+        }
+        is NetworkResponse.Error -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = true
+                errorMessage = "Network error, please try again."
+                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+            }
+        }
+        else -> {}
+    }
+
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 4/4", onImageClick = {
                 println("clicked...")
@@ -200,14 +221,16 @@ fun AddBusinessLogo(navController: NavController) {
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {
-
-                        isButtonEnabled = true
-                        isLoading = true
-                        focusManager.clearFocus()
-                        println("perform network call")
-
-
-
+                        selectedImageUri?.let { uri ->
+                            val file = uriToFile(context, uri)
+                            if (file != null) {
+                                isLoading = true
+                                viewModel.uploadBusinessLogo(
+                                        AppConstants.USER_ID!!,
+                                        file)
+                                focusManager.clearFocus()
+                            }
+                        }
                     }
                 )
 
@@ -215,8 +238,9 @@ fun AddBusinessLogo(navController: NavController) {
 
             }
         },
-
         )
+
+
 }
 
 @Preview

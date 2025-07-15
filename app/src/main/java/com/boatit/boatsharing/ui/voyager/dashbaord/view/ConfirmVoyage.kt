@@ -564,15 +564,6 @@ fun ConfirmVoyageScreen(navController: NavController, viewModel: VoyagerProfileV
                 }
 
 
-
-
-
-
-
-
-
-
-
                 Spacer(Modifier.height(15.dp))
 
 

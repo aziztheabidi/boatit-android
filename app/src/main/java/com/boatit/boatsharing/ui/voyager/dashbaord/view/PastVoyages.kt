@@ -68,7 +68,7 @@ fun PastVoyages(navController: NavController, notification : VoyageDetails?) {
                         painter = painterResource(id = R.drawable.passengers),
                         contentDescription = "Icon",
                         modifier = Modifier.size(20.dp),
-                        tint = colorResource(R.color.button_normal)
+                        tint = Color.Unspecified
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(notification?.BoatName.toString(), fontSize = 16.sp)
@@ -81,7 +81,7 @@ fun PastVoyages(navController: NavController, notification : VoyageDetails?) {
                         painter = painterResource(id = R.drawable.location_icon),
                         contentDescription = "Icon",
                         modifier = Modifier.size(20.dp),
-                        tint = colorResource(R.color.button_normal)
+                        tint = Color.Unspecified
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(notification?.PickupDock.toString(), fontSize = 16.sp)

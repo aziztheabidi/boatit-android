@@ -52,19 +52,28 @@ class TravelNowViewModel(
             _state.update { it.copy(isLoading = true, toastMessage = null) }
 
             val result = repository.voyages()
+
             result.onSuccess { response ->
                 _state.update {
-                    it.copy(
-                        voyage = response.obj,
-                        isLoading = false,
-                        toastMessage = "Success"
-                    )
+                    if(response.Status == 200){
+                        it.copy(
+                            voyage = response.obj,
+                            isLoading = false,
+                            toastMessage = "Success"
+                        )
+                    }else{
+                        it.copy(
+                            isLoading = true,
+                            toastMessage = "No data found"
+                        )
+                    }
+
                 }
             }.onFailure { error ->
                 _state.update {
                     it.copy(
-                        isLoading = false,
-                        toastMessage = error.message ?: "Failed to load voyage"
+                        isLoading = true,
+                        toastMessage = "No data found"
                     )
                 }
             }
@@ -123,8 +132,9 @@ class TravelNowViewModel(
     }
 
     fun clearToast() {
-        _state.update { it.copy(toastMessage = null) }
+        _state.update { it.copy(isLoading = false,toastMessage = null) }
     }
+
 }
 
 

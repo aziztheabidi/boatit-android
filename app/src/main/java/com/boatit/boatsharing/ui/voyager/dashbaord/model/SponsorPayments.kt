@@ -12,6 +12,7 @@ data class SponsorPayments(
 @Serializable
 data class SponsorVoyagerPayment(
     val Id: String,
+    val Name: String,
     val VoyagerName: String,
     val VoyagerPhoneNumber: String,
     val PickupDock: String,
@@ -21,5 +22,9 @@ data class SponsorVoyagerPayment(
     val DropOffDockLatitude: Double,
     val DropOffDockLongitude: Double,
     val AmountToPay: Double,
-    val NoOfVoyagers: Int
+    val NoOfVoyagers: Int,
+    val WaterStay: String,
+    val Duration: String,
+    val BookingDateTime: String,
+    val VoyageStatus: String
 )

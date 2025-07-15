@@ -33,7 +33,8 @@ import com.google.android.gms.maps.model.LatLng
 fun PermissionsToAccessLocation(
     fusedLocationProviderClient: FusedLocationProviderClient,
     onPermissionGranted: (LatLng) -> Unit,
-    onPermissionDenied: () -> Unit
+    onPermissionDenied: () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
     var locationPermissionGranted by remember {
@@ -45,7 +46,6 @@ fun PermissionsToAccessLocation(
         )
     }
 
-    // Permission request launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -72,9 +72,11 @@ fun PermissionsToAccessLocation(
         ) {
             Text("Grant Location Permission")
         }
+    } else {
+        content()
     }
-
 }
+
 
 fun fetchAndUpdateLocation(
     fusedLocationProviderClient: FusedLocationProviderClient,

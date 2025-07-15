@@ -171,10 +171,11 @@ fun UserAccountInfoScreen(navController: NavController,value: String?, viewModel
     }
 
     Scaffold(
+        containerColor = White,
         topBar = {
             if (value.toString() == "captainRole"){
                 CustomTopBar(text = stringResource(R.string.add_your_acc_info)+" 1/3", onImageClick = {
-                    println("clicked...")
+                    navController.popBackStack()
                 })
             }
             else if (value.toString() == "businessRole"){

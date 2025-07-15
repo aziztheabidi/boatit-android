@@ -139,9 +139,9 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
     }
 
 
+    Spacer(modifier = Modifier.height(5.dp))
     Card(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(Color.White)
     ) {
         Column(
@@ -149,8 +149,8 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(
-                    top = 50.dp,
-                    start = 16.dp, end = 16.dp, bottom = 16.dp
+                    top = 5.dp,
+                    start = 5.dp, end = 5.dp, bottom = 5.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -159,9 +159,40 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                elevation = CardDefaults.cardElevation(4.dp),
+                modifier = Modifier.fillMaxWidth().
+                border(0.5.dp,  colorResource(id = R.color.button_normal), RoundedCornerShape(8.dp)),
             ) {
-                Column() {
+                Column(
+                    modifier =  Modifier.padding(
+                        top = 10.dp, start = 10.dp, end = 10.dp, bottom = 10.dp
+
+                ) ){
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement  = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.pending),
+                            contentDescription = "Status Icon",
+                            modifier = Modifier
+                                .size(25.dp) // Adjust size as needed
+                                .padding(end = 5.dp), // Add some space between text and icon
+                            tint = Color.Unspecified // Change color of the icon
+                        )
+                        Text(
+                            style = TextStyle(
+                                color = Color(0xFF797979),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.W500
+                            ),
+                            text = notification?.VoyageStatus!!
+                        )
+                    }
+
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -173,27 +204,8 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Normal
                             ),
-                            text = "Sunday, 12 April | 10:00 am"
+                            text = notification?.BookingDateTime!!
                         )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.pending),
-                                contentDescription = "Status Icon",
-                                modifier = Modifier
-                                    .size(25.dp) // Adjust size as needed
-                                    .padding(end = 5.dp), // Add some space between text and icon
-                                tint = Color.Blue // Change color of the icon
-                            )
-                            Text(
-                                style = TextStyle(
-                                    color = Color(0xFF797979),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.W500
-                                ),
-                                text = "Pending"
-                            )
-
-                        }
                     }
 
                     Spacer(Modifier.height(7.dp))
@@ -204,7 +216,7 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "Event Conference"
+                        text = notification?.Name!!
                     )
                     Spacer(Modifier.height(7.dp))
                     Text(
@@ -213,7 +225,7 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                             fontSize = 24.sp,
                             fontWeight = FontWeight.W500
                         ),
-                        text = "2025"
+                        text = notification?.BookingDateTime!!
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -222,9 +234,9 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                         style = TextStyle(
                             color = Color.Black,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.W500
+
                         ),
-                        text = "Voyagees details"
+                        text = "Voyagees Details"
                     )
                     Spacer(Modifier.height(10.dp))
 
@@ -239,14 +251,14 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                             Card(
                                 modifier = Modifier
                                     .padding(5.dp)
-                                    .height(205.dp)
-                                    .width(175.dp),
+                                    .height(205.dp).
+                                    weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -258,13 +270,12 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
                                             text = notification?.NoOfVoyagers.toString()
                                         )
@@ -281,13 +292,13 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Bold
                                             ),
                                             text = notification?.AmountToPay.toString()
                                         )
@@ -306,15 +317,14 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
-                                            text = notification?.VoyagerPhoneNumber.toString()
+                                            text = notification?.Duration.toString()
                                         )
                                     }
                                 }
@@ -326,13 +336,13 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .height(205.dp)
-                                    .width(175.dp),
+                                    . weight(1f),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(10.dp)
                                         .fillMaxSize(),
                                     verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
                                 ) {
@@ -344,13 +354,12 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Blue
+                                            tint = Color.Unspecified
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
                                             text = notification?.PickupDock!!
                                         )
@@ -367,14 +376,13 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                             modifier = Modifier
                                                 .size(30.dp)
                                                 .padding(end = 10.dp),
-                                            tint = Color.Red
+                                            tint = Color.Unspecified
 
                                         )
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
                                             text = notification?.DropOffDock!!
                                         )
@@ -398,10 +406,9 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                                         Text(
                                             style = TextStyle(
                                                 color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.W500
+                                                fontSize = 12.sp,
                                             ),
-                                            text = "No Time Spent"
+                                            text = notification?.WaterStay!!
                                         )
                                     }
                                 }
@@ -468,15 +475,4 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
     }
 
 
-}
-
-
-@Preview
-@Composable
-fun previewSponsorVoyageItems() {
-    ConfirmBooking(
-        navController = rememberNavController(),
-        onCancelClick = {},
-        onPayNowClick = {}
-    )
 }

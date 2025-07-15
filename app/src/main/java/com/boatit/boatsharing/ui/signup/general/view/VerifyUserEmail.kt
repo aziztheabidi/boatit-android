@@ -1,5 +1,7 @@
 package com.boatit.boatsharing.ui.signup.general.view
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -46,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN
@@ -79,32 +83,37 @@ fun VerifyUserEmail(
     fun navigateToNextStep(token: String?) {
         navController.navigate("$CREATE_ACCOUNT_STEP_THREE_SCREEN/$token")
     }
-    // Observe registration state
+
     when (registrationState) {
         is NetworkResponse.Success -> {
-            if (isLoading) {
-                Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT).show()
-                navigateToNextStep(registrationState.data?.obj)
-            }
+            Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT).show()
+            navigateToNextStep(registrationState.data?.obj)
+            viewModel.resetNearbyPlaces()
         }
 
         is NetworkResponse.Error -> {
-            if (isLoading) {
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+            viewModel.resetNearbyPlaces()
         }
 
         else -> Unit
     }
 
     Scaffold(
+        containerColor = White,
         topBar = {
             CustomTopBar(text = "${stringResource(R.string.add_your_info)} 2/3") {
                 println("Back pressed")
+
+                navController.popBackStack()
             }
         },
         bottomBar = {
-            TermsAndPrivacyView(onClick = {})
+            TermsAndPrivacyView(onClick = {
+                val url = ApiConstants.PRIVACY_POLICY
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+            })
         }
     ) { innerPadding ->
 
@@ -129,8 +138,10 @@ fun VerifyUserEmail(
 
             Spacer(Modifier.height(30.dp))
 
+            val message = stringResource(R.string.email_verification_text, value)
+
             Text(
-                text = stringResource(R.string.email_verification_text),
+                text = message,
                 style = TextStyle(
                     color = Color.Black,
                     fontSize = 14.sp,
@@ -246,7 +257,10 @@ fun VerifyUserEmail(
                     text = annotatedText,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .clickable { navController.navigate(CREATE_ACCOUNT_STEP_THREE_SCREEN) },
+                        .clickable {
+                            navController.popBackStack()
+                          //  navController.navigate(CREATE_ACCOUNT_STEP_THREE_SCREEN)
+                                   },
                     textAlign = TextAlign.Center
                 )
             }
