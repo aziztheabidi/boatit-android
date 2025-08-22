@@ -63,6 +63,7 @@ class TravelNowViewModel(
                         )
                     }else{
                         it.copy(
+                            voyage = TravelNowObj(),
                             isLoading = true,
                             toastMessage = "No data found"
                         )
@@ -72,6 +73,7 @@ class TravelNowViewModel(
             }.onFailure { error ->
                 _state.update {
                     it.copy(
+                        voyage = TravelNowObj(),
                         isLoading = true,
                         toastMessage = "No data found"
                     )

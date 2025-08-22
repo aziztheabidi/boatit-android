@@ -59,7 +59,7 @@ fun CustomDialog(onDismiss: () -> Unit,value: String) {
             }
 
             else {
-                PaymentSuccessfulScreen("tabby@gmail.com")
+                PaymentSuccessfulScreen("your registered email.")
                 LaunchedEffect(Unit) {
                     delay(delayDuration)
                     onDismiss()
@@ -155,7 +155,7 @@ fun PaymentSuccessfulScreen(email: String) {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append(email)
                 }
-                append(" with receipt of this Voyage.")
+               // append(" with receipt of this Voyage.")
             },
             fontSize = 16.sp,
             textAlign = TextAlign.Center,

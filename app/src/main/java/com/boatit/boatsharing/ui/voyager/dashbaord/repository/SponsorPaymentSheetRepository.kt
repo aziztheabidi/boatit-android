@@ -5,6 +5,7 @@ import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabi
 import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityResponse
 import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageResponse
+import com.boatit.boatsharing.ui.captain.dashbaord.model.DeclineRequest
 import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.login.model.LoginRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
@@ -28,6 +29,23 @@ class SponsorPaymentSheetConfigRepository(private val httpClient: HttpClient) {
     suspend fun SheetConfi(id: SponsorVoyagePaymentRequest): Result<PaymentSheetConfigResponse> {
         return try {
             val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SPONSOR_PAYMENT_INITIATE}") {
+                contentType(ContentType.Application.Json)
+                setBody(id)
+            }
+            if (response.status == HttpStatusCode.OK) {
+                val result: PaymentSheetConfigResponse = response.body()
+                Result.success(result)
+            } else {
+                Result.failure(Exception("API Error: ${response.status}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
+        }
+    }
+
+    suspend fun paymentDecline(id: DeclineRequest): Result<PaymentSheetConfigResponse> {
+        return try {
+            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SPONSOR_PAYMENT_Decline}") {
                 contentType(ContentType.Application.Json)
                 setBody(id)
             }

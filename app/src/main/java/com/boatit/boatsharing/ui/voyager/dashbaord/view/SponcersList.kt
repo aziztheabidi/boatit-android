@@ -24,6 +24,7 @@ import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponcerVoyagesViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerVoyagesViewModel
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import org.koin.androidx.compose.koinViewModel
@@ -31,20 +32,32 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SponcersList(navController: NavController,
      viewModel: SponcerVoyagesViewModel = koinViewModel(),
+     viewModelStripe: SponsorPaymentSheetConfigViewModel = koinViewModel(),
      viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel()) {
 
     val context = LocalContext.current
     val voyagesList by viewModel.loginState.collectAsState()
     val paymentState by viewModelP.loginState.collectAsState()
+    val declineState by viewModelStripe.declineState.collectAsState()
 
     when (paymentState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, "Payment Successfull", Toast.LENGTH_SHORT).show()
             viewModel.voyages()
         }
         is NetworkResponse.Error -> {
-            Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
             viewModel.voyages()
+        }
+        else -> {}
+    }
+
+    when (declineState) {
+        is NetworkResponse.Success -> {
+            viewModel.voyages()
+            viewModelStripe.resetNearbyPlaces()
+        }
+        is NetworkResponse.Error -> {
+            Toast.makeText(context, declineState.message, Toast.LENGTH_LONG).show()
+            viewModelStripe.resetNearbyPlaces()
         }
         else -> {}
     }
@@ -60,7 +73,6 @@ fun SponcersList(navController: NavController,
                 navController.popBack()
             })
         },
-
         content = { innerPadding ->
             Box(
                 modifier = Modifier

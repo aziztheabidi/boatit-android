@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.SETTINGS_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.routes.popBack
@@ -48,11 +49,15 @@ fun MenuOptions(navController: NavController, viewModel: LoginViewModel = koinVi
     val items = listOf(
         MenuItem(R.drawable.businesses_icon, "Business"),
         MenuItem(R.drawable.sponsor_menu, "Sponsors"),
-        MenuItem(R.drawable.profile_menu_icon, "Profile"),
+//        MenuItem(R.drawable.profile_menu_icon, "History"),
         MenuItem(R.drawable.travel_now_menu, "Travel Now"),
         MenuItem(R.drawable.message_menu_icon, "Connect with voyagers"),
+        MenuItem(R.drawable.upcoming_voyages_menu, "Upcoming Voyages"),
+        MenuItem(R.drawable.settings, "Settings"),
         MenuItem(R.drawable.logout_menu, "Logout"),
-        MenuItem(R.drawable.upcoming_voyages_menu, "Upcoming Voyages")
+        MenuItem(R.drawable.history_icon, "Past Voyages")
+
+
     )
 
     Box(modifier = Modifier.fillMaxSize()
@@ -170,9 +175,9 @@ fun onItemClick(item: MenuItem, navController: NavController, viewModel: LoginVi
         "Business" -> {
             navController.navigate(NavigationManager.VOYAGER_BUSINESS_SCREEN)
         }
-        "Profile" -> {
-            navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
-        }
+//        "Profile" -> {
+//            navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
+//        }
         "Travel Now" -> {
             navController.navigate(NavigationManager.TRAVER_NOW_SCREEN)
         }
@@ -186,6 +191,14 @@ fun onItemClick(item: MenuItem, navController: NavController, viewModel: LoginVi
         "Upcoming Voyages" -> {
             navController.navigate(NavigationManager.FUTURE_VOYAGES_SCREEN)
         }
+
+        "Settings" -> {
+            navController.navigate(route = "$SETTINGS_SCREEN/voyagerRole")
+        }
+        "Past Voyages" -> {
+            navController.navigate(NavigationManager.VOYAGE_PAST_SCREEN)
+        }
+
     }
 }
 

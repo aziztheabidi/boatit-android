@@ -109,14 +109,12 @@ fun VoyageBookedScreenVoyager(navController: NavController,
 
     when (paymentState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, "Payment Confirmed", Toast.LENGTH_SHORT).show()
             AppConstants.resetDefaults()
             navController.navigate(route = "$DASHBOARD_SCREEN/null")
             viewModelP.resetNearbyPlaces()
 
         }
         is NetworkResponse.Error -> {
-            Toast.makeText(context, "Payment Confirmed", Toast.LENGTH_SHORT).show()
             AppConstants.resetDefaults()
             navController.navigate(route = "$DASHBOARD_SCREEN/null")
             viewModelP.resetNearbyPlaces()
@@ -158,7 +156,7 @@ fun VoyageBookedScreenVoyager(navController: NavController,
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f)
+            modifier = Modifier.fillMaxSize()
 
         )
         Column(

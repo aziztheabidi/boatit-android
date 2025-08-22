@@ -60,6 +60,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookVoyageRequest
@@ -74,6 +75,7 @@ import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.uihelpers.MissingPaymentDialog
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.uihelpers.VoyageBookDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
@@ -95,6 +97,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
     var dob by remember { mutableStateOf("") }
     var paypalEmail by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+
 
 
     var isError by remember { mutableStateOf(false) }
@@ -111,6 +115,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
     val isValidate = true
 
+    var responseErrorText by remember { mutableStateOf("") }
 
 
     val registrationState by viewModel.nearbyPlaces.collectAsState()
@@ -169,7 +174,9 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 showWaitingResponsePrompt = false
                 isLoading = false
                 isNetworkError = true
-                Toast.makeText(context, findState.message, Toast.LENGTH_SHORT).show()
+                showErrorDialog = true
+                responseErrorText = findState.message.toString()
+               // Toast.makeText(context, findState.message, Toast.LENGTH_SHORT).show()
             }
         }
         else -> {}
@@ -218,8 +225,8 @@ fun CreateVoyageSponsorScreen(navController: NavController,
 
 
                 CustomTextField(
-                    textValue = AppConstants.Estimated_Cost.toString(),
-                    placeholderText = AppConstants.Estimated_Cost.toString(),
+                    textValue = AppConstants.Total_Cost.toString(),
+                    placeholderText = AppConstants.Total_Cost.toString(),
                     onTextChange = {  },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
@@ -502,6 +509,19 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                             showDialog = false
                         },
                         onDismissRequest = {  }
+                    )
+                }
+
+
+                if(showErrorDialog) {
+
+                    SessionDialog(
+                        text = responseErrorText,
+                        onCancel = {},
+                        onPressOk = {
+                            showErrorDialog =false
+                        },
+                        showCancelButton = false
                     )
                 }
             }

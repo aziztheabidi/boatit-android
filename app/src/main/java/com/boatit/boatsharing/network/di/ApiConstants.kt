@@ -30,12 +30,14 @@ object ApiConstants {
         const val GET_BUSINESS_PROFILE = "/BusinessProfile/GetByUserId"
         const val SAVE_BUSINESS_INFO_PROFILE = "/BusinessInfo/Save"
         const val SAVE_BUSINESS_DASH_PROFILE = "/Business/Save"
+        const val DELETE_BUSINESS_DASH_PROFILE = "/BusinessInfo/DeleteImage"
         const val GET_BUSINESS_INFO_PROFILE = "/BusinessInfo/GetByUserId"
         const val SAVE_BUSINESS_ABOUT = "/BusinessInfo/SaveAbout"
         const val SAVE_BUSINESS_LOGO = "/BusinessInfo/SaveMedia"
         const val SAVE_CAPTAIN_BOAT = "/CaptainBoat/Save"
         const val UPDATE_CAPTAIN_STATUS = "/CaptainProfile/Availability"
         const val ACCEPT_REQUEST = "/Voyage/Accept"
+        const val DECLINE_REQUEST = "/Voyage/Decline"
         const val START_VOYAGE = "/Voyage/Start"
         const val CAPTAIN_FEEDBACK = "/Voyage/CaptainFeedback"
         const val VOYAGER_FEEDBACK = "/Voyage/VoyagerFeedback"
@@ -46,10 +48,11 @@ object ApiConstants {
         const val PAYMENT_COMFIRMATION = "/Voyage/PaymentConfirmation"
         const val SPONSOR_PAYMENT_CONFIRMATION = "/Voyage/SponserPaymentConfirmation"
         const val SPONSOR_PAYMENT_INITIATE = "/Voyage/SponserPaymentInitiate"
+        const val SPONSOR_PAYMENT_Decline = "/Voyage/Ignore"
         const val GET_CAPTAIN_BOAT = "/CaptainBoat/GetByUserId"
         const val SAVE_CAPTAIN_DOCS = "/CaptainDocument/Save"
         const val GET_CAPTAIN_DOCS = "/CaptainDocument/GetByUserId"
-        const val GET_CAPTAIN_VOYAGES = "/Captain/GetActiveVoyages"
+        const val GET_CAPTAIN_VOYAGES = "/Captain/GetPastVoyages"
         const val GET_Voyager_PAST_VOYAGES = "/VoyagerDashboard/GetPastVoyages"
         const val GET_VOYAGERS_LIST = "/Voyager/GetRelationship"
         const val GET_ACTIVE_VOYAGES = "/VoyagerDashboard/GetActiveVoyage"
@@ -59,6 +62,11 @@ object ApiConstants {
         const val GET_NOW_BOOKED_VOYAGES = "/Voyager/GetImmediatelyBookedVoyage"
         const val CONFIRM_BOOKED_VOYAGE = "/Voyage/Confirm"
         const val CANCEL_VOYAGE = "/Voyage/Cancel"
+
+
+
+        const val GET_CAPTAIN_ACTIVE_VOYAGES = "/Captain/GetActiveVoyages"
+
 
 
 

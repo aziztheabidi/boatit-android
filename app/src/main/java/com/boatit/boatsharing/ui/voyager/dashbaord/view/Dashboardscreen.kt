@@ -59,16 +59,20 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.VOYAGER_FEEDBACK_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.ActiveVoyageDetails
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FindBoatViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.GetActiveVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.NearByVoyagesViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.PaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.PaymentViewModel
 import com.boatit.boatsharing.uihelpers.CustomDialog
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.permissions.PermissionsToAccessLocation
 import com.google.android.gms.location.LocationServices
@@ -93,12 +97,13 @@ import java.util.Calendar
 @Composable
 
 fun DashboardScreen(navController: NavController, value: String?,
-    viewModel: NearByVoyagesViewModel = koinViewModel(),
-    viewModelFind: FindBoatViewModel = koinViewModel(),
-    viewModelCurrent: GetActiveVoyageViewModel = koinViewModel(),
-    viewModelN: NotificationViewModel = koinViewModel(),
-    viewModelStripe: PaymentSheetConfigViewModel = koinViewModel(),
-    viewModelP: PaymentViewModel = koinViewModel(), ) {
+                    viewModel: NearByVoyagesViewModel = koinViewModel(),
+                    viewModelCancel: CancelBookedVoyageViewModel = koinViewModel(),
+                    viewModelFind: FindBoatViewModel = koinViewModel(),
+                    viewModelCurrent: GetActiveVoyageViewModel = koinViewModel(),
+                    viewModelN: NotificationViewModel = koinViewModel(),
+                    viewModelStripe: PaymentSheetConfigViewModel = koinViewModel(),
+                    viewModelP: PaymentViewModel = koinViewModel(), ) {
 
     val context = LocalContext.current
     val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -133,6 +138,7 @@ fun DashboardScreen(navController: NavController, value: String?,
     var waitingResponsePromptValue by rememberSaveable { mutableStateOf("") }
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val markerState = remember { MarkerState(position = defaultLatLng) }
     val logoutEvent by viewModel.logoutEvent.collectAsState()
@@ -195,6 +201,18 @@ fun DashboardScreen(navController: NavController, value: String?,
         }
     }
 
+    when (CancelState) {
+        is NetworkResponse.Success -> {
+            Toast.makeText(context, CancelState.message.toString(), Toast.LENGTH_SHORT).show()
+            viewModelCancel.resetNearbyPlaces()
+        }
+        is NetworkResponse.Error -> {
+            Toast.makeText(context, CancelState.message, Toast.LENGTH_SHORT).show()
+            viewModelCancel.resetNearbyPlaces()
+        }
+        else -> {}
+    }
+
     when (paymentState) {
         is NetworkResponse.Success -> {
             showWaitingResponsePrompt = false
@@ -204,7 +222,6 @@ fun DashboardScreen(navController: NavController, value: String?,
         }
         is NetworkResponse.Error -> {
                 showFindBoat = false
-                Toast.makeText(context, paymentState.message, Toast.LENGTH_SHORT).show()
         }
         else -> {}
     }
@@ -281,12 +298,15 @@ fun DashboardScreen(navController: NavController, value: String?,
                 showFindBoat = true
                 voyageDetail = currentState.data?.obj
                 println("ID" + voyageDetail?.Id)
-            }else if(currentState.data?.obj?.Status?.equals("Completed")!!){
+            }
+
+            else if(currentState.data?.obj?.Status?.equals("Completed")!!){
                 voyageDetail = currentState.data?.obj
                 showConfirmBooking = false
                 showFindBoat = false
                 showVoyageDetails = false
-                navController.navigate(NavigationManager.VOYAGER_FEEDBACK_SCREEN)
+                navController.navigate(route = "$VOYAGER_FEEDBACK_SCREEN/" +  currentState.data?.obj?.Id)
+
             }else if(AppConstants.BusinessDock!!){
                 showFindBoat = true
             }
@@ -364,7 +384,10 @@ fun DashboardScreen(navController: NavController, value: String?,
                 modifier = Modifier
                     .size(width = 80.dp, height = 80.dp)
                     .clickable {
-                        navController.navigate(NavigationManager.MENU_OPTIONS_SCREEN)
+                        if(!logoutEvent){
+                            navController.navigate(NavigationManager.MENU_OPTIONS_SCREEN)
+                        }
+
                     }
             )
 
@@ -422,6 +445,7 @@ fun DashboardScreen(navController: NavController, value: String?,
                         navController,
                         voyageDetail!!,
                         onCancelClick = {
+                            viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(voyageDetail?.Id!!,""))
                             showConfirmBooking= false
                             selectedLocation = null
                             isMenuIconVisible = true
@@ -470,17 +494,13 @@ fun DashboardScreen(navController: NavController, value: String?,
                 )
         }
         if(logoutEvent){
-            AlertDialog(
-                onDismissRequest = { },
-                title = { Text("Session Expired") },
-                text = { Text("Login Again") },
-                confirmButton = {
-                    Button(onClick = {
-                        navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
-                    }) {
-                        Text("OK")
-                    }
-                }
+            SessionDialog(
+                text = "Session expired, please login Again",
+                onCancel = {},
+                onPressOk = {
+                    navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+                },
+                showCancelButton = false
             )
         }
     }

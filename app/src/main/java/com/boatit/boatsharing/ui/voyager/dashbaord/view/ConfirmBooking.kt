@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -54,15 +56,15 @@ fun ConfirmBooking(
     onPayNowClick: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Box(
-
-        modifier = Modifier.height(screenHeight * 0.65f),
+        modifier = Modifier.height(screenHeight * 0.75f),
         contentAlignment = Alignment.TopCenter
+
     ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(top = 20.dp),
+                .padding(top = 40.dp),
             shape = RoundedCornerShape(
                 topStart = 45.dp,
                 topEnd = 45.dp
@@ -70,17 +72,18 @@ fun ConfirmBooking(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
+
+            Spacer(Modifier.height(30.dp))
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.White)
                     .verticalScroll(rememberScrollState()) // Add this
-                    .padding(
-                        top = 50.dp,
-                        start = 16.dp, end = 16.dp, bottom = 16.dp
-                    ),
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                // Boat Info Card
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(10.dp),
@@ -211,7 +214,8 @@ fun ConfirmBooking(
                                                     fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Estimated_Cost.toString()!!
+                                                text = voyage.AmountToPay.toString()
+                                               // text = AppConstants.Estimated_Cost.toString()!!
                                             )
                                         }
 
@@ -235,7 +239,8 @@ fun ConfirmBooking(
                                                     fontSize = 12.sp,
                                                     fontWeight = FontWeight.W500
                                                 ),
-                                                text = AppConstants.Event_Time!!
+                                                text =voyage.Duration.toString().takeIf { it.isNotBlank() }
+                                                    ?: "---"
                                             )
                                         }
                                     }
@@ -334,6 +339,86 @@ fun ConfirmBooking(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Captain Image
+                    Box(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = voyage.CaptainName.firstOrNull()?.uppercase() ?: "-",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = voyage.CaptainName,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.payment_done), // Verified icon
+                                contentDescription = "Verified",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Text(
+                            text = "Top Rated Captain",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = voyage.Rating.toString(),
+                                fontWeight = FontWeight.Bold)
+                            repeat(5) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.location_icon_two), // Anchor rating icon
+                                    contentDescription = "Rating",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                            Text(text = " | Rating", color = Color.Gray, fontSize = 12.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Boat Info
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.boat_icon), // Boat icon
+                            contentDescription = "Boat Icon",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Text(
+                            text = voyage.BoatModel,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF3366FF)
+                        )
+                        Text(text = voyage.BoatName!!, fontSize = 12.sp, color = Color.Gray)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

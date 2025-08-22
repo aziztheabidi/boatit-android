@@ -1,12 +1,17 @@
 package com.boatit.boatsharing.ui.business.view
 
 
+import android.content.Context
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +27,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -34,9 +41,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -44,6 +53,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -51,7 +61,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +71,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -74,6 +87,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil3.compose.AsyncImage
@@ -83,22 +97,36 @@ import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.business.model.BusinessData
 import com.boatit.boatsharing.ui.business.model.BusinessRequest
+import com.boatit.boatsharing.ui.business.model.DeleteRequest
 import com.boatit.boatsharing.ui.business.model.DockDropdownItem
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
+import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
+import com.boatit.boatsharing.ui.captain.dashbaord.view.AcceptVoyagerRequest
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BusinessDashboard(navController: NavController,
     viewModelUpdate: BusinessDashViewModel = koinViewModel(),
+    viewModelGallery: BusinessLogoViewModel = koinViewModel(),
     viewModel: GetBusinessViewModel = koinViewModel()) {
 
     val focusManager = LocalFocusManager.current
     val businessDescriptionFocusRequester = remember { FocusRequester() }
     val options = listOf("Yes", "No")
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val galleryState by viewModelGallery.registrationState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
     var BDetail by remember { mutableStateOf<BusinessData?>(null) }
     var shores by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
     var zones by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
@@ -129,9 +157,9 @@ fun BusinessDashboard(navController: NavController,
     when (registrationState) {
         is NetworkResponse.Success -> {
             if(isLoading){
-                isLoading = false
+                isLoading = true
                 isNetworkError = false
-                viewModel.resetNearbyPlaces()
+                viewModelUpdate.resetNearbyPlaces()
                 viewModel.voyages()
                 Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
             }
@@ -142,7 +170,7 @@ fun BusinessDashboard(navController: NavController,
                 isNetworkError = true
                 errorMessage = "Network error, please try again."
                 Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-                viewModel.resetNearbyPlaces()
+                viewModelUpdate.resetNearbyPlaces()
             }
         }
         else -> {}
@@ -158,7 +186,9 @@ fun BusinessDashboard(navController: NavController,
             isLoading = false
             viewModel.resetNearbyPlaces()
         }
-        is NetworkResponse.Error -> {}
+        is NetworkResponse.Error -> {
+            viewModel.resetNearbyPlaces()
+        }
         else -> {}
     }
 
@@ -169,13 +199,52 @@ fun BusinessDashboard(navController: NavController,
             island = fetchDocksState.data?.obj?.Island
             viewModel.resetDocks()
         }
-        is NetworkResponse.Error -> {}
+        is NetworkResponse.Error -> {
+            viewModel.resetDocks()
+        }
+        else -> {}
+    }
+
+    when (galleryState) {
+        is NetworkResponse.Success -> {
+            if(isLoading){
+                isLoading = true
+                isNetworkError = false
+                Toast.makeText(context, galleryState.data?.Message , Toast.LENGTH_SHORT).show()
+                viewModel.voyages()
+                viewModelGallery.resetNearbyPlaces()
+
+            }
+        }
+        is NetworkResponse.Error -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = true
+                errorMessage = "Network error, please try again."
+                Toast.makeText(context, (galleryState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                viewModelGallery.resetNearbyPlaces()
+            }
+        }
         else -> {}
     }
 
     val handleError = {
         errorMessage = null
         isError = false
+    }
+
+    fun uriToFile(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val tempFile = File.createTempFile("upload", ".jpg", context.cacheDir)
+            tempFile.outputStream().use { outputStream ->
+                inputStream?.copyTo(outputStream)
+            }
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -218,7 +287,6 @@ fun BusinessDashboard(navController: NavController,
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                     ) {
-
                         Box(
                             modifier = Modifier
                                 .width(80.dp)
@@ -239,8 +307,6 @@ fun BusinessDashboard(navController: NavController,
                             )
 
                         }
-
-
                         Spacer(Modifier.height(50.dp))
                         Column(
                             modifier = Modifier
@@ -342,43 +408,43 @@ fun BusinessDashboard(navController: NavController,
                         Spacer(Modifier.height(20.dp))
 
 
-                        val imageCount = 7
-                        val columns = 3
-                        val itemSize = 90.dp
-                        val spacing = 8.dp
-                        val rows = (imageCount + columns - 1) / columns
-                        val totalHeight = (itemSize * rows) + (spacing * (rows - 1)) + 16.dp
-
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(columns),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(totalHeight), // Calculated exact height
-                            userScrollEnabled = false,
-                            contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(spacing),
-                            horizontalArrangement = Arrangement.spacedBy(spacing)
-                        ) {
-                            items(BDetail?.ImagesPath?.size!!) { urlIndex ->
-                                Card(
-                                    shape = RoundedCornerShape(12.dp),
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                    border = BorderStroke(1.dp, color = colorResource(R.color.black)),
-                                    modifier = Modifier.size(itemSize)
-                                ) {
-                                    AsyncImage(
-                                        model = AppConstants.IMG_PATH + BDetail?.ImagesPath?.get(urlIndex),
-                                        contentDescription = "Grid Image",
-                                        modifier = Modifier
-                                            .size(itemSize)
-                                            .clip(RoundedCornerShape(15.dp)),
-                                        contentScale = ContentScale.Crop,
-                                        placeholder = painterResource(id = R.drawable.business_placeholder),
-                                        error = painterResource(id = R.drawable.business_placeholder)
-                                    )
-                                }
+                        val imageList = remember {
+                            mutableStateListOf<String>().apply {
+                                BDetail?.ImagesPath?.let { addAll(it) }
                             }
                         }
+
+                        val galleryLauncher = rememberLauncherForActivityResult(
+                            contract = ActivityResultContracts.GetMultipleContents()
+                        ) { uris ->
+                            val remainingSlots = 6 - imageList.size
+                            if (remainingSlots > 0) {
+                                val newUris = uris.take(remainingSlots).map { it.toString() }
+                                imageList.addAll(newUris)
+                                val fileList = uris.take(remainingSlots).map { uri -> uriToFile(context, uri) }
+                                if (fileList.isNotEmpty()) {
+                                    isLoading = true
+                                    viewModelGallery.uploadBusinessGallery (AppConstants.USER_ID!!,fileList)
+                                }
+                               }
+                        }
+
+                        ImageGridWithAddOption(
+                            imageList = imageList,
+                            onAddImageClick = {
+                                galleryLauncher.launch("image/*")
+                            },
+                            onRemoveImage = { index ->
+                                viewModelUpdate.deleteImage(profile = DeleteRequest(
+                                    userId = AppConstants.USER_ID!!,
+                                    path = imageList.get(index)
+                                ))
+                                imageList.removeAt(index)
+                                isLoading = true
+                            }
+                        )
+
+
 
                         Spacer(Modifier.height(20.dp))
 
@@ -434,35 +500,6 @@ fun BusinessDashboard(navController: NavController,
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        if (isEditing) {
-                                            TextField(
-                                                value = hour.Day.orEmpty(),
-                                                onValueChange = {
-                                                    editableList[index] = hour.copy(Day = it)
-                                                },
-                                                modifier = Modifier.weight(1f).background(Color.White),
-                                                textStyle = MaterialTheme.typography.bodySmall,
-                                                label = { Text("Day") }
-                                            )
-                                            TextField(
-                                                value = hour.StartTime.orEmpty(),
-                                                onValueChange = {
-                                                    editableList[index] = hour.copy(StartTime = it)
-                                                },
-                                                modifier = Modifier.weight(1f).background(Color.White),
-                                                textStyle = MaterialTheme.typography.bodySmall,
-                                                label = { Text("Start") }
-                                            )
-                                            TextField(
-                                                value = hour.EndTimeTime.orEmpty(),
-                                                onValueChange = {
-                                                    editableList[index] = hour.copy(EndTimeTime = it)
-                                                },
-                                                modifier = Modifier.weight(1f).background(Color.White),
-                                                textStyle = MaterialTheme.typography.bodySmall,
-                                                label = { Text("End") }
-                                            )
-                                        } else {
                                             Text(
                                                 text = hour.Day.orEmpty(),
                                                 modifier = Modifier.weight(1f),
@@ -473,7 +510,6 @@ fun BusinessDashboard(navController: NavController,
                                                 modifier = Modifier.weight(2f),
                                                 style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
                                             )
-                                        }
                                     }
                                 }
                             }
@@ -689,7 +725,7 @@ fun BusinessDashboard(navController: NavController,
 
                         Spacer(Modifier.height(10.dp))
 
-                        AddDockSection(BDetail?.IsDock!!,BDetail?.Name!!, BDetail?.Address!!, BDetail?.Description!!)
+                        AddDockSection(navController,BDetail?.IsDock!!,BDetail?.Name!!, BDetail?.Address!!, BDetail?.Description!!)
 
                         Spacer(modifier = Modifier.height(40.dp))
                         CustomButton(
@@ -723,19 +759,159 @@ fun BusinessDashboard(navController: NavController,
 
                     }
 
-                    if(logoutEvent){
-                        AlertDialog(
-                            onDismissRequest = { },
-                            title = { Text("Session Expired") },
-                            text = { Text("Login Again") },
-                            confirmButton = {
-                                Button(onClick = {
-                                    navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
-                                }) {
-                                    Text("OK")
+                    if (isEditing) {
+                        ModalBottomSheet(
+                            onDismissRequest = {
+                                isEditing = false
+                            },
+                            sheetState = sheetState,
+                            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                            containerColor = White,
+                            tonalElevation = 16.dp,
+                            modifier = Modifier
+                                .pointerInput(Unit) {
+                                    detectVerticalDragGestures { _, dragAmount ->
+                                        if (dragAmount > 20) {
+                                            coroutineScope.launch {
+                                                sheetState.partialExpand()
+                                            }
+                                        }
+                                    }
+                                }
+                        ) {
+                            var expandedRowIndex by remember { mutableStateOf<Int?>(null) }
+                            var expandedEndIndex by remember { mutableStateOf<Int?>(null) }
+
+                            Column {
+                                editableList.forEachIndexed { index, hour ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        TextField(
+                                            value = hour.Day.orEmpty(),
+                                            onValueChange = {},
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .background(White),
+                                            textStyle = MaterialTheme.typography.bodySmall,
+                                            label = { Text("Day") }
+                                        )
+
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .background(White)
+                                        ) {
+                                            TextField(
+                                                value = hour.StartTime.orEmpty(),
+                                                onValueChange = {},
+                                                enabled = false,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable { expandedRowIndex = index },
+                                                textStyle = MaterialTheme.typography.bodySmall,
+                                                label = { Text("Start") }
+                                            )
+
+                                            DropdownMenu(
+                                                expanded = expandedRowIndex == index,
+                                                onDismissRequest = { expandedRowIndex = null },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(300.dp)
+                                                    .background(White)
+                                                    .padding(horizontal = 8.dp)
+                                            ) {
+                                                AppConstants.hourList.forEach { time ->
+                                                    DropdownMenuItem(
+                                                        onClick = {
+                                                            editableList[index] = hour.copy(StartTime = time)
+                                                            expandedRowIndex = null
+                                                        },
+                                                        text = {
+                                                            Text(
+                                                                text = time,
+                                                                style = MaterialTheme.typography.bodyMedium,
+                                                                modifier = Modifier.padding(vertical = 4.dp)
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .background(White)
+                                        ) {
+                                            TextField(
+                                                value = hour.EndTimeTime.orEmpty(),
+                                                onValueChange = {},
+                                                enabled = false,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable { expandedEndIndex = index },
+                                                textStyle = MaterialTheme.typography.bodySmall,
+                                                label = { Text("End") }
+                                            )
+
+                                            DropdownMenu(
+                                                expanded = expandedEndIndex == index,
+                                                onDismissRequest = { expandedEndIndex = null },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(300.dp)
+                                                    .background(White)
+                                            ) {
+                                                AppConstants.hourList.forEach { time ->
+                                                    DropdownMenuItem(
+                                                        onClick = {
+                                                            editableList[index] = hour.copy(EndTimeTime = time)
+                                                            expandedEndIndex = null
+                                                        },
+                                                        text = {
+                                                            Text(
+                                                                text = time,
+                                                                style = MaterialTheme.typography.bodyMedium
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
+
+                        }
+                    }
+
+                    if(logoutEvent){
+
+                        SessionDialog(
+                            text = "Session expired, please login Again",
+                            onCancel = {},
+                            onPressOk = {
+                                navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+                            },
+                            showCancelButton = false
                         )
+//                        AlertDialog(
+//                            onDismissRequest = { },
+//                            title = { Text("Session Expired") },
+//                            text = { Text("Login Again") },
+//                            confirmButton = {
+//                                Button(onClick = {
+//                                    navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+//                                }) {
+//                                    Text("OK")
+//                                }
+//                            }
+//                        )
                     }
                 }
             }
@@ -836,7 +1012,7 @@ fun EditableLocationSection(
 }
 
 @Composable
-fun AddDockSection(isDock : Boolean ,businessname: String, businessaddress: String, businessdescription: String) {
+fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname: String, businessaddress: String, businessdescription: String) {
     var isDockEnabled by remember { mutableStateOf(isDock) }
     var name by remember { mutableStateOf(businessname) }
     var address by remember { mutableStateOf(businessaddress) }
@@ -885,7 +1061,38 @@ fun AddDockSection(isDock : Boolean ,businessname: String, businessaddress: Stri
                 )
             )
 
-            Text("Address", fontWeight = FontWeight.Medium)
+            // Observe value from map_picker result
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val selectedAddress = navBackStackEntry
+                ?.savedStateHandle
+                ?.get<String>("selected_address")
+
+            LaunchedEffect(selectedAddress) {
+                if (!selectedAddress.isNullOrBlank()) {
+                    address = selectedAddress
+                    navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Address", fontWeight = FontWeight.Medium)
+
+                IconButton(onClick = {
+                    navController.navigate("map_picker")
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = colorResource(R.color.button_normal)
+                    )
+                }
+            }
+
             OutlinedTextField(
                 value = address,
                 onValueChange = { address = it },
@@ -916,4 +1123,98 @@ fun AddDockSection(isDock : Boolean ,businessname: String, businessaddress: Stri
         }
     }
 }
+
+@Composable
+fun ImageGridWithAddOption(
+    imageList: SnapshotStateList<String>,
+    onAddImageClick: () -> Unit,
+    onRemoveImage: (Int) -> Unit
+) {
+    val columns = 3
+    val itemSize = 90.dp
+    val spacing = 8.dp
+
+    // +1 ensures room for "Add" button always
+    val rows = ((imageList.size + 1 + columns - 1) / columns)
+    val totalHeight = (itemSize * rows) + (spacing * (rows - 1)) + 16.dp
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(totalHeight),
+        userScrollEnabled = false,
+        contentPadding = PaddingValues(8.dp),
+        verticalArrangement = Arrangement.spacedBy(spacing),
+        horizontalArrangement = Arrangement.spacedBy(spacing)
+    ) {
+        // Show existing images
+        items(imageList.size) { index ->
+            Box(
+                modifier = Modifier.size(itemSize)
+            ) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    border = BorderStroke(1.dp, color = colorResource(R.color.black)),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val isLocalImage = imageList[index].startsWith("content://") || imageList[index].startsWith("file://")
+                    val imageModel = if (isLocalImage) imageList[index] else AppConstants.IMG_PATH + imageList[index]
+                    AsyncImage(
+                        model = imageModel,
+                        contentDescription = "Image",
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(id = R.drawable.business_placeholder),
+                        error = painterResource(id = R.drawable.business_placeholder),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(15.dp))
+                    )
+
+
+
+                }
+
+                // Delete icon
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remove Image",
+                    tint = White,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(20.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), shape = CircleShape)
+                        .clickable { onRemoveImage(index) }
+                        .padding(2.dp)
+                )
+            }
+        }
+
+        // Show add image box if less than 6 images
+        if (imageList.size < 6) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .size(itemSize)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+                        .clickable { onAddImageClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.add_icon),
+                        contentDescription = "Add",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+
 

@@ -2,8 +2,10 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 
 
 import com.boatit.boatsharing.network.di.ApiConstants
+import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationRequest
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookVoyageResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -25,7 +27,8 @@ class RegistrationRepository(private val httpClient: HttpClient) {
                 val registrationResponse: RegistrationResponse = response.body()
                 Result.success(registrationResponse)
             } else {
-                Result.failure(Exception("Registration failed: HTTP ${response.status}"))
+                val placesResponse: RegistrationResponse = response.body()
+                Result.failure(Exception("${placesResponse.Message}"))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Error registering: ${e.localizedMessage}", e))

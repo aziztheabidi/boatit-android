@@ -2,10 +2,14 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.view
 
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,8 +18,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -58,9 +66,7 @@ fun TravelNow(
             viewModel.loadVoyages()
             viewModelConfirm.resetNearbyPlaces()
         }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, ConfirmState.message, Toast.LENGTH_SHORT).show()
-        }
+        is NetworkResponse.Error -> {}
         else -> {}
     }
 
@@ -78,11 +84,18 @@ fun TravelNow(
         containerColor = Color.White,
         content = { innerPadding ->
             if (uiState.isLoading || uiState.voyage == null) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text("No data found")
+                Dialog(
+                    onDismissRequest = {},
+                    DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                ){
+                    Box(
+                        contentAlignment=  Alignment.Center,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .background(White, shape = RoundedCornerShape(8.dp))
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             } else {
                 Column(
@@ -90,10 +103,19 @@ fun TravelNow(
                         .padding(top = innerPadding.calculateTopPadding())
                         .fillMaxSize()
                 ) {
-                    TravelNowItem(
-                        navController = navController,
-                        notification = uiState.voyage
-                    )
+                    if (!(uiState.voyage?.Id.equals(""))) {
+                        TravelNowItem(
+                            navController = navController,
+                            notification = uiState.voyage
+                        )
+                    }else{
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text("No data found")
+                        }
+                    }
                 }
             }
         },

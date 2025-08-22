@@ -55,6 +55,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookedVoyageObj
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.FutureVoyagesViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import org.koin.androidx.compose.koinViewModel
 
@@ -62,11 +63,13 @@ import org.koin.androidx.compose.koinViewModel
 fun FutureVoyages(navController: NavController,
                   viewModelCancel: CancelBookedVoyageViewModel = koinViewModel(),
                   viewModelConfirm: ConfirmBookedVoyageViewModel = koinViewModel(),
+                  viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel(),
                   viewModel: FutureVoyagesViewModel = koinViewModel()) {
 
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("UnConfirmed", "Pending")
     val context = LocalContext.current
+    val paymentState by viewModelP.loginState.collectAsState()
     val voyagesList by viewModel.loginState.collectAsState()
     val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
     val ConfirmState by viewModelConfirm.nearbyPlaces.collectAsState()
@@ -115,6 +118,20 @@ fun FutureVoyages(navController: NavController,
             viewModelConfirm.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {}
+        else -> {}
+    }
+
+    when (paymentState) {
+        is NetworkResponse.Success -> {
+            viewModel.voyages()
+            getingData = true
+            viewModelP.resetNearbyPlaces()
+        }
+        is NetworkResponse.Error -> {
+            viewModel.voyages()
+            getingData = true
+            viewModelP.resetNearbyPlaces()
+        }
         else -> {}
     }
 

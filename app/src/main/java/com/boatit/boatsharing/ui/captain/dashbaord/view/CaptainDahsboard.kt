@@ -240,6 +240,11 @@ fun CaptainDashboard(navController: NavController ,
                     navController, notification,
                     onDeclineClick = {
                         showVoyagerRequest = false
+                        isLoading = true
+                        isNetworkError = true
+                        viewModelR.decline(
+                            AcceptVoyageRequest(notification?.Id!!, AppConstants.USER_ID!!, defaultLatLng.latitude, defaultLatLng.longitude)
+                        )
                     },
                     onAcceptClick = {
                         isLoading = true

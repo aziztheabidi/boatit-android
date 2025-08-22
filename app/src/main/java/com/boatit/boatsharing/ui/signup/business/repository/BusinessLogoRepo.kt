@@ -20,7 +20,7 @@ import java.io.File
 
 class BusinessLogoRepository(private val httpClient: HttpClient) {
 
-    suspend fun saveBusinessLogo(userId: String, logoFile: File): Result<SaveBusinessLogoResponse> {
+    suspend fun saveBusinessLogo(userId: String, logoFile: File,logoFiles: List<File?>): Result<SaveBusinessLogoResponse> {
         return try {
             val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SAVE_BUSINESS_LOGO}") {
                 contentType(ContentType.MultiPart.FormData)
@@ -35,6 +35,17 @@ class BusinessLogoRepository(private val httpClient: HttpClient) {
                                     append(HttpHeaders.ContentType, ContentType.Image.Any.toString()) // Dynamic image type
                                 }
                             ) { logoFile.inputStream().asInput() }
+                            logoFiles.forEach { file ->
+                                appendInput(
+                                    key = "Images",
+                                    headers = Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "form-data; name=\"Images\"; filename=\"${file?.name}\"")
+                                        append(HttpHeaders.ContentType, ContentType.Image.Any.toString())
+                                    }
+                                ) {
+                                    file?.inputStream()?.asInput()!!
+                                }
+                            }
                         }
                     )
                 )
@@ -49,5 +60,40 @@ class BusinessLogoRepository(private val httpClient: HttpClient) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
         }
     }
+
+    suspend fun saveBusinessGallery(userId: String, logoFiles: List<File?>): Result<SaveBusinessLogoResponse> {
+        return try {
+            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SAVE_BUSINESS_LOGO}") {
+                contentType(ContentType.MultiPart.FormData)
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("UserId", userId)
+                            logoFiles.forEach { file ->
+                                appendInput(
+                                    key = "Images",
+                                    headers = Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "form-data; name=\"Images\"; filename=\"${file?.name}\"")
+                                        append(HttpHeaders.ContentType, ContentType.Image.Any.toString())
+                                    }
+                                ) {
+                                    file?.inputStream()?.asInput()!!
+                                }
+                            }
+                        }
+                    )
+                )
+            }
+            if (response.status == HttpStatusCode.OK) {
+                val result: SaveBusinessLogoResponse = response.body()
+                Result.success(result)
+            } else {
+                Result.failure(Exception("API Error: ${response.status} - ${response.bodyAsText()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
+        }
+    }
+
 }
 

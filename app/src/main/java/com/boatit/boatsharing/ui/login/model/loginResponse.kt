@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 data class LoginResponse(
     val Status: Int,
     val Message: String,
-    val obj: UserData
+    val obj: UserData? = null
 )
 
 @Serializable

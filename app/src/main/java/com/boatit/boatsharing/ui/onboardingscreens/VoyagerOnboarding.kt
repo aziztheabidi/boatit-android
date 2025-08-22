@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,14 +25,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun VoyagerOnboarding(navController: NavController) {
+fun VoyagerOnboarding(navController: NavController, pagerState: PagerState?, scope: CoroutineScope?) {
 
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -102,12 +107,18 @@ fun VoyagerOnboarding(navController: NavController) {
         OnboardingScreenBottomLayout(
             onIconClick = {
                 println("move to next screen")
-                navController.navigate(NavigationManager.CAPTAIN_ONBOARDING_SCREEN)
+              //  navController.navigate(NavigationManager.CAPTAIN_ONBOARDING_SCREEN)
+
+                scope?.launch{
+                    pagerState?.animateScrollToPage(1)
+                }
 
             },
             onSkipClick = {
                 println("skip")
-                navController.navigateWithClearStack(NavigationManager.SELECT_ROLE_SCREEN, clearStack = true)
+                navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN,clearStack = true)
+
+                // navController.navigateWithClearStack(NavigationManager.SELECT_ROLE_SCREEN, clearStack = true)
 
             },
             R.drawable.onboarding_step_one,
@@ -122,8 +133,3 @@ fun VoyagerOnboarding(navController: NavController) {
 }
 
 
-@Preview
-@Composable
-fun PreviewVoyagerOnboardingScreen() {
-    VoyagerOnboarding(navController = rememberNavController())
-}

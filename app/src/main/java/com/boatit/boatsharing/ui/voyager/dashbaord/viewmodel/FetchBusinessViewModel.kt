@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,8 +48,10 @@ class FetchBusinessViewModel(private val repository: FetchBusinessRepo) : ViewMo
             _loginState.value = NetworkResponse.Loading()
             val result = repository.getNearbyPlaces()
             result.onSuccess { response ->
+                Log.e("bussiness_response",response.toString())
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { error ->
+                Log.e("bussiness_response",error.toString())
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
             }
         }

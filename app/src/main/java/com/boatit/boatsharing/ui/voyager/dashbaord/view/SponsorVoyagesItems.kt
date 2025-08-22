@@ -59,6 +59,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.ui.captain.dashbaord.model.DeclineRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentConfirmationRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagerPayment
@@ -138,7 +139,6 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
         else -> {}
     }
 
-
     Spacer(modifier = Modifier.height(5.dp))
     Card(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -155,7 +155,6 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Boat Info Card
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(10.dp),
@@ -430,7 +429,10 @@ fun SponsorVoyagerItems(navController: NavController, notification : SponsorVoya
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = {  },
+                    onClick = {
+                        showWaitingResponsePrompt = true
+                        viewModelStripe.paymentDecline(DeclineRequest(notification?.Id!!))
+                    },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier
                         .weight(1f)

@@ -3,6 +3,7 @@ package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.ui.captain.dashbaord.model.DeclineRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.PaymentSheetConfigResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagePaymentRequest
@@ -20,6 +21,10 @@ class SponsorPaymentSheetConfigViewModel(private val repository: SponsorPaymentS
     private val _loginState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
     val loginState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _loginState
 
+    private val _declineState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
+    val declineState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _declineState
+
+
     fun paymentConfig(id : SponsorVoyagePaymentRequest) {
         viewModelScope.launch {
             _loginState.value = NetworkResponse.Loading()
@@ -32,7 +37,20 @@ class SponsorPaymentSheetConfigViewModel(private val repository: SponsorPaymentS
         }
     }
 
+    fun paymentDecline(id : DeclineRequest) {
+        viewModelScope.launch {
+            _declineState.value = NetworkResponse.Loading()
+            val result = repository.paymentDecline(id)
+            result.onSuccess { response ->
+                _declineState.value = NetworkResponse.Success(response)
+            }.onFailure { error ->
+                _declineState.value = NetworkResponse.Error(error.message ?: "Login failed")
+            }
+        }
+    }
+
     fun resetNearbyPlaces() {
         _loginState.value = NetworkResponse.Loading()
+        _declineState.value = NetworkResponse.Loading()
     }
 }

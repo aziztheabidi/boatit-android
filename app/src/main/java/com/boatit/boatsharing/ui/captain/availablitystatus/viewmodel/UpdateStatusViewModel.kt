@@ -40,8 +40,8 @@ class UpdateStatusViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    private val _isOnline = MutableStateFlow(false)
-    val isOnline: StateFlow<Boolean> = _isOnline
+    val _isOnline = MutableStateFlow(false)
+     val isOnline: StateFlow<Boolean> = _isOnline
 
     private val _navigateToDashboard = MutableSharedFlow<Unit>()
     val navigateToDashboard = _navigateToDashboard.asSharedFlow()
@@ -55,7 +55,7 @@ class UpdateStatusViewModel(
     fun toggleStatus(userId: String) {
         if (_isLoading.value) return
 
-        val newStatus = !_isOnline.value
+        val newStatus = _isOnline.value
 
         _isLoading.value = true
         _errorMessage.value = null

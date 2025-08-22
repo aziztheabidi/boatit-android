@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BoatSharingApp</string>
+    <string name="app_name">Boat IT</string>
 
     <string name="reset_password_h1">Reset Password</string>
     <string name="reset_password_h2">We will email you \n a link to reset password</string>
@@ -21,7 +21,8 @@
     <string name="business">Business</string>
     <string name="business_onboarding_text">Revolutionise the boating industry, connect boat owners\nand passengers with boat type  with our boat riding</string>
 
-    <string name="create_account">Create an Account</string>
+    <string name="create_account">Create New Account</string>
+    <string name="create_account_">Create New Account?</string>
     <string name="already_registered">Already have an account?</string>
 
     <string name="captain">Captain</string>
@@ -145,7 +146,7 @@
 
     <string name="business_address_label">Business Address</string>
     <string name="business_address_placeholder">Enter Business Address</string>
-    <string name="business_address_validation_text">Business sddress required</string>
+    <string name="business_address_validation_text">Business address required</string>
 
     <string name="business_contact_no_label">Business Phone Number</string>
     <string name="business_contact_no_placeholder">Enter Business Phone Number</string>
@@ -169,6 +170,8 @@
 
     <string name="add_business_logo_label">Add Logo</string>
     <string name="add_business_logo_h2">Add your business logo</string>
+    <string name="add_business_images">Add business Images</string>
+
 
     <string name="find_destination_button_text">Find Destination</string>
     <string name="destination_location_h1">Destination Location</string>
@@ -219,7 +222,7 @@
     <string name="voyagers_screen">Voyagers List</string>
     <string name="accept_text">Accept</string>
     <string name="start_text">Start</string>
-    <string name="decline_text">decline</string>
+    <string name="decline_text">Decline</string>
     <string name="voyage_text">Voyages</string>
     <string name="fb_submit_text">Submit</string>
     <string name="verify_email">Verify Email</string>
@@ -242,4 +245,13 @@
     <string name="enter_website">Enter website</string>
     <string name="un_follow">Unfollow</string>
     <string name="complain_submitted">Complain Submitted</string>
+
+    <string name="settings_">Settings</string>
+    <string name="edit_profile">Edit Profile</string>
+
+    <string name="logout">Logout</string>
+
+    <string name="voyage_pending_text">"Please wait until not excepted by captain…</string>
+
+
 </resources>

@@ -38,4 +38,23 @@ class AcceptRequestRepository(private val httpClient: HttpClient) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
         }
     }
+
+    suspend fun decline(profile: AcceptVoyageRequest): Result<AcceptVoyageResponse> {
+        return try {
+            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.DECLINE_REQUEST}") {
+                contentType(ContentType.Application.Json)
+                setBody(profile)
+            }
+            println(response)
+            if (response.status == HttpStatusCode.Created) {
+                val result: AcceptVoyageResponse = response.body()
+                Result.success(result)
+            } else {
+                val result: AcceptVoyageResponse = response.body()
+                Result.failure(Exception("API Error: ${result.Message}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
+        }
+    }
 }

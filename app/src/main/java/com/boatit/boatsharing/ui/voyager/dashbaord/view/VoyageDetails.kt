@@ -141,13 +141,23 @@ fun VoyageDetails(navController: NavController,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     // Captain Image
-                    Image(
-                        painter = painterResource(id = R.drawable.captain_img), // Replace with your drawable
-                        contentDescription = "Captain Image",
+                    Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .clip(CircleShape)
-                    )
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (CaptainName != null) {
+                            Text(
+                                text = CaptainName.firstOrNull()?.uppercase() ?: "-",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.width(12.dp))
 
@@ -220,6 +230,7 @@ fun VoyageDetails(navController: NavController,
                     var pickupNotes by remember { mutableStateOf("") }
                     OutlinedTextField(
                         value = pickupNotes,
+                        enabled = false,
                         onValueChange = { pickupNotes = it },
                         placeholder = {
                             Text(
@@ -243,7 +254,7 @@ fun VoyageDetails(navController: NavController,
                             onDone = { keyboardController?.hide() }     // Hide keyboard on "Done"
                         ),// Rounded corners
                         modifier = Modifier
-                            .widthIn(min = 200.dp, max = 200.dp) // Set the width
+                            .fillMaxWidth() // Set the width
                             .padding(end = 8.dp)
                             .background(Color.White)
                     )

@@ -12,6 +12,7 @@ object AppConstants {
     var Voyage_ID: String? = null
     var JWT_TOKEN: String? = null
     var Cates: List<VoyageCategory> = emptyList()
+    val hourList = List(24) { hour -> String.format("%02d:00:00", hour) }
     var Business: BusinessData? = null
     var Business_Status: Boolean? = false
     var BusinessDock:Boolean? = false

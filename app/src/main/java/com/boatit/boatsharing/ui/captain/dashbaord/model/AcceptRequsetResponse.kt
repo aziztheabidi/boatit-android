@@ -11,6 +11,11 @@ data class AcceptVoyageRequest(
 )
 
 @Serializable
+data class DeclineRequest(
+    val Id: String,
+)
+
+@Serializable
 data class AcceptVoyageResponse(
     val Status: Int,
     val Message: String,

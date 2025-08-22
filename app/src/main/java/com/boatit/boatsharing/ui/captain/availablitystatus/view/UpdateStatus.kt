@@ -112,6 +112,7 @@ fun CustomStatusScreen(
                     .width(100.dp)
                     .height(100.dp)
                     .clickable(enabled = !isLoading) {
+                        viewModel._isOnline.value = true
                         viewModel.toggleStatus(AppConstants.USER_ID.toString())
                     }
             )

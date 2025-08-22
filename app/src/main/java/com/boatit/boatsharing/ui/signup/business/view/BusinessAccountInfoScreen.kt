@@ -5,22 +5,29 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -40,6 +47,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -170,244 +179,313 @@ fun BusinessAccountInfoScreen(navController: NavController,
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = "${stringResource(R.string.add_your_info)} 1/3", onImageClick = {
-                println("clicked...")
+                navController.popBack()
             })
         },
         content = { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(
-                        top = innerPadding.calculateTopPadding() + 15.dp,
-                        start = 20.dp,
-                        end = 20.dp,
-                        bottom = innerPadding.calculateTopPadding() + 25.dp,
+            if (isLoading || getingData) {
+                Dialog(
+                    onDismissRequest = {},
+                    properties = DialogProperties(
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false
                     )
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-
-                FormStepsViews(
-                    numberOfViews = 1,
-                    activeColor = colorResource(id = R.color.button_normal),
-                    inactiveColor = Color.Gray,
-                    activeViewsCount = 1
-                )
-
-                if (showDialog.value) {
-                    com.boatit.boatsharing.ui.signup.captain.view.MyDatePickerDialog(
-                        onDateSelected = {
-                            bookingDate = it
-                            dob = bookingDate
-                        },
-                        onDismiss = { showDialog.value = false }
-                    )
-                }
-
-                Spacer(Modifier.height(30.dp))
-
-                Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.firstname_label)
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                CustomTextField(
-                    textValue = firstName,
-                    placeholderText = stringResource(R.string.firstname_placeholder),
-                    onTextChange = { firstName = it },
-                    keyboardType = KeyboardType.Text,
-                    maxChars = 100,
-                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { lastNameFocusRequester.requestFocus() }
-                    ),
-                    focusRequester = firstNameFocusRequester
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.lastname_label)
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                CustomTextField(
-                    textValue = lastName,
-                    placeholderText = stringResource(R.string.lastname_placeholder),
-                    onTextChange = { lastName = it },
-                    keyboardType = KeyboardType.Text,
-                    maxChars = 100,
-                    errorMessage = if (lastName.isNotEmpty()&& lastName.length <= 3) stringResource(R.string.lastname_validation_text) else null,
-                    isError = lastName.isNotEmpty()&& lastName.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { phoneNumberFocusRequester.requestFocus() }
-                    ),
-                    focusRequester = lastNameFocusRequester
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-
-
-                Text(
-                    text = stringResource(R.string.phone_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                CustomTextField(
-                    textValue = phoneNumber,
-                    placeholderText = stringResource(R.string.phone_placeholder),
-                    onTextChange = { phoneNumber = it },
-                    keyboardType = KeyboardType.Number,
-                    maxChars = 15,
-                    errorMessage = if (phoneNumber.isNotEmpty() && phoneNumber.length <= 3) stringResource(
-                        R.string.phone_validation_text
-                    ) else null,
-                    isError = phoneNumber.isNotEmpty()&& phoneNumber.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { addressFocusRequester.requestFocus() }
-                    ),
-                    focusRequester = phoneNumberFocusRequester
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(R.string.address_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                CustomTextField(
-                    textValue = address,
-                    placeholderText = stringResource(R.string.address_placeholder),
-                    onTextChange = { address = it },
-                    keyboardType = KeyboardType.Text,
-                    singleLine = false,
-                    maxLines = 3,
-                    maxChars = 200,
-                    errorMessage = if (address.isNotEmpty() && address.length <= 3) stringResource(R.string.address_validation_text) else null,
-                    isError = address.isNotEmpty() && address.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Next,
-                    keyboardActions = KeyboardActions(
-                        onNext = { dobFocusRequester.requestFocus() }
-                    ),
-                    focusRequester = addressFocusRequester
-                )
-
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(R.string.dob_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Box(
-                    modifier = Modifier.clickable { showDialog.value = true }
                 ) {
-                    CustomDobField(
-                        textValue = dob,
-                        placeholderText = stringResource(R.string.dob_placeholder),
-                        onTextChange = { dob = it },
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .background(White, shape = RoundedCornerShape(8.dp))
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }else {
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            top = innerPadding.calculateTopPadding() + 15.dp,
+                            start = 20.dp,
+                            end = 20.dp,
+                            bottom = innerPadding.calculateTopPadding() + 25.dp,
+                        )
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+
+                    FormStepsViews(
+                        numberOfViews = 1,
+                        activeColor = colorResource(id = R.color.button_normal),
+                        inactiveColor = Color.Gray,
+                        activeViewsCount = 1
+                    )
+
+                    if (showDialog.value) {
+                        com.boatit.boatsharing.ui.signup.captain.view.MyDatePickerDialog(
+                            onDateSelected = {
+                                bookingDate = it
+                                dob = bookingDate
+                            },
+                            onDismiss = { showDialog.value = false }
+                        )
+                    }
+
+                    Spacer(Modifier.height(30.dp))
+
+                    Text(
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        text = stringResource(R.string.firstname_label)
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    CustomTextField(
+                        textValue = firstName,
+                        placeholderText = stringResource(R.string.firstname_placeholder),
+                        onTextChange = { firstName = it },
                         keyboardType = KeyboardType.Text,
-                        maxChars = 40,
-                        errorMessage = if (dob.isNotEmpty() && dob.length <= 3) stringResource(R.string.dob_validation_text) else null,
-                        isError = dob.isNotEmpty() && dob.length <= 3,
+                        maxChars = 100,
+                        errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
+                        isError = firstName.isNotEmpty()&& firstName.length <= 3,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
-                        keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
-                        focusRequester = dobFocusRequester,
+                        keyboardActions = KeyboardActions(
+                            onNext = { lastNameFocusRequester.requestFocus() }
+                        ),
+                        focusRequester = firstNameFocusRequester
                     )
-                }
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.paypal_email_label)
-                )
+                    Text(
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        text = stringResource(R.string.lastname_label)
+                    )
 
-                Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(10.dp))
 
-
-                CustomTextField(
-                    textValue = paypalEmail,
-                    placeholderText = stringResource(R.string.email_placeholder),
-                    onTextChange = { paypalEmail = it },
-                    keyboardType = KeyboardType.Email,
-                    maxChars = 100,
-                    errorMessage = if (!isEmailValid && paypalEmail.isNotEmpty()) stringResource(R.string.email_validation_text) else null,
-                    isError = !isEmailValid && paypalEmail.isNotEmpty(),
-                    onClearError = handleError,
-                    imeAction = ImeAction.Done,
-                    keyboardActions = KeyboardActions(
-                        onNext = { focusManager.clearFocus() }
-                    ),
-                    focusRequester = paypalFocusRequester
-                )
-
+                    CustomTextField(
+                        textValue = lastName,
+                        placeholderText = stringResource(R.string.lastname_placeholder),
+                        onTextChange = { lastName = it },
+                        keyboardType = KeyboardType.Text,
+                        maxChars = 100,
+                        errorMessage = if (lastName.isNotEmpty()&& lastName.length <= 3) stringResource(R.string.lastname_validation_text) else null,
+                        isError = lastName.isNotEmpty()&& lastName.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        keyboardActions = KeyboardActions(
+                            onNext = { phoneNumberFocusRequester.requestFocus() }
+                        ),
+                        focusRequester = lastNameFocusRequester
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
 
 
-                Spacer(modifier = Modifier.height(40.dp))
 
-                CustomButton(
-                    text = stringResource(R.string.save_button_label),
-                    isValidate = isValidate,
-                    isLoading = isLoading,
-                    onButtonClick = {
-                        viewModel.saveBusinessProfile(
-                            BusinessProfileRequest(
-                            UserId = AppConstants.USER_ID.toString(),
-                            PhoneNumber = phoneNumber,
-                            FirstName = firstName,
-                            LastName = lastName,
-                            Address = address,
-                            DateOfBirth = dob,
-                            StripeEmail = paypalEmail)
+                    Text(
+                        text = stringResource(R.string.phone_label),
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
                         )
-                        isButtonEnabled = true
-                        isLoading = true
-                        focusManager.clearFocus()
-                        println("perform network call")
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    CustomTextField(
+                        textValue = phoneNumber,
+                        placeholderText = stringResource(R.string.phone_placeholder),
+                        onTextChange = { phoneNumber = it },
+                        keyboardType = KeyboardType.Number,
+                        maxChars = 15,
+                        errorMessage = if (phoneNumber.isNotEmpty() && phoneNumber.length <= 3) stringResource(
+                            R.string.phone_validation_text
+                        ) else null,
+                        isError = phoneNumber.isNotEmpty()&& phoneNumber.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        keyboardActions = KeyboardActions(
+                            onNext = { addressFocusRequester.requestFocus() }
+                        ),
+                        focusRequester = phoneNumberFocusRequester
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Observe value from map_picker result
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val selectedAddress = navBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<String>("selected_address")
+
+                    LaunchedEffect(selectedAddress) {
+                        if (!selectedAddress.isNullOrBlank()) {
+                            address = selectedAddress
+                            navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
+                        }
                     }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.address_label),
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
+                            )
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                println("Pick location from map clicked")
+                                navController.navigate("map_picker")
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.location_icon), // your drawable
+                                contentDescription = "Edit",
+                                tint = colorResource(R.color.button_normal),
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clickable {
+                                    }
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Pick location",
+                                style = TextStyle(
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = colorResource(R.color.button_normal)
+                                )
+                            )
+                        }
+                    }
+
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    CustomTextField(
+                        textValue = address,
+                        placeholderText = stringResource(R.string.address_placeholder),
+                        onTextChange = { address = it },
+                        keyboardType = KeyboardType.Text,
+                        singleLine = false,
+                        maxLines = 3,
+                        maxChars = 200,
+                        errorMessage = if (address.isNotEmpty() && address.length <= 3) stringResource(R.string.address_validation_text) else null,
+                        isError = address.isNotEmpty() && address.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Next,
+                        keyboardActions = KeyboardActions(
+                            onNext = { dobFocusRequester.requestFocus() }
+                        ),
+                        focusRequester = addressFocusRequester
+                    )
+
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = stringResource(R.string.dob_label),
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Box(
+                        modifier = Modifier.clickable { showDialog.value = true }
+                    ) {
+                        CustomDobField(
+                            textValue = dob,
+                            placeholderText = stringResource(R.string.dob_placeholder),
+                            onTextChange = { dob = it },
+                            keyboardType = KeyboardType.Text,
+                            maxChars = 40,
+                            errorMessage = if (dob.isNotEmpty() && dob.length <= 3) stringResource(R.string.dob_validation_text) else null,
+                            isError = dob.isNotEmpty() && dob.length <= 3,
+                            onClearError = handleError,
+                            imeAction = ImeAction.Next,
+                            keyboardActions = KeyboardActions(onNext = { paypalFocusRequester.requestFocus() }),
+                            focusRequester = dobFocusRequester,
+                        )
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        text = stringResource(R.string.paypal_email_label)
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+
+                    CustomTextField(
+                        textValue = paypalEmail,
+                        placeholderText = stringResource(R.string.email_placeholder),
+                        onTextChange = { paypalEmail = it },
+                        keyboardType = KeyboardType.Email,
+                        maxChars = 100,
+                        errorMessage = if (!isEmailValid && paypalEmail.isNotEmpty()) stringResource(R.string.email_validation_text) else null,
+                        isError = !isEmailValid && paypalEmail.isNotEmpty(),
+                        onClearError = handleError,
+                        imeAction = ImeAction.Done,
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.clearFocus() }
+                        ),
+                        focusRequester = paypalFocusRequester
+                    )
+
+
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    CustomButton(
+                        text = stringResource(R.string.save_button_label),
+                        isValidate = isValidate,
+                        isLoading = isLoading,
+                        onButtonClick = {
+                            viewModel.saveBusinessProfile(
+                                BusinessProfileRequest(
+                                    UserId = AppConstants.USER_ID.toString(),
+                                    PhoneNumber = phoneNumber,
+                                    FirstName = firstName,
+                                    LastName = lastName,
+                                    Address = address,
+                                    DateOfBirth = dob,
+                                    StripeEmail = paypalEmail)
+                            )
+                            isButtonEnabled = true
+                            isLoading = true
+                            focusManager.clearFocus()
+                            println("perform network call")
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
         },
 
@@ -430,7 +508,7 @@ fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-based, so add 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
-        String.format("%04d-%02d-%02d", year, day, month)
+        String.format("%04d-%02d-%02d", year, month, day)
     } ?: ""
 
     DatePickerDialog(
@@ -458,3 +536,5 @@ fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
         )
     }
 }
+
+

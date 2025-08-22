@@ -62,6 +62,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyage
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.uihelpers.MissingPaymentDialog
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
@@ -93,6 +94,7 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
     var PaymentIntentid by remember { mutableStateOf<String?>(null) }
     var ephemeralKeySecret by remember { mutableStateOf<String?>(null) }
     var showDialog by remember { mutableStateOf(false) }
+    var showDialogForCancel by remember { mutableStateOf(false) }
 
 
     val stripeLauncher = rememberLauncherForActivityResult(
@@ -327,7 +329,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                                                 fontSize = 12.sp,
 
                                             ),
-                                            text = notification?.Duration.toString()
+                                            text = notification?.Duration.toString().takeIf { it.isNotBlank() }
+                                                ?: "---"
                                         )
                                     }
                                 }
@@ -457,8 +460,8 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                 Button(
                     onClick = {
 
-                          viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
-                              loading = true
+                        showDialogForCancel = true
+
                               },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier
@@ -518,6 +521,23 @@ fun FutureVoyagerItems(navController: NavController, notification : BookedVoyage
                 )
             }
 
+
+            if(showDialogForCancel){
+
+                SessionDialog(
+                    text = "Are you sure, you want to cancel voyage",
+                    onCancel = {
+                        showDialogForCancel = false
+                    },
+                    onPressOk = {
+                        showDialogForCancel = false
+                        viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
+                        loading = true
+
+                    },
+                    showCancelButton = true
+                )
+            }
         }
     }
 

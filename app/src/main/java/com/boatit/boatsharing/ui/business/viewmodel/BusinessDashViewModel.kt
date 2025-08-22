@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.ui.business.model.BusinessRequest
+import com.boatit.boatsharing.ui.business.model.DeleteRequest
 import com.boatit.boatsharing.ui.business.repository.BusinessDashboardRepository
 import com.boatit.boatsharing.ui.signup.business.model.BusinessProfileRequest
 import com.boatit.boatsharing.ui.signup.business.model.SaveBusinessInfoResponse
@@ -22,6 +23,18 @@ class BusinessDashViewModel(private val repository: BusinessDashboardRepository)
         viewModelScope.launch {
             _registrationState.value = NetworkResponse.Loading()
             val result = repository.BusinessInfo(profile)
+            result.onSuccess { placesResponse ->
+                _registrationState.value = NetworkResponse.Success(placesResponse)
+            }.onFailure { error ->
+                _registrationState.value = NetworkResponse.Error(error.message.toString())
+            }
+        }
+    }
+
+    fun deleteImage(profile: DeleteRequest) {
+        viewModelScope.launch {
+            _registrationState.value = NetworkResponse.Loading()
+            val result = repository.Delete(profile)
             result.onSuccess { placesResponse ->
                 _registrationState.value = NetworkResponse.Success(placesResponse)
             }.onFailure { error ->

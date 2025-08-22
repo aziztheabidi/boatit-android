@@ -1,10 +1,13 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.repository
 
 
+import android.util.Log
 import com.boatit.boatsharing.network.di.ApiConstants
+import com.boatit.boatsharing.network.di.ApiError
 import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainProfileResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.CalculateFair
 import com.boatit.boatsharing.utils.AppConstants
+import com.google.gson.Gson
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -28,7 +31,12 @@ class CalculateFairRepository(private val httpClient: HttpClient) {
                 val result: CalculateFair = response.body()
                 Result.success(result)
             } else {
-                Result.failure(Exception("API Error: ${response.status}"))
+                Log.e("issue",response.body())
+
+                val bodyString = response.body() ?: ""
+                val apiError = Gson().fromJson(bodyString, ApiError::class.java)
+
+                Result.failure(Exception(apiError.Message))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))

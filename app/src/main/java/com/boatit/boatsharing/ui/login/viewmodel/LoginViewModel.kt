@@ -57,7 +57,7 @@ class LoginViewModel(
             val result = repository.login(email, password)
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
-                saveLoginData(response.obj)
+                saveLoginData(response.obj!!)
             }.onFailure { error ->
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
                 isError = true

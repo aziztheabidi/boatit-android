@@ -12,11 +12,14 @@ import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatResponse
 import com.boatit.boatsharing.ui.signup.captain.repository.CaptainBoatRepository
 import com.boatit.boatsharing.utils.AppConstants
+import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class CaptainBoatViewModel(private val repository: CaptainBoatRepository) : ViewModel() {
+class CaptainBoatViewModel(private val repository: CaptainBoatRepository,
+                           private val sharedPrefManager: SharedPrefManager
+) : ViewModel() {
 
     var boatName by mutableStateOf("")
     var boatMake by mutableStateOf("")
@@ -63,6 +66,7 @@ class CaptainBoatViewModel(private val repository: CaptainBoatRepository) : View
             val result = repository.CaptainBoat(request)
             result.onSuccess {
                 _registrationState.value = NetworkResponse.Success(it)
+                saveLoginData(0)
             }.onFailure { error ->
                 isLoading = false
                 isError = true
@@ -84,6 +88,10 @@ class CaptainBoatViewModel(private val repository: CaptainBoatRepository) : View
         boatYear = data?.obj?.Year.toString().orEmpty()
         boatSize = data?.obj?.Size.toString().orEmpty()
         boatCapacity = data?.obj?.Capacity.toString().orEmpty()
+    }
+
+    private fun saveLoginData(userData: Int) {
+        sharedPrefManager.saveMissingStep(userData)
     }
 }
 

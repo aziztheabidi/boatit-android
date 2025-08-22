@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -58,6 +60,7 @@ import com.boatit.boatsharing.ui.chat.viewmodel.FollowViewModel
 import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
+import java.time.format.TextStyle
 
 
 @Composable
@@ -134,24 +137,45 @@ fun VoyagersListScreen(navController: NavController,
                     contentDescription = "Back"
                 )
             }
+
+
             TextField(
                 value = searchQuery,
-                onValueChange = {
-                        viewModel.updateSearchQuery(it)
+                onValueChange = { viewModel.updateSearchQuery(it) },
+                placeholder = {
+                    Text(
+                        text = "Search voyagers",
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
                 },
-                placeholder = { Text("Search") },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search Icon",
-                        tint = Color.Gray
+                        tint = Color.DarkGray
                     )
                 },
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontSize = 12.sp,
+                    color = Color.Black
+                ),
+                singleLine = true,
+                shape = RoundedCornerShape(50),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Transparent),
-                singleLine = true
+                    .height(58.dp)
+                    .background(Color(0xFFF7F7F8), RoundedCornerShape(50)), // light gray bg
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    unfocusedTextColor = Color.Gray,
+
+
+                )
+
             )
+
         }
         Box(
             modifier = Modifier
@@ -267,12 +291,52 @@ fun UserItem(user: VoyagerInfo,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Column (
+
+            Row(
                 modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp)){
-                Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
+                    .weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Circular letter
+                Box(
+                    modifier = Modifier
+                        .width(50.dp)
+                        .height(50.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0E0E0)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = user.FirstName.firstOrNull()?.uppercase() ?: "",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Name and subtitle
+                Column {
+                    Text(
+                        text = user.FirstName,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = "Let's Chat...",
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                }
             }
+
+//            Column (
+//                modifier = Modifier
+//                .padding(start = 10.dp, end = 10.dp)){
+//                Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+//                Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
+//            }
 
             Button(
                 onClick = {
@@ -316,39 +380,81 @@ fun UserItemFollow(user: VoyagerInfo, onClick: (user: VoyagerInfo) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Column (
+
+            Row(
                 modifier = Modifier
-                    .padding(start = 10.dp, end = 10.dp)
-            ){
-                Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
-            }
-
-
-                Button(
-                    onClick = {
-                        onClick(user)
-                    },
-                    shape = RoundedCornerShape(10.dp),
+                        .weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Circular letter
+                Box(
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(35.dp)
-                        .border(
-                            width = 1.dp,
-                            color = colorResource(id = R.color.button_normal), // Border color
-                            shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
-                        ),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-
-
+                        .width(50.dp)
+                        .height(50.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0E0E0)),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Message",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colorResource(id = R.color.button_normal)
+                        text = user.FirstName.firstOrNull()?.uppercase() ?: "",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
                 }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Name and subtitle
+                Column {
+                    Text(
+                        text = user.FirstName,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = "Let's Chat...",
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    onClick(user)
+                },
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(35.dp)
+                    .border(
+                        width = 1.dp,
+                        color = colorResource(id = R.color.button_normal), // Border color
+                        shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                    ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+
+
+            ) {
+                Text(
+                    text = "Message",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorResource(id = R.color.button_normal)
+                )
+            }
+
+//            Column (
+//                modifier = Modifier
+//                    .padding(start = 10.dp, end = 10.dp)
+//            ){
+//                Text(text = user.FirstName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+//                Text(text = "Lets Chat...", color = Color.Gray, fontSize = 12.sp)
+//            }
+
+
+
 
 
 

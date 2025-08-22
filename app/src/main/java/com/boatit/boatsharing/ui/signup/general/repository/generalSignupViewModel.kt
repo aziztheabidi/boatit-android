@@ -1,5 +1,8 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.repository
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.RegistrationRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -64,7 +68,7 @@ class RegistrationViewModel(private val repository: RegistrationRepository) : Vi
         errorMessage = null
     }
 
-    fun register() {
+    fun register(context: Context) {
         if (!isFormValid) return
 
         viewModelScope.launch {
@@ -74,13 +78,20 @@ class RegistrationViewModel(private val repository: RegistrationRepository) : Vi
             val result = repository.tempRegister(name, phoneNumber, email)
 
             result.onSuccess { response ->
+
+                val json = Gson().toJson(response)
+                Log.e("model_data_json", json)
+
                 _registrationState.value = NetworkResponse.Success(response)
                 isLoading = false
                 _navigateToNext.emit(email) // Navigate to next screen
             }.onFailure { error ->
+                val json = Gson().toJson(error)
+                Log.e("model_data_json_err", json)
                 _registrationState.value = NetworkResponse.Error(error.message ?: "Registration failed")
                 isLoading = false
                 errorMessage = error.message ?: "Unknown error"
+                Toast.makeText(context, error.message ?: "Registration failed", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -17,6 +17,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.repository.BookVoyageRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FetchNearByVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.FindBoatRepo
 import com.boatit.boatsharing.utils.AppConstants
+import com.google.gson.Gson
 
 class BookVoyageViewModel(
     private val repository: BookVoyageRepo
@@ -26,6 +27,8 @@ class BookVoyageViewModel(
     val nearbyPlaces: StateFlow<NetworkResponse<BookVoyageResponse>> = _nearbyPlaces.asStateFlow()
 
     fun bookVoyageVMfunc(profile: BookVoyageRequest) = viewModelScope.launch {
+        val json = Gson().toJson(profile)
+        println(json)
         _nearbyPlaces.value = NetworkResponse.Loading()
         val result = repository.BookVoyageFunc(profile)
         result.onSuccess { placesResponse ->

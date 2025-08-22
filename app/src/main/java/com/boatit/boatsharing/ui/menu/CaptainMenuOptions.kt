@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.SETTINGS_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.routes.popBack
@@ -45,9 +46,12 @@ import kotlin.math.sin
 fun CaptainMenuOptions(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
 
     val items = listOf(
-        CaptainMenuItem(R.drawable.profile_menu_icon, "Profile"),
+       // CaptainMenuItem(R.drawable.profile_menu_icon, "Profile"),
         CaptainMenuItem(R.drawable.logout_menu, "Logout"),
-        CaptainMenuItem(R.drawable.upcoming_voyages_menu, "Voyages")
+        CaptainMenuItem(R.drawable.upcoming_voyages_menu, "Voyages") ,
+        CaptainMenuItem(R.drawable.settings, "Settings"),
+       CaptainMenuItem(R.drawable.history_icon, "Past Voyages")
+
     )
 
     Box(modifier = Modifier.fillMaxSize()
@@ -149,8 +153,6 @@ fun RotatingWheelCaptainMenu(
                             )
                     )
 
-
-
                 }
             }
         }
@@ -162,7 +164,7 @@ fun onCaptainItemClick(item: CaptainMenuItem, navController: NavController, view
         "Profile" -> {
             navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
         }
-        "Past Voyages" -> {}
+        "Past Voyages" -> {navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)}
         "Chat Screen" -> {}
         "Logout" -> {
             viewModel.clearUserData()
@@ -171,6 +173,11 @@ fun onCaptainItemClick(item: CaptainMenuItem, navController: NavController, view
         "Voyages" -> {
             navController.navigate(NavigationManager.CAPTAIN_CURRENT_VOYAGES_SCREEN)
         }
+
+        "Settings" -> {
+            navController.navigate(route = "$SETTINGS_SCREEN/captainRole")
+        }
+
     }
 }
 

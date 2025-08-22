@@ -3,6 +3,7 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.RestrictionsManager.RESULT_ERROR
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -57,6 +58,8 @@ import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookedVoyage
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.ConfirmBookedVoyages
@@ -69,6 +72,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.ConfirmBookedVoyage
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.uihelpers.MissingPaymentDialog
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
@@ -95,6 +99,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
     var ephemeralKeySecret by remember { mutableStateOf<String?>(null) }
 
     var showDialog by remember { mutableStateOf(false) }
+    var showDialogForCancel by remember { mutableStateOf(false) }
 
     val stripeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -315,7 +320,8 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                                 color = Color.Black,
                                                 fontSize = 12.sp,
                                             ),
-                                            text = notification.Duration.toString()
+                                            text = notification.Duration.toString().takeIf { it.isNotBlank() }
+                                                ?: "---"
                                         )
                                     }
                                 }
@@ -353,7 +359,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                                     color = Color.Black,
                                                     fontSize = 12.sp,
                                                 ),
-                                                text = it )
+                                                text = it!! )
                                         }
 
                                     }
@@ -378,7 +384,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                                     color = Color.Black,
                                                     fontSize = 12.sp,
                                                 ),
-                                                text = it)
+                                                text = it!!)
                                         }
 
                                     }
@@ -388,6 +394,7 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                         thickness = 1.dp
                                     )
 
+                                    Log.e("WaterStay", notification.WaterStay.toString())
                                     // Third row with icon and text
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
@@ -398,7 +405,15 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
                                                 .padding(end = 10.dp),
                                             tint = Color.Unspecified
                                         )
-                                        notification.WaterStay
+
+                                        notification.WaterStay.let {
+                                            Text(
+                                                style = TextStyle(
+                                                    color = Color.Black,
+                                                    fontSize = 12.sp,
+                                                ),
+                                                text = it!!)
+                                        }
 
                                     }
                                 }
@@ -421,8 +436,9 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
             ) {
                 Button(
                     onClick = {
-                                    viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
-                                    loading = true
+
+                        showDialogForCancel = true
+
                           },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier
@@ -466,15 +482,37 @@ fun TravelNowItem(navController: NavController, notification : TravelNowObj?,
             }
 
             if (showDialog) {
+                val sponsorNames = remember(notification) {
+                    notification.Sponsers.joinToString(", ") { it.VoyagerUserName }
+                }
                 MissingPaymentDialog(
-                    name = "users name from sponsors list....",
+                    name = sponsorNames,
                     onCancel = { showDialog = false },
                     onPayNow = {
                         showDialog = false
                         viewModelStripe.paymentConfig(SponsorVoyagePaymentRequest(notification?.Id!!,
                             AppConstants.USER_ID.toString(),""))
                     },
-                    onDismissRequest = { showDialog = false }
+                    onDismissRequest = {
+                        showDialog = false
+                    }
+                )
+            }
+
+            if(showDialogForCancel){
+
+                SessionDialog(
+                    text = "Are you sure, you want to cancel voyage",
+                    onCancel = {
+                        showDialogForCancel = false
+                    },
+                    onPressOk = {
+                        showDialogForCancel = false
+                        viewModelCancel.fetchNearbyPlaces(CancelBookedVoyages(notification?.Id!!,""))
+                        loading = true
+
+                    },
+                    showCancelButton = true
                 )
             }
         }
@@ -503,14 +541,21 @@ fun SponsorsList(users : List<Sponser>) {
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sample_profile_img),
-                        contentDescription = null,
+                    Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .clip(CircleShape)
-                    )
-
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = user.VoyagerUserName.firstOrNull()?.uppercase() ?: "",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Text(

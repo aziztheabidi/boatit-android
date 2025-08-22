@@ -80,14 +80,19 @@ fun BusinessDetail(navController: NavController, viewModel: VoyagerFollowBusines
     var showDialog by remember { mutableStateOf(false) }
     val isValidate = businessDescription.isNotEmpty()&&selectedOption.isNotEmpty()
     val fetchState by viewModel.loginState.collectAsState()
-    val isFollowed =  AppConstants.Business_Status
+    var isFollowed =  AppConstants.Business_Status
     val context = LocalContext.current
 
     when (fetchState) {
         is NetworkResponse.Success -> {
             if (isLoading) {
                 isLoading = false
-                Toast.makeText(context, "Business Followed Successfully", Toast.LENGTH_SHORT).show()
+                if(isFollowed!!){
+                    Toast.makeText(context, "Business Followed Successfully", Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(context, "Business Un-Followed", Toast.LENGTH_SHORT).show()
+                }
+
             }
         }
         is NetworkResponse.Error -> {
@@ -237,12 +242,16 @@ fun BusinessDetail(navController: NavController, viewModel: VoyagerFollowBusines
                                 onClick = {
                                     isLoading = true
                                     if(isFollowed!!){
+                                        isFollowed = false
+                                        AppConstants.Business_Status = false
                                         viewModel.VoyagerUnFollowFunc(
                                             VoyagerFollowBusinessRequest(
                                                 BusinessDockId = AppConstants.Business?.Id!!
                                             ),
                                         )
                                     }else{
+                                        isFollowed = true
+                                        AppConstants.Business_Status = true
                                         viewModel.VoyagerFeedbackFunc(
                                             VoyagerFollowBusinessRequest(
                                                 BusinessDockId = AppConstants.Business?.Id!!
@@ -303,7 +312,7 @@ fun BusinessDetail(navController: NavController, viewModel: VoyagerFollowBusines
 
                         Spacer(Modifier.height(20.dp))
 
-                        val imageCount = 7
+                        val imageCount = AppConstants.Business?.ImagesPath?.size ?: 0
                         val columns = 3
                         val itemSize = 90.dp
                         val spacing = 8.dp

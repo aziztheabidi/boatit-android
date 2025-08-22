@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.captain.dashbaord.view
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -48,6 +49,8 @@ fun CaptainStatus(
     viewModelStatus: UpdateStatusViewModel = koinViewModel()
 ) {
 
+    Log.e("statusText",statusText)
+
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
@@ -88,6 +91,7 @@ fun CaptainStatus(
                     .height(100.dp)
                     .clickable {
                         isLoading = true
+                       viewModelStatus._isOnline.value = false
                         viewModelStatus.toggleStatus(AppConstants.USER_ID.toString())
                     }
             )

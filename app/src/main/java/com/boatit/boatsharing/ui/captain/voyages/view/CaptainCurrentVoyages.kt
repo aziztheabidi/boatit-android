@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.chat.view
 
 
 import VoyageData
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,6 +41,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,9 +69,12 @@ import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.AcceptRequestViewMo
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
 import com.boatit.boatsharing.ui.captain.voyages.view.AcceptedRequestTab
 import com.boatit.boatsharing.ui.captain.voyages.view.StartedRequestTab
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
 import com.boatit.boatsharing.uihelpers.CustomTopBar
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import com.google.android.gms.maps.model.LatLng
+import io.ktor.client.call.body
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -77,7 +82,7 @@ fun CaptainCurrentVoyages(navController: NavController,
                           viewModel: CaptainActiveVoyagesViewModel = koinViewModel(),
                           viewModelR: AcceptRequestViewModel = koinViewModel(), ) {
 
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabTitles = listOf("Pending", "Accepted","Started")
     val voyagesList by viewModel.loginState.collectAsState()
 
@@ -93,12 +98,16 @@ fun CaptainCurrentVoyages(navController: NavController,
 
         is NetworkResponse.Error -> {
             println(voyagesList.message)
+            viewModel.resetNearbyPlaces()
         }
 
         is NetworkResponse.Success -> {
+            Log.e("captain_voyages",voyagesList.data?.obj?.Pending.toString())
+
             pending = voyagesList.data?.obj?.Pending!!
             accepted = voyagesList.data?.obj?.Accepted!!
             started = voyagesList.data?.obj?.Started!!
+            viewModel.resetNearbyPlaces()
         }
     }
 
@@ -206,18 +215,24 @@ fun PendingCardList(notification : List<VoyageData>) {
 
 
 @Composable
-fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel = koinViewModel()) {
+fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel = koinViewModel(), viewModel: CaptainActiveVoyagesViewModel = koinViewModel(),) {
 
     val defaultLatLng = LatLng(40.792240, -73.138260)
     val context = LocalContext.current
     val requestState by viewModelR.loginState.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
 
+    var showDialogForAccept by remember { mutableStateOf(false) }
+    var showDialogForCancel by remember { mutableStateOf(false) }
+
+
+
     when (requestState) {
         is NetworkResponse.Success -> {
             if (isLoading) {
                 isLoading = false
                 Toast.makeText(context, "Voyage Accepted. Waiting For Payment", Toast.LENGTH_SHORT).show()
+                viewModel.voyages()
                 viewModelR.resetNearbyPlaces()
             }
         }
@@ -313,7 +328,7 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
                             color = Color.Black,
                             fontSize = 14.sp,
 
-                        ),
+                            ),
                         text = "Voyagees Details"
                     )
                     Spacer(Modifier.height(10.dp))
@@ -356,7 +371,7 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
                                                 color = Color.Black,
                                                 fontSize = 12.sp,
 
-                                            ),
+                                                ),
                                             text = notification?.NoOfVoyager!!.toString()
                                         )
                                     }
@@ -404,7 +419,8 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
                                                 color = Color.Black,
                                                 fontSize = 12.sp,
                                             ),
-                                            text = notification?.Duration!!.toString()
+                                            text = notification.Duration.takeIf { it.isNotBlank() }
+                                                ?: "---"
                                         )
                                     }
                                 }
@@ -464,7 +480,7 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
                                                 color = Color.Black,
                                                 fontSize = 12.sp,
 
-                                            ),
+                                                ),
                                             text = notification?.DropOffDock!!
                                         )
                                     }
@@ -489,7 +505,7 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
                                                 color = Color.Black,
                                                 fontSize = 12.sp,
 
-                                            ),
+                                                ),
                                             text = notification?.WaterStay!!
                                         )
                                     }
@@ -516,6 +532,8 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
             ) {
                 Button(
                     onClick = {
+                        showDialogForCancel= true
+
                     },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier
@@ -538,7 +556,9 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
 
                 Button(
                     onClick = {
-                        viewModelR.accept(AcceptVoyageRequest(Id = notification?.Id!!, CaptainUserId =   AppConstants.USER_ID!!, CaptainBookingLatitude =  defaultLatLng.latitude, CaptainBookingLongitude = defaultLatLng.longitude))
+
+                        showDialogForAccept = true
+
                     },
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -556,15 +576,44 @@ fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel =
                     )
                 }
             }
+
+
+            if(showDialogForAccept){
+
+                SessionDialog(
+                    text = "Are you sure, you want to Accept voyage",
+                    onCancel = {
+                        showDialogForAccept = false
+                    },
+                    onPressOk = {
+                        showDialogForAccept = false
+                        viewModelR.accept(AcceptVoyageRequest(Id = notification?.Id!!, CaptainUserId =   AppConstants.USER_ID!!, CaptainBookingLatitude =  defaultLatLng.latitude, CaptainBookingLongitude = defaultLatLng.longitude))
+
+
+                    },
+                    showCancelButton = true
+                )
+            }
+
+
+
+            if(showDialogForCancel){
+
+                SessionDialog(
+                    text = "Are you sure, you want to decline voyage",
+                    onCancel = {
+                        showDialogForCancel = false
+                    },
+                    onPressOk = {
+                        showDialogForCancel = false
+                        viewModelR.decline(AcceptVoyageRequest(Id = notification?.Id!!, CaptainUserId =   AppConstants.USER_ID!!, CaptainBookingLatitude =  defaultLatLng.latitude, CaptainBookingLongitude = defaultLatLng.longitude))
+
+                    },
+                    showCancelButton = true
+                )
+            }
         }
     }
 
 
-}
-
-
-@Preview
-@Composable
-fun PreviewCaptainRequests() {
-    CaptainCurrentVoyages(navController = rememberNavController())
 }

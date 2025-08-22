@@ -8,14 +8,15 @@ import com.boatit.boatsharing.utils.AppConstants
 
 class SharedPrefManager(context: Context) {
 
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("BoatUserPrefs", Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("BoatUserPrefs", Context.MODE_PRIVATE)
+    var appContext: Context = context
 
     companion object {
         private const val KEY_EMAIL = "email"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USERNAME = "username"
         private const val KEY_USERROLE = "userrole"
+        private const val KEY_STEP = "step"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
     }
@@ -28,8 +29,16 @@ class SharedPrefManager(context: Context) {
             putString(KEY_USER_ID, userData.UserId)
             putString(KEY_USERNAME, userData.Username)
             putString(KEY_USERROLE, userData.Role)
+            putInt(KEY_STEP, userData.MissingStep)
             putString(KEY_ACCESS_TOKEN, userData.Accesstoken)
             putString(KEY_REFRESH_TOKEN, userData.Refreshtoken)
+            apply()
+        }
+    }
+
+    fun saveMissingStep(userData: Int) {
+        sharedPreferences.edit().apply {
+            putInt(KEY_STEP, userData)
             apply()
         }
     }
@@ -43,6 +52,7 @@ class SharedPrefManager(context: Context) {
         val userId = sharedPreferences.getString(KEY_USER_ID, null) ?: return null
         val username = sharedPreferences.getString(KEY_USERNAME, null) ?: return null
         val userrole = sharedPreferences.getString(KEY_USERROLE, null) ?: return null
+        val step = sharedPreferences.getInt(KEY_STEP, 0)
         val accessToken = sharedPreferences.getString(KEY_ACCESS_TOKEN, null) ?: return null
         val refreshToken = sharedPreferences.getString(KEY_REFRESH_TOKEN, null) ?: return null
 
@@ -52,13 +62,23 @@ class SharedPrefManager(context: Context) {
             UserId = userId,
             Username = username,
             Role = userrole,
-            MissingStep = 0,
+            MissingStep = step,
             Accesstoken = accessToken,
             Refreshtoken = refreshToken
         )
     }
 
     fun clearUserData() {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit().clear().commit()
+        clearAppCache()
+    }
+
+    fun clearAppCache() {
+        try {
+            val cacheDir = appContext.cacheDir
+            cacheDir?.deleteRecursively()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

@@ -37,6 +37,10 @@ class StartVoyageViewModel(private val repository: StartVoyageRepository) : View
             }
         }
     }
+
+    fun resetNearbyPlaces() {
+        _loginState.value = NetworkResponse.Loading()
+    }
 }
 
 

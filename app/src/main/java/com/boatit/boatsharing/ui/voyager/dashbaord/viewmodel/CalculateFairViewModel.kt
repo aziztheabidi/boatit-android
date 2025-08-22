@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -43,7 +44,7 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
 
     init {
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val currentTime = DateFormat.format("hh:mm:ss", Date(System.currentTimeMillis())).toString()
+        val currentTime = DateFormat.format("HH:mm:ss", Date(System.currentTimeMillis())).toString()
 
         AppConstants.Event_Time = currentTime
         AppConstants.Event_Date = currentDate
@@ -67,6 +68,7 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
     }
 
     fun onEndTimeChange(newEndTime: String) {
+        AppConstants.Event_Time_End = newEndTime
         _uiState.update { it.copy(endTime = newEndTime) }
     }
 
@@ -131,6 +133,7 @@ class CalculateFairViewModel(private val repository: CalculateFairRepository) : 
                 AppConstants.Total_Cost = response.obj?.TotalFair ?: 0.0
 
             }.onFailure { error ->
+                Log.e("calculate_fare_error",error.toString())
                 _registrationState.value = NetworkResponse.Error(error.message ?: "Failed to calculate fare")
                 _uiState.update {
                     it.copy(

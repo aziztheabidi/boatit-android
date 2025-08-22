@@ -61,8 +61,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.uihelpers.getDate
 import com.boatit.boatsharing.utils.AppConstants
 
@@ -74,7 +76,8 @@ fun FindBoat(navController: NavController,
              onCancelClick: () -> Unit,
              onFindBoatClick: () -> Unit) {
 
-    val showDialog = mutableStateOf(false)
+    var showDialog by remember { mutableStateOf(false) }
+
     var pLocation by remember { mutableStateOf(pickupLocation) }
     var dLocation by remember { mutableStateOf(dropOffLocation) }
     var category by remember { mutableStateOf("") }
@@ -85,6 +88,8 @@ fun FindBoat(navController: NavController,
     var expanded by remember { mutableStateOf(false) }
     var expandedp by remember { mutableStateOf(false) }
     var expandedd by remember { mutableStateOf(false) }
+
+
 
     val handleError = { errorMessage = null
         isError = false
@@ -273,6 +278,7 @@ fun FindBoat(navController: NavController,
                                     category = categories.Name
                                     AppConstants.Cat_id = categories.Id
                                 },
+
                                 text = {
                                     Text(
                                         text = categories.Name,
@@ -439,8 +445,13 @@ fun FindBoat(navController: NavController,
                 CustomTextField(
                     textValue = noOffPassengers,
                     placeholderText = stringResource(R.string.num_off_voyagers_lbl),
-                    onTextChange = { noOffPassengers = it
-                        AppConstants.No_Of_Voyagers = noOffPassengers.toInt()    },
+                    onTextChange = { input ->
+                        noOffPassengers = input
+                        AppConstants.No_Of_Voyagers = input.toIntOrNull() ?: 0
+
+//                        noOffPassengers = it
+//                        AppConstants.No_Of_Voyagers = noOffPassengers.toInt() ?: 0
+                                   },
                     keyboardType = KeyboardType.Number,
                     errorMessage = if (totalPassengers.isNotEmpty()&&totalPassengers.length <= 1) stringResource(
                         R.string.num_off_voyagers_text) else null,
@@ -472,6 +483,34 @@ fun FindBoat(navController: NavController,
                 ) {
                     Button(
                         onClick = {
+                            val categoryStr = category
+                            val noOfPassengersStr = noOffPassengers
+
+                            // Extract operator
+                            val operator = when {
+                                categoryStr.contains("<=") -> "<="
+                                categoryStr.contains(">=") -> ">="
+                                else -> null
+                            }
+
+                            // Extract number from category
+                            val numberInCategory = categoryStr.filter { it.isDigit() }
+                            val categoryInt = numberInCategory.toIntOrNull()
+                            val noOfPassengersInt = noOfPassengersStr.toIntOrNull()
+
+                            // Safely compare based on operator
+                            if (operator != null && categoryInt != null && noOfPassengersInt != null) {
+                                val isInvalid = when (operator) {
+                                    "<=" -> noOfPassengersInt > categoryInt
+                                    ">=" -> noOfPassengersInt < categoryInt
+                                    else -> false
+                                }
+
+                                if (isInvalid) {
+                                    showDialog = true
+                                    return@Button
+                                }
+                            }
                             onFindBoatClick()
                         },
                         enabled = category.isNotEmpty() && noOffPassengers.isNotEmpty() && dLocation.isNotEmpty() && pLocation.isNotEmpty(),
@@ -514,6 +553,17 @@ fun FindBoat(navController: NavController,
 
                 }
             }
+
+            if(showDialog){
+
+                SessionDialog(
+                    text = "This selected category requires a different number of passengers. Please review the limits.",
+                    onCancel = {},
+                    onPressOk = {
+                        showDialog = false
+                    },
+                    showCancelButton = false
+                )}
 
         }
 

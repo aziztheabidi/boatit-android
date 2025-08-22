@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.captain.dashbaord.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -27,6 +28,21 @@ class AcceptRequestViewModel(private val repository: AcceptRequestRepository) : 
         viewModelScope.launch {
             _loginState.value = NetworkResponse.Loading()
             val result = repository.status(request)
+            Log.e("Accept_request",result.toString())
+            result.onSuccess { response ->
+                _loginState.value = NetworkResponse.Success(response)
+            }.onFailure { error ->
+                _loginState.value = NetworkResponse.Error(error.message!!)
+            }
+
+
+        }
+    }
+
+    fun decline(request: AcceptVoyageRequest) {
+        viewModelScope.launch {
+            _loginState.value = NetworkResponse.Loading()
+            val result = repository.decline(request)
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { error ->

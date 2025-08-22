@@ -5,13 +5,17 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -40,6 +45,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,11 +57,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.general.model.VoyagerProfileRequest
 import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileViewModel
@@ -73,7 +81,8 @@ import java.util.Calendar
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun UserAccountInfoScreen(navController: NavController,value: String?, viewModel: VoyagerProfileViewModel = koinViewModel(), viewModelfeth: GetVoyagerProfileViewModel = koinViewModel()) {
+fun UserAccountInfoScreen(navController: NavController,
+                          value: String?, viewModel: VoyagerProfileViewModel = koinViewModel(), viewModelfeth: GetVoyagerProfileViewModel = koinViewModel()) {
 
     println("comingFrom:$value")
     val context = LocalContext.current
@@ -124,7 +133,10 @@ fun UserAccountInfoScreen(navController: NavController,value: String?, viewModel
     val fetchState by viewModelfeth.registrationState.collectAsState()
 
     fun performLogin(){
-        navController.popBack()
+        if(value.equals("voyagerRole")){
+            navController.navigate(route = "$DASHBOARD_SCREEN/null")
+        }else{ navController.popBack() }
+
     }
 
     when (registrationState) {
@@ -186,7 +198,7 @@ fun UserAccountInfoScreen(navController: NavController,value: String?, viewModel
             else{
                 CustomTopBar(text = stringResource(R.string.add_your_acc_info), onImageClick = {
                     println("clicked...")
-                    navController.popBack()
+                    navController.popBackStack()
                 })
             }
 
@@ -323,15 +335,72 @@ fun UserAccountInfoScreen(navController: NavController,value: String?, viewModel
                     focusRequester = phoneNumberFocusRequester
                 )
                 Spacer(modifier = Modifier.height(20.dp))
+//
+//                Text(
+//                    text = stringResource(R.string.address_label),
+//                    style = TextStyle(
+//                        fontSize = 18.sp,
+//                        fontWeight = FontWeight.Normal,
+//                        color = Color.Black
+//                    )
+//                )
 
-                Text(
-                    text = stringResource(R.string.address_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
+
+                // Observe value from map_picker result
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val selectedAddress = navBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<String>("selected_address")
+
+                LaunchedEffect(selectedAddress) {
+                    if (!selectedAddress.isNullOrBlank()) {
+                        address = selectedAddress
+                        navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.address_label),
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
                     )
-                )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            println("Pick location from map clicked")
+                            navController.navigate("map_picker")
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.location_icon), // your drawable
+                            contentDescription = "Edit",
+                            tint = colorResource(R.color.button_normal),
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clickable {
+                                }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Pick location",
+                            style = TextStyle(
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = colorResource(R.color.button_normal)
+                            )
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(10.dp))
 
                 CustomTextField(
@@ -459,7 +528,7 @@ fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-based, so add 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
-        String.format("%04d-%02d-%02d", year, day, month)
+        String.format("%04d-%02d-%02d", year, month, day)
     } ?: ""
 
     DatePickerDialog(

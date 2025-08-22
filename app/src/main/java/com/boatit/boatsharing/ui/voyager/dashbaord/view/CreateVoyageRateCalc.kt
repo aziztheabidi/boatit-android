@@ -337,7 +337,7 @@ fun CreateVoyageRateCalcScreen(navController: NavController) {
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W500
                     ),
-                    text = "Duration"
+                    text = "Time to Spend on Water"
                 )
 
                 Spacer(Modifier.height(5.dp))

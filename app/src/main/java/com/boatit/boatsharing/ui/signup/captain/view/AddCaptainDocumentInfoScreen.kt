@@ -1,7 +1,10 @@
 package com.boatit.boatsharing.ui.signup.captain
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,14 +40,18 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.ui.signup.captain.view.MyDatePickerDialog
+import com.boatit.boatsharing.ui.signup.captain.view.MyFutureDatePickerDialog
 import com.boatit.boatsharing.ui.signup.captain.viewmodel.CaptainDocsViewModel
 import com.boatit.boatsharing.ui.signup.captain.viewmodel.GetCaptainDocsViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
+import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun AddCaptainDocumentInfoScreen(
     navController: NavController,
@@ -52,10 +59,19 @@ fun AddCaptainDocumentInfoScreen(
     viewModel: CaptainDocsViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val showDialog = mutableStateOf(false)
+    val showDialogExp = mutableStateOf(false)
     val focusManager = LocalFocusManager.current
     val registrationState by viewModel.registrationState.collectAsState()
     val fetchState by viewModelfetch.registrationState.collectAsState()
     var getingData by remember { mutableStateOf(true) }
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val handleError = {
+        errorMessage = null
+        isError = false
+    }
+
 
     LaunchedEffect(registrationState) {
         when (registrationState) {
@@ -104,14 +120,71 @@ fun AddCaptainDocumentInfoScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             FormStepsViews(3, activeColor = colorResource(id = R.color.button_normal), inactiveColor = Color.Gray, activeViewsCount = 2)
+            if (showDialog.value) {
+                MyFutureDatePickerDialog(
+                    onDateSelected = {
+                        viewModel.policyExpirationDate = it
 
+                    },
+                    onDismiss = { showDialog.value = false }
+                )
+
+
+            }
+            if (showDialogExp.value) {
+                MyFutureDatePickerDialog(
+                    onDateSelected = {
+                        viewModel.licenseNoExpiryDate = it
+                    },
+                    onDismiss = { showDialogExp.value = false }
+                )
+            }
             Spacer(Modifier.height(30.dp))
             DocumentField(label = R.string.license_label, value = viewModel.licenseNo, onValueChange = { viewModel.licenseNo = it }, errorCondition = viewModel.licenseNo.length <= 5)
-            DocumentField(label = R.string.license_exp_label, value = viewModel.licenseNoExpiryDate, onValueChange = { viewModel.licenseNoExpiryDate = it }, errorCondition = viewModel.licenseNoExpiryDate.length <= 3)
+            Text(text = "License Expiration Date", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.Black))
+            Spacer(Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier.clickable { showDialogExp.value = true }
+            ) {
+                CustomDobField(
+                    textValue = viewModel.licenseNoExpiryDate,
+                    placeholderText = stringResource(R.string.dob_placeholder),
+                    onTextChange = { viewModel.licenseNoExpiryDate = it },
+                    keyboardType = KeyboardType.Text,
+                    maxChars = 40,
+                    errorMessage = null,
+                    isError = false,
+                    onClearError = handleError,
+                    imeAction = ImeAction.Next,
+                    keyboardActions = KeyboardActions(onNext = { /* handled in screen */ }),
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
             DocumentField(label = R.string.license_type_label, value = viewModel.licenseType, onValueChange = { viewModel.licenseType = it }, errorCondition = viewModel.licenseType.length <= 3)
             DocumentField(label = R.string.insurance_company_label, value = viewModel.insuranceCompany, onValueChange = { viewModel.insuranceCompany = it }, errorCondition = viewModel.insuranceCompany.length <= 3)
             DocumentField(label = R.string.policy_number_label, value = viewModel.policyNo, onValueChange = { viewModel.policyNo = it }, errorCondition = viewModel.policyNo.length <= 3)
-            DocumentField(label = R.string.policy_exp_label, value = viewModel.policyExpirationDate, onValueChange = { viewModel.policyExpirationDate = it }, errorCondition = viewModel.policyExpirationDate.length <= 3)
+            Text(text = "Policy Expiration Date", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.Black))
+            Spacer(Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier.clickable { showDialog.value = true }
+            ) {
+                CustomDobField(
+                    textValue = viewModel.policyExpirationDate,
+                    placeholderText = stringResource(R.string.dob_placeholder),
+                    onTextChange = { viewModel.policyExpirationDate = it },
+                    keyboardType = KeyboardType.Text,
+                    maxChars = 40,
+                    errorMessage = null,
+                    isError = false,
+                    onClearError = handleError,
+                    imeAction = ImeAction.Next,
+                    keyboardActions = KeyboardActions(onNext = { /* handled in screen */ }),
+                )
+            }
             Spacer(modifier = Modifier.height(40.dp))
             CustomButton(
                 text = stringResource(R.string.save_button_label),
@@ -150,6 +223,8 @@ fun DocumentField(
     )
     Spacer(Modifier.height(20.dp))
 }
+
+
 
 @Preview
 @Composable

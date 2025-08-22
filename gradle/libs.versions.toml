@@ -90,6 +90,8 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 stripe-android = { module = "com.stripe:stripe-android", version.ref = "stripe" }
 compose-ratingbar = { module = "com.github.a914-gowtham:compose-ratingbar", version.ref = "compose-ratingbar" }
 
+accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version = "0.28.0" }
+
 [plugins]
 google-services = { id = "com.google.gms.google-services", version.ref = "google" }
 android-application = { id = "com.android.application", version.ref = "agp" }

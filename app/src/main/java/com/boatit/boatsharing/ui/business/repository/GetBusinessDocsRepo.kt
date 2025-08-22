@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.business.repository
 
+import android.util.Log
 import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.ui.business.model.DocksDropdownResponse
 import com.boatit.boatsharing.ui.business.model.GetBusinessResponse
@@ -35,6 +36,7 @@ class GetBusinessDocksRepo(private val httpClient: HttpClient) {
             val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.Zones}")
             if (response.status == HttpStatusCode.OK) {
                 val result: DocksDropdownResponse = response.body()
+
                 Result.success(result)
             } else {
                 val result: DocksDropdownResponse = response.body()

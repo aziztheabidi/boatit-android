@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -39,8 +40,11 @@ class GetActiveVoyageViewModel(private val repository: GetActiveVoyageRepository
             _loginState.value = NetworkResponse.Loading()
             val result = repository.voyages()
             result.onSuccess { response ->
+                Log.e("popup_res",response.toString())
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { error ->
+
+                Log.e("popup_res_err",error.toString())
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
             }
         }

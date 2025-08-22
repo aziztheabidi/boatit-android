@@ -19,7 +19,11 @@ data class VoyageNotification(
     val PastVoyages: String?,
     val Title: String?,
     val Body: String?,
-    val CaptainUserId: String?
+    val CaptainUserId: String?,
+    val BookingDateTime: String?= null,
+    val WaterStay: String?= null,
+    val Duration: String? = null,
+
 ) : Parcelable {
     override fun describeContents(): Int {
         TODO("Not yet implemented")

@@ -3,12 +3,17 @@ package com.boatit.boatsharing.ui.signup.captain.view
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -27,12 +33,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -276,14 +285,72 @@ fun CaptainAccountInfoScreen(navController: NavController, viewModel: CaptainPro
                 )
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Text(
-                    text = stringResource(R.string.address_label),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
+//                Text(
+//                    text = stringResource(R.string.address_label),
+//                    style = TextStyle(
+//                        fontSize = 18.sp,
+//                        fontWeight = FontWeight.Normal,
+//                        color = Color.Black
+//                    )
+//                )
+
+
+                // Observe value from map_picker result
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val selectedAddress = navBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<String>("selected_address")
+
+                LaunchedEffect(selectedAddress) {
+                    if (!selectedAddress.isNullOrBlank()) {
+                        address = selectedAddress
+                        navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.address_label),
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
                     )
-                )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            println("Pick location from map clicked")
+                            navController.navigate("map_picker")
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.location_icon), // your drawable
+                            contentDescription = "Edit",
+                            tint = colorResource(R.color.button_normal),
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clickable {
+                                }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Pick location",
+                            style = TextStyle(
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = colorResource(R.color.button_normal)
+                            )
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(10.dp))
 
                 CustomTextField(
@@ -437,6 +504,54 @@ fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
         DatePicker(
             state = datePickerState
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyFutureDatePickerDialog(
+    onDateSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                // Only allow today and future dates
+                val today = System.currentTimeMillis()
+                return utcTimeMillis >= today
+            }
+        }
+    )
+
+    val selectedDateMillis = datePickerState.selectedDateMillis
+    val selectedDate = selectedDateMillis?.let {
+        val calendar = Calendar.getInstance().apply { timeInMillis = it }
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-based
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        String.format("%04d-%02d-%02d", year, month, day)
+    } ?: ""
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = {
+                    onDateSelected(selectedDate)
+                    onDismiss()
+                },
+                enabled = selectedDate.isNotEmpty()
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
     }
 }
 

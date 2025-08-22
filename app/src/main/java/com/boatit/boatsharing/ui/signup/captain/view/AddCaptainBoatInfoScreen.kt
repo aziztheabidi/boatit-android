@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.captain.model.CaptainProfileRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
@@ -93,13 +94,15 @@ fun AddCaptainBoatInfoScreen(
                 is NetworkResponse.Success -> {
                     Toast.makeText(context, state.data?.Message ?: "Saved", Toast.LENGTH_SHORT).show()
                     viewModel.onRegistrationHandled()
-                    navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
+                    navController.navigateWithClearStack(NavigationManager.CAPTAIN_OFFLINE_SCREEN, clearStack = true)
+
                 }
 
                 is NetworkResponse.Error -> {
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                     viewModel.onRegistrationHandled()
                 }
+
                 else -> {}
             }
         }

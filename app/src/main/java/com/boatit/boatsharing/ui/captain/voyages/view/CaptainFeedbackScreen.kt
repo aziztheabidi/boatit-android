@@ -109,7 +109,7 @@ fun CaptainFeedbackScreen(navController: NavController,notification : String,
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Thank you for your services, give reviews to the user so that next voyager can get benefited",
+                text = "Thank you for your services, give reviews to the voyage so that next voyager can get benefited",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.Black,

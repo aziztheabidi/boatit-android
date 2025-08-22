@@ -72,7 +72,7 @@ fun RateYourVoyage(navController: NavController) {
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
 
-                    modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f),
+                    modifier = Modifier.fillMaxSize(),
 
 
         )

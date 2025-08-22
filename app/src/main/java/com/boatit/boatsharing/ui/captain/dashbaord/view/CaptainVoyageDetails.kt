@@ -39,7 +39,9 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
+import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
 import com.boatit.boatsharing.uihelpers.CustomTextField
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
@@ -53,8 +55,13 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     var pickupNotes by remember { mutableStateOf("") }
     var hasNavigated by remember { mutableStateOf(false) }
+
+    var showDialogForCancel by remember { mutableStateOf(false) }
+
+    var showDialogForOTP by remember { mutableStateOf(false) }
+
     Box(
-        modifier = Modifier.height(screenHeight * 0.75f),
+        modifier = Modifier.height(screenHeight * 0.65f),
         contentAlignment = Alignment.TopCenter
     ) {
         Card(
@@ -149,13 +156,22 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.captain_img),
-                        contentDescription = "Dont have in api data Voyager Image",
+                    Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .clip(CircleShape)
-                    )
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = notification.VoyagerName .firstOrNull()?.uppercase() ?: "",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+
 
                     Spacer(modifier = Modifier.width(12.dp))
 
@@ -199,7 +215,7 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
                     },
                     placeholder = {
                         Text(
-                            "Any pickup notes?",
+                            "Connect with Voyager?",
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -280,7 +296,9 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
                 ) {
                     Button(
                         onClick = {
-                            onDeclineClick()
+
+                            showDialogForCancel=true
+
                         },
                         shape = RoundedCornerShape(10.dp), // Corner radius
                         modifier = Modifier
@@ -303,8 +321,14 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
 
                     Button(
                         onClick = {
-                            val otp = enteredValues.get(0) + enteredValues.get(1) + enteredValues.get(2) + enteredValues.get(3) + enteredValues.get(4)
-                            onAcceptClick(otp)
+                            val otp = enteredValues[0] + enteredValues[1] + enteredValues[2] + enteredValues[3] + enteredValues[4]
+                            if (enteredValues.all { it.isNotEmpty() } && otp.length == 5) {
+                                onAcceptClick(otp)
+                            }
+                            else{
+                                showDialogForOTP=true
+                            }
+
                         },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
@@ -332,6 +356,37 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                if(showDialogForCancel){
+
+                    SessionDialog(
+                        text = "Are you sure, you want to decline voyage",
+                        onCancel = {
+                            showDialogForCancel = false
+                        },
+                        onPressOk = {
+                            showDialogForCancel = false
+                             onDeclineClick()
+                        },
+                        showCancelButton = true
+                    )
+                }
+
+
+
+                if(showDialogForOTP){
+
+                    SessionDialog(
+                        text = "Enter PIN for voyage to start",
+                        onCancel = {
+                            showDialogForOTP = false
+                        },
+                        onPressOk = {
+                            showDialogForOTP = false
+                        },
+                        showCancelButton = true
+                    )
+                }
             }
         }
         Image(

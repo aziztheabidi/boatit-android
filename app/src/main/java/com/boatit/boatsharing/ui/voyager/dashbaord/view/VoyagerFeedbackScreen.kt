@@ -70,7 +70,7 @@ fun VoyagerFeedbackScreen(navController: NavController,notification : String,
             if (isLoading) {
                 isLoading = false
                 Toast.makeText(context, "Feedback Submitted", Toast.LENGTH_SHORT).show()
-                navController.navigateWithClearStack(route = "$DASHBOARD_SCREEN/null", clearStack = true)
+                navController.popBackStack()
             }
         }
         is NetworkResponse.Error -> {
@@ -165,8 +165,7 @@ fun VoyagerFeedbackScreen(navController: NavController,notification : String,
             ) {
                 Button(
                     onClick = {
-                        navController.navigateWithClearStack(NavigationManager.CAPTAIN_DASHBOARD_SCREEN, clearStack = true)
-
+                        navController.popBackStack()
                     },
                     shape = RoundedCornerShape(10.dp), // Corner radius
                     modifier = Modifier

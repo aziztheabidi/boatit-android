@@ -40,7 +40,7 @@ class PasswordViewModel(
             result.onSuccess { response ->
                 _registrationState.value = NetworkResponse.Success(response)
                 _isLoading.value = false
-                saveLoginData(response.obj)
+                saveLoginData(response.obj!!)
             }.onFailure { error ->
                 _registrationState.value = NetworkResponse.Error(error.message ?: "Registration failed")
                 _isLoading.value = false

@@ -89,6 +89,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponcerVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentConfirmationRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.SponsorPaymentSheetConfigRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.TravelNowRepo
+import com.boatit.boatsharing.ui.voyager.dashbaord.repository.VoyagerFeedbackRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.VoyagerVoyagesRepository
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.BookVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.CalculateFairViewModel
@@ -108,6 +109,7 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentConfi
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.SponsorPaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TrackingLocationViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.TravelNowViewModel
+import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerFeedbackViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerFollowBusinessViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.VoyagerVoyagesViewModel
 import com.boatit.boatsharing.utils.prefmanager.RoleProvider
@@ -174,7 +176,7 @@ val Modules = module {
     viewModel { RoleViewModel(get(), get(), get()) }
 
     single { VoyagerProfileRepository(get()) }
-    viewModel { VoyagerProfileViewModel(get()) }
+    viewModel { VoyagerProfileViewModel(get(), get()) }
 
     single { GetVoyagerProfileRepository(get()) }
     viewModel { GetVoyagerProfileViewModel(get())}
@@ -186,7 +188,7 @@ val Modules = module {
     viewModel { CaptainDocsViewModel(get()) }
 
     single { CaptainBoatRepository(get()) }
-    viewModel { CaptainBoatViewModel(get()) }
+    viewModel { CaptainBoatViewModel(get(), get()) }
 
     single { GetCaptainProfileRepository(get()) }
     viewModel { GetCaptainProfileViewModel(get()) }
@@ -298,13 +300,16 @@ val Modules = module {
     viewModel { BusinessAboutViewModel(get()) }
 
     single { BusinessLogoRepository(get()) }
-    viewModel { BusinessLogoViewModel(get()) }
+    viewModel { BusinessLogoViewModel(get(), get()) }
 
     single { BusinessDashboardRepository(get()) }
     viewModel { BusinessDashViewModel(get()) }
 
     single { TravelNowRepo(get()) }
     viewModel { TravelNowViewModel(get(), get(), get()) }
+
+    single { VoyagerFeedbackRepository(get()) }
+    viewModel { VoyagerFeedbackViewModel(get()) }
 
     single { FollowBusinessRepository(get()) }
     viewModel { VoyagerFollowBusinessViewModel(get()) }

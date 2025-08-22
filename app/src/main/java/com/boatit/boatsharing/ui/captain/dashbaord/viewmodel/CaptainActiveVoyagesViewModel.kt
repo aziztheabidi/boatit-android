@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.captain.dashbaord.viewmodel
 
 import CaptainActiveVoyagesResponse
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -20,11 +21,19 @@ class CaptainActiveVoyagesViewModel(private val repository: CaptainActiveVoyages
             _loginState.value = NetworkResponse.Loading()
             val result = repository.voyages()
             result.onSuccess { response ->
+                Log.e("captain_voyages",response.toString())
+
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { error ->
+
+                Log.e("captain_voyages",error.toString())
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
             }
         }
+    }
+
+    fun resetNearbyPlaces() {
+        _loginState.value = NetworkResponse.Loading()
     }
 }
 

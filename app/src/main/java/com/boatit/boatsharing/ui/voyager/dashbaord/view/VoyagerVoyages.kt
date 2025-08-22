@@ -49,8 +49,10 @@ fun VoyagerVoyages(navController: NavController, viewModel: VoyagerVoyagesViewMo
     }
 
     Scaffold(
+
         topBar = {
             CustomTopBar(text = stringResource(R.string.voyages_past), onImageClick = {
+
                 navController.popBack()
             })
         },
@@ -68,10 +70,10 @@ fun VoyagerVoyages(navController: NavController, viewModel: VoyagerVoyagesViewMo
                         println(voyagesList.message)
                     }
                     is NetworkResponse.Success -> {
-                        items(voyagesList.data!!.obj.Past.size) { voyage ->
+                        items(voyagesList.data!!.obj.size) { voyage ->
                             PastVoyages(
                                 navController = navController,
-                                notification = voyagesList.data!!.obj.Past.get(voyage))
+                                notification = voyagesList.data!!.obj.get(voyage))
                         }
                     }
                 }

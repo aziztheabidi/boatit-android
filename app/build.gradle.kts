@@ -118,6 +118,7 @@ dependencies {
     implementation(libs.stripe.android)
     implementation(libs.flexible.bottomsheet.material)
     implementation(libs.compose.ratingbar)
+    implementation(libs.accompanist.pager)
 
 
 

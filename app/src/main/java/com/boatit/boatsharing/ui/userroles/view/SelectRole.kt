@@ -86,7 +86,9 @@ fun SelectRole(
                 .padding(20.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            ClickTopBarIcon(R.drawable.arrow_back) { navController.popBackStack() }
+            ClickTopBarIcon(R.drawable.arrow_back) {
+                navController.popBackStack()
+            }
 
             Spacer(Modifier.height(30.dp))
 
@@ -106,7 +108,7 @@ fun SelectRole(
 
             RoleCard(
                 imageResId = R.drawable.voyager,
-                size = 160.dp,
+                size = 150.dp,
                 firstText = stringResource(R.string.voyager),
                 secondText = stringResource(R.string.voyager_role_card_h2),
                 onClick = {
@@ -116,62 +118,86 @@ fun SelectRole(
 
             Spacer(Modifier.height(15.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                RoleCard(
-                    imageResId = R.drawable.captain,
-                    size = 100.dp,
-                    firstText = stringResource(R.string.captain),
-                    secondText = stringResource(R.string.captain_role_card_h2),
-                    onClick = {
-                        viewModel.selectRole(AppConstants.USER_ID.toString(), "Captain")
-                    }
-                )
-            }
-
-            Spacer(Modifier.height(15.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(16.dp) // Optional spacing between cards
             ) {
-                RoleCard(
-                    imageResId = R.drawable.business,
-                    size = 100.dp,
-                    firstText = stringResource(R.string.business),
-                    secondText = stringResource(R.string.business_role_card_h2),
-                    onClick = {
-                        viewModel.selectRole(AppConstants.USER_ID.toString(), "Business")
-                    }
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+
+                ) {
+                    RoleCard(
+                        imageResId = R.drawable.captain,
+                        size = 100.dp,
+                        firstText = stringResource(R.string.captain),
+                        secondText = stringResource(R.string.captain_role_card_h2),
+                        onClick = {
+                            viewModel.selectRole(AppConstants.USER_ID.toString(), "Captain")
+                        }
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+
+                ) {
+                    RoleCard(
+                        imageResId = R.drawable.business,
+                        size = 100.dp,
+                        firstText = stringResource(R.string.business),
+                        secondText = stringResource(R.string.business_role_card_h2),
+                        onClick = {
+                            viewModel.selectRole(AppConstants.USER_ID.toString(), "Business")
+                        }
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-        }
 
-//        Column(
-//            modifier = Modifier
-//                .align(Alignment.BottomCenter)
-//                .padding(16.dp)
-//        ) {
-//            Button(
-//                onClick = { navController.navigate("$DASHBOARD_SCREEN/null") },
-//                shape = RoundedCornerShape(10.dp),
-//                modifier = Modifier.fillMaxWidth().height(50.dp),
-//                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
+
+
+
+
+//
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceEvenly
 //            ) {
-//                Text(
-//                    text = stringResource(R.string.guest_button_text),
-//                    fontSize = 16.sp,
-//                    fontWeight = FontWeight.SemiBold,
-//                    color = Color.White
+//                RoleCard(
+//                    imageResId = R.drawable.captain,
+//                    size = 100.dp,
+//                    firstText = stringResource(R.string.captain),
+//                    secondText = stringResource(R.string.captain_role_card_h2),
+//                    onClick = {
+//                        viewModel.selectRole(AppConstants.USER_ID.toString(), "Captain")
+//                    }
 //                )
 //            }
 //
-//            Spacer(Modifier.height(30.dp))
-//        }
+//            Spacer(Modifier.height(15.dp))
+//
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceEvenly
+//            ) {
+//                RoleCard(
+//                    imageResId = R.drawable.business,
+//                    size = 100.dp,
+//                    firstText = stringResource(R.string.business),
+//                    secondText = stringResource(R.string.business_role_card_h2),
+//                    onClick = {
+//                        viewModel.selectRole(AppConstants.USER_ID.toString(), "Business")
+//                    }
+//                )
+//            }
+
+          //  Spacer(modifier = Modifier.weight(1f))
+        }
+
+
     }
 
     if (isLoading) {

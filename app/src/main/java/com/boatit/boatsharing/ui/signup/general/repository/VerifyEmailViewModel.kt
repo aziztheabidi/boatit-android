@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.signup.general.repository
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -30,10 +31,12 @@ class VerifyEmailViewModel(
 
         viewModelScope.launch {
             val result = repository.verifyEmail(email, otp)
+            Log.e("verify_res",result.toString())
             result.onSuccess { response ->
                 _registrationState.value = NetworkResponse.Success(response)
                 _isLoading.value = false
             }.onFailure { error ->
+
                 _registrationState.value = NetworkResponse.Error(error.message ?: "Verification failed")
                 _isLoading.value = false
                 _errorMessage.value = error.message

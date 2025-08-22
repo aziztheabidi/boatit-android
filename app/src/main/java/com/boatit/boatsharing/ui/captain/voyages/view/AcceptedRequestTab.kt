@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.captain.voyages.view
 
 import VoyageData
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -56,6 +57,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.view.CaptainVoyageDetails
+import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.StartVoyageViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -66,6 +68,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AcceptedRequestTab(
     navController: NavController,
     notification : List<VoyageData>,
+    viewModel: CaptainActiveVoyagesViewModel = koinViewModel(),
     viewModelStart: StartVoyageViewModel = koinViewModel()
 ) {
 
@@ -86,12 +89,17 @@ fun AcceptedRequestTab(
             if (isLoading) {
                 isLoading = false
                 Toast.makeText(context, "Voyage Started.", Toast.LENGTH_SHORT).show()
+                viewModel.voyages()
+                viewModelStart.resetNearbyPlaces()
+
             }
         }
         is NetworkResponse.Error -> {
             if (isLoading) {
                 isLoading = false
                 Toast.makeText(context, "Unable To Start", Toast.LENGTH_SHORT).show()
+                viewModel.voyages()
+                viewModelStart.resetNearbyPlaces()
             }
         }
         else -> {}
@@ -182,7 +190,7 @@ fun AcceptedRequestTab(
                                     color = Color.Black,
                                     fontSize = 14.sp,
 
-                                ),
+                                    ),
                                 text = "Voyagees Details"
                             )
                             Spacer(Modifier.height(10.dp))
@@ -224,7 +232,7 @@ fun AcceptedRequestTab(
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
 
-                                                    ),
+                                                        ),
                                                     text = notification.get(voyage).NoOfVoyager.toString()
                                                 )
                                             }
@@ -249,7 +257,7 @@ fun AcceptedRequestTab(
                                                         fontWeight = FontWeight.Bold
 
                                                     ),
-                                                    text = notification.get(voyage).AmountToPay.toString()
+                                                    text = notification[voyage].AmountToPay.toString()
                                                 )
                                             }
 
@@ -273,7 +281,8 @@ fun AcceptedRequestTab(
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
                                                     ),
-                                                    text = notification.get(voyage).Duration!!
+                                                    text = notification[voyage].Duration.takeIf { it.isNotBlank() }
+                                                        ?: "---"
                                                 )
                                             }
                                         }
@@ -310,7 +319,7 @@ fun AcceptedRequestTab(
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
 
-                                                    ),
+                                                        ),
                                                     text = notification.get(voyage).PickupDock
                                                 )
                                             }
@@ -334,7 +343,7 @@ fun AcceptedRequestTab(
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
 
-                                                    ),
+                                                        ),
                                                     text = notification.get(voyage).DropOffDock!!
                                                 )
                                             }
@@ -359,7 +368,7 @@ fun AcceptedRequestTab(
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
 
-                                                    ),
+                                                        ),
                                                     text = notification.get(voyage).WaterStay
                                                 )
                                             }
@@ -379,8 +388,8 @@ fun AcceptedRequestTab(
 
                         Button(
                             onClick = {
-                                 showVoyagerRequest = true
-                                 voyageid = voyage
+                                showVoyagerRequest = true
+                                voyageid = voyage
                             },
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier
@@ -435,18 +444,29 @@ fun AcceptedRequestTab(
                     }
                 }
         ) {
-            CaptainVoyageDetails(
-                navController, notification.get(voyageid),
-                notification.get(voyageid).Id,
-                notification.get(voyageid).VoyagerName,
-                onDeclineClick = {
-                    showVoyagerRequest = false
-                },
-                onAcceptClick = { otp ->
-                    isLoading = true
-                    viewModelStart.startvoyage(VoyageStartRequest(notification.get(voyageid).Id, otp))
-                }
-            )
+            if (voyageid in notification.indices) {
+                CaptainVoyageDetails(
+                    navController, notification.get(voyageid),
+                    notification.get(voyageid).Id,
+                    notification.get(voyageid).VoyagerName,
+                    onDeclineClick = {
+                        showVoyagerRequest = false
+                    },
+                    onAcceptClick = { otp ->
+                        isLoading = true
+                        viewModelStart.startvoyage(
+                            VoyageStartRequest(
+                                notification.get(voyageid).Id,
+                                otp
+                            )
+                        )
+                    }
+                )
+            }
+            else {
+                // Optionally log or show error to user
+                Log.e("CaptainVoyageDetails", "Invalid voyage index ,list size: ${notification.size}")
+            }
         }
     }
 

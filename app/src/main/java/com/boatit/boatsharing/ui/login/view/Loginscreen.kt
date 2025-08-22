@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.login.view
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -54,11 +55,13 @@ import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.ui.userroles.viewmodel.FCMTokenViewModel
 import com.boatit.boatsharing.ui.voyager.dashbaord.repository.RegistrationViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
+import com.boatit.boatsharing.uihelpers.CustomClickableSmallTextview
 import com.boatit.boatsharing.uihelpers.CustomClickableTextView
 import com.boatit.boatsharing.uihelpers.CustomErrorView
 import com.boatit.boatsharing.uihelpers.CustomTextField
@@ -67,6 +70,7 @@ import com.boatit.boatsharing.uihelpers.PasswordTextField
 import com.boatit.boatsharing.uihelpers.TermsAndPrivacyView
 import com.boatit.boatsharing.utils.AppConstants
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -89,6 +93,8 @@ fun LoginScreen(
     val loginState by viewModel.loginState.collectAsState()
 
     fun performLogin(response: LoginResponse?) {
+
+
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val token = task.result
@@ -96,21 +102,41 @@ fun LoginScreen(
             }
         }
         when (response?.obj?.Role) {
-            "Voyager" -> navController.navigate("$DASHBOARD_SCREEN/null")
-            "Business" -> navController.navigate(NavigationManager.BUSINESS_SCREEN)
-            "Captain" -> navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
+            "Voyager" -> {
+                if(response?.obj?.MissingStep == 0){
+                    navController.navigate("$DASHBOARD_SCREEN/null") }
+                else{navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole") }
+            }
+            "Business" -> {
+                if(response?.obj?.MissingStep == 0) {
+                    navController.navigate(NavigationManager.BUSINESS_SCREEN) }
+                else{navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN) }
+            }
+            "Captain" -> {
+                if(response?.obj?.MissingStep == 0) {
+                    navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
+                }else{
+                    navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
+                }
+            }
             else -> navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
         }
         viewModel.resetNearbyPlaces()
     }
 
     when (loginState) {
+
         is NetworkResponse.Success -> {
             Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
             performLogin((loginState as NetworkResponse.Success<LoginResponse>).data)
         }
 
         is NetworkResponse.Error -> {
+
+            val error_ = loginState as NetworkResponse.Error
+            val json = Gson().toJson(error_)
+            Log.e("login_error_json", json)
+            // Log error message
             val error = (loginState as NetworkResponse.Error).message
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
             viewModel.resetNearbyPlaces()
@@ -202,7 +228,21 @@ fun LoginScreen(
                         focusRequester = passwordFocusRequester
                     )
 
-                    Spacer(Modifier.height(40.dp))
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.CenterEnd // Align to the right center
+                    ) {
+                        CustomClickableSmallTextview(
+                            text = stringResource(R.string.forgot_password),
+                            onTextClick = {
+                                navController.navigate(NavigationManager.FORGOT_PASSWORD_SCREEN)
+                            }
+                        )
+                    }
+                    Spacer(Modifier.height(30.dp))
 
                     CustomButton(
                         text = stringResource(R.string.login),
@@ -214,6 +254,8 @@ fun LoginScreen(
                         }
                     )
 
+
+
                     Spacer(Modifier.height(10.dp))
 
                     Box(
@@ -221,9 +263,9 @@ fun LoginScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CustomClickableTextView(
-                            text = stringResource(R.string.forgot_password),
+                            text = stringResource(R.string.create_account_),
                             onTextClick = {
-                                navController.navigate(NavigationManager.FORGOT_PASSWORD_SCREEN)
+                               navController.navigate(NavigationManager.CREATE_ACCOUNT_STEP_ONE_SCREEN)
                             }
                         )
                     }

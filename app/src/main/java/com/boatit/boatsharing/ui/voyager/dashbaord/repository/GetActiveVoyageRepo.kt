@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.repository
 
+import android.util.Log
 import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityRequest
 import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityResponse
@@ -38,6 +39,7 @@ class GetActiveVoyageRepository(private val httpClient: HttpClient) {
             }
             if (response.status == HttpStatusCode.OK) {
                 val result: ActiveVoyageResponse = response.body()
+                Log.e("popup_res_main",response.body())
                 Result.success(result)
             } else {
                 val result: VoyagerVoyagesResponse = response.body()

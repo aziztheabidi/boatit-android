@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.sp
 import com.boatit.boatsharing.R
 @Composable
 fun OnboardingScreenBottomLayout(
-    onIconClick: () -> Unit,
-    onSkipClick: () -> Unit,
+    onIconClick:  () -> Unit,
+    onSkipClick:  () -> Unit,
     drawableResId: Int,
     modifier: Modifier
 ) {

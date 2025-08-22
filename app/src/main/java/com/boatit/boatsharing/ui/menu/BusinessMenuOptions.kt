@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.NavigationManager.SETTINGS_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.routes.popBack
@@ -44,8 +45,10 @@ import kotlin.math.sin
 fun BusinessMenuOptions(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
 
     val items = listOf(
-        BusinessMenuItem(R.drawable.profile_menu_icon, "Profile"),
+       // BusinessMenuItem(R.drawable.profile_menu_icon, "Profile"),
         BusinessMenuItem(R.drawable.logout_menu, "Logout"),
+        BusinessMenuItem(R.drawable.settings, "Settings")
+
     )
 
     Box(modifier = Modifier.fillMaxSize()
@@ -164,6 +167,9 @@ fun onBusinessItemClick(item: BusinessMenuItem, navController: NavController, vi
         "Logout" -> {
             viewModel.clearUserData()
             navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+        }
+        "Settings" -> {
+            navController.navigate(route = "$SETTINGS_SCREEN/businessRole")
         }
 
     }

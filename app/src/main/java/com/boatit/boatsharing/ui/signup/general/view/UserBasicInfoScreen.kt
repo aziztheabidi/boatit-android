@@ -163,7 +163,7 @@ fun UserBasicInfoScreen(
                     isLoading = viewModel.isLoading,
                     onButtonClick = {
                         focusManager.clearFocus()
-                        viewModel.register()
+                        viewModel.register(context)
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

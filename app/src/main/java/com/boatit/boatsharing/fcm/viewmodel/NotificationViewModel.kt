@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NotificationViewModel : ViewModel() {
+
     private val _notificationState = MutableStateFlow<VoyageNotification?>(null)
     val notificationState = _notificationState.asStateFlow()
 

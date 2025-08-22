@@ -18,6 +18,8 @@ import com.boatit.boatsharing.ui.captain.voyages.repository.CaptainVoyagesReposi
 import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.login.model.UserData
 import com.boatit.boatsharing.ui.login.repository.LoginRepository
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.CaptainCompletedVoyageResponse
+import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyagerVoyagesResponse
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,8 +28,8 @@ import kotlinx.coroutines.launch
 
 class CaptainVoyagesViewModel(private val repository: CaptainVoyagesRepository) : ViewModel() {
 
-    private val _loginState = MutableStateFlow<NetworkResponse<CaptainVoyagesResponse>>(NetworkResponse.Loading())
-    val loginState: StateFlow<NetworkResponse<CaptainVoyagesResponse>> = _loginState
+    private val _loginState = MutableStateFlow<NetworkResponse<CaptainCompletedVoyageResponse>>(NetworkResponse.Loading())
+    val loginState: StateFlow<NetworkResponse<CaptainCompletedVoyageResponse>> = _loginState
 
     fun voyages() {
         viewModelScope.launch {

@@ -38,7 +38,7 @@ class FollowBusinessRepository(private val httpClient: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(profile)
             }
-            if (response.status == HttpStatusCode.Created) {
+            if (response.status == HttpStatusCode.OK) {
                 val result: VoyagerFollowBusinessResponse = response.body()
                 Result.success(result)
             } else {

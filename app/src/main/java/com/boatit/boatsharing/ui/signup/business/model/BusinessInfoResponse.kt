@@ -40,5 +40,6 @@ data class BusinessInfoData(
     val LogoPath: String?,
     val UserId: String?,
     val ChangedOn: String?,
-    val ChangedBy: String?
+    val ChangedBy: String?,
+    val ImagesPath: List<String>?,
 )

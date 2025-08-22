@@ -54,12 +54,14 @@ import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CAPTAIN_FEEDBACK_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
+import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.model.CaptainFeedbackRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageCompleteRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
 import com.boatit.boatsharing.ui.captain.dashbaord.view.CaptainVoyageDetails
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainFeedbackViewModel
 import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CompleteVoyageViewModel
+import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -69,7 +71,7 @@ import org.koin.androidx.compose.koinViewModel
 fun StartedRequestTab(navController: NavController,
                       notification : List<VoyageData>,
                       viewModel: CompleteVoyageViewModel = koinViewModel(),
-                      ) {
+) {
 
     val startState by viewModel.loginState.collectAsState()
     val context = LocalContext.current
@@ -83,6 +85,8 @@ fun StartedRequestTab(navController: NavController,
     )
     var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
     var voyageid by rememberSaveable { mutableStateOf(0) }
+
+    var showDialogForComplete by remember { mutableStateOf(false) }
 
     when (startState) {
         is NetworkResponse.Success -> {
@@ -173,7 +177,7 @@ fun StartedRequestTab(navController: NavController,
                                     color = Color.Black,
                                     fontSize = 14.sp,
 
-                                ),
+                                    ),
                                 text = "Voyagees Details"
                             )
                             Spacer(Modifier.height(10.dp))
@@ -237,7 +241,7 @@ fun StartedRequestTab(navController: NavController,
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
 
-                                                    ),
+                                                        ),
                                                     text = notification.get(voyage).AmountToPay.toString()
                                                 )
                                             }
@@ -262,7 +266,8 @@ fun StartedRequestTab(navController: NavController,
                                                         color = Color.Black,
                                                         fontSize = 12.sp,
                                                     ),
-                                                    text = notification.get(voyage).Duration
+                                                    text = notification.get(voyage).Duration.takeIf { it.isNotBlank() }
+                                                        ?: "---"
                                                 )
                                             }
                                         }
@@ -354,6 +359,10 @@ fun StartedRequestTab(navController: NavController,
                                 }
                             }
 
+
+
+
+
                         }
 
                     }
@@ -372,12 +381,8 @@ fun StartedRequestTab(navController: NavController,
 
                         Button(
                             onClick = {
-                                isLoading = true
-                                isNetworkError = true
-                                voyageid = voyage
-                                viewModel.startvoyage(
-                                    VoyageCompleteRequest(notification.get(voyage).Id),
-                                )
+                                showDialogForComplete = true
+
 
                             },
                             shape = RoundedCornerShape(10.dp),
@@ -395,6 +400,28 @@ fun StartedRequestTab(navController: NavController,
                                 color = Color.White
                             )
                         }
+                    }
+
+
+                    if(showDialogForComplete){
+
+                        SessionDialog(
+                            text = "Are you sure, you want to Complete voyage",
+                            onCancel = {
+                                showDialogForComplete = false
+                            },
+                            onPressOk = {
+                                showDialogForComplete = false
+                                isLoading = true
+                                isNetworkError = true
+                                voyageid = voyage
+                                viewModel.startvoyage(
+                                    VoyageCompleteRequest(notification.get(voyage).Id),
+                                )
+
+                            },
+                            showCancelButton = true
+                        )
                     }
                 }
             }

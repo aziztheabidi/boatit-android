@@ -11,6 +11,7 @@ import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.SETTINGS_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.VOYAGER_FEEDBACK_SCREEN
 import com.boatit.boatsharing.ui.business.view.BusinessDashboard
@@ -35,6 +36,7 @@ import com.boatit.boatsharing.ui.menu.MenuOptions
 import com.boatit.boatsharing.ui.onboardingscreens.BusinessOnboarding
 import com.boatit.boatsharing.ui.onboardingscreens.CaptainOnboarding
 import com.boatit.boatsharing.ui.onboardingscreens.VoyagerOnboarding
+import com.boatit.boatsharing.ui.settings.SettingsScreen
 import com.boatit.boatsharing.ui.signup.business.AddBusinessDescriptions
 import com.boatit.boatsharing.ui.signup.business.AddBusinessLogo
 import com.boatit.boatsharing.ui.signup.business.AddGeneralBusinessInfo
@@ -64,6 +66,8 @@ import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponsorScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.TravelNow
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.VoyagerVoyages
 import com.boatit.boatsharing.uihelpers.MapPickerScreen
+import com.boatit.boatsharing.uihelpers.OnboardingPager
+import com.google.accompanist.pager.ExperimentalPagerApi
 
 
 object NavigationManager {
@@ -116,9 +120,14 @@ object NavigationManager {
     const val BUSINESS_DESC_SCREEN = "BusinessDescScreen"
     const val BUSINESS_DETAIL_SCREEN = "BusinessDetailScreen"
     const val TRAVER_NOW_SCREEN = "TravelScreen"
+    const val SETTINGS_SCREEN = "settingsScreen"
+    const val ONBOARDING_SWIPE = "onboardingSwipeScreens"
+
+
 
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AppNavGraph(navController: NavHostController ) {
 
@@ -144,12 +153,22 @@ fun AppNavGraph(navController: NavHostController ) {
            TravelNow(navController)
        }
 
-       //  onboarding screens
+           composable("$SETTINGS_SCREEN/{value}") { backStackEntry ->
+               val comingFrom = backStackEntry.arguments?.getString("value")
+               SettingsScreen(navController, comingFrom)
+           }
+
+           //  onboarding screens
         composable(NavigationManager.VOYAGER_ONBOARDING_SCREEN) {
-            VoyagerOnboarding(navController)
+            VoyagerOnboarding(
+                navController,
+                pagerState = null,
+                scope = null
+            )
         }
         composable(NavigationManager.CAPTAIN_ONBOARDING_SCREEN) {
-            CaptainOnboarding(navController)
+            CaptainOnboarding(navController,pagerState = null,
+                scope = null)
         }
 
          composable(NavigationManager.BUSINESS_ONBOARDING_SCREEN) {
@@ -339,7 +358,11 @@ fun AppNavGraph(navController: NavHostController ) {
                MapPickerScreen(navController)
            }
 
-    }
+           composable(NavigationManager.ONBOARDING_SWIPE) {
+               OnboardingPager(navController)
+           }
+
+       }
 }
 
 

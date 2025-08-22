@@ -21,6 +21,12 @@ data class BusinessRequest(
 )
 
 @Serializable
+data class DeleteRequest(
+    val userId: String,
+    val path: String,
+)
+
+@Serializable
 data class BusinessHour(
     val Day: String,
     val StartTime: String,

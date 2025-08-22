@@ -53,12 +53,12 @@ class VoyagersListViewModel(private val repository: VoyagersRepository) : ViewMo
             followed.value
         } else {
             followed.value.filter {
-                it.FirstName.contains(searchQuery, ignoreCase = true) ||
-                        it.LastName.contains(searchQuery, ignoreCase = true)
+                it.FirstName.contains(searchQuery, ignoreCase = true)
             }
         }
 
-    fun updateSearchQuery(query: String) { searchQuery = query }
+    fun updateSearchQuery(query: String)
+       { searchQuery = query }
 
     fun onBoatList(value: ActiveVoyagersResponse) { followed.value = value.obj.Followed
         allusers.value = value.obj.UnFollowed
