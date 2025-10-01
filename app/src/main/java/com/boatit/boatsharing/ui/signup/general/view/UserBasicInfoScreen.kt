@@ -43,7 +43,7 @@ import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
-import com.boatit.boatsharing.ui.voyager.dashbaord.repository.RegistrationViewModel
+import com.boatit.boatsharing.ui.voyager.dashboard.repository.RegistrationViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar

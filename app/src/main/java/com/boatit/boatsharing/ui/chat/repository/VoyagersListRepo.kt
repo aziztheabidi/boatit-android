@@ -1,12 +1,12 @@
 package com.boatit.boatsharing.ui.chat.repository
 
 import com.boatit.boatsharing.network.di.ApiConstants
-import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityRequest
-import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartResponse
+import com.boatit.boatsharing.ui.captain.availabilitystatus.model.CaptainAvailabilityRequest
+import com.boatit.boatsharing.ui.captain.availabilitystatus.model.CaptainAvailabilityResponse
+import com.boatit.boatsharing.ui.captain.dashboard.model.AcceptVoyageRequest
+import com.boatit.boatsharing.ui.captain.dashboard.model.AcceptVoyageResponse
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageStartRequest
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageStartResponse
 import com.boatit.boatsharing.ui.captain.voyages.model.CaptainVoyages
 import com.boatit.boatsharing.ui.captain.voyages.model.CaptainVoyagesResponse
 import com.boatit.boatsharing.ui.chat.model.ActiveVoyagersResponse

@@ -1,0 +1,44 @@
+package com.boatit.boatsharing.ui.voyager.dashboard.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import android.util.Log
+import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.ui.voyager.dashboard.model.ConfirmBookedVoyageResponse
+import com.boatit.boatsharing.ui.voyager.dashboard.model.ConfirmBookedVoyages
+import com.boatit.boatsharing.ui.voyager.dashboard.model.FindBoatRequest
+import com.boatit.boatsharing.ui.voyager.dashboard.model.FindBoatResponse
+import com.boatit.boatsharing.ui.voyager.dashboard.model.Place
+import com.boatit.boatsharing.ui.voyager.dashboard.repository.ConfirmBookedVoyageRepository
+import com.boatit.boatsharing.ui.voyager.dashboard.repository.FetchNearByVoyagesRepo
+import com.boatit.boatsharing.ui.voyager.dashboard.repository.FindBoatRepo
+import com.boatit.boatsharing.utils.AppConstants
+
+class ConfirmBookedVoyageViewModel(
+    private val repository: ConfirmBookedVoyageRepository
+) : ViewModel() {
+
+    private val _nearbyPlaces = MutableStateFlow<NetworkResponse<ConfirmBookedVoyageResponse>>(NetworkResponse.Loading())
+    val nearbyPlaces: StateFlow<NetworkResponse<ConfirmBookedVoyageResponse>> = _nearbyPlaces.asStateFlow()
+
+    fun fetchNearbyPlaces(profile: ConfirmBookedVoyages) = viewModelScope.launch {
+        _nearbyPlaces.value = NetworkResponse.Loading()
+        val result = repository.findboat(profile)
+        result.onSuccess { placesResponse ->
+            _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
+        }.onFailure { exception ->
+            Log.e("viewModel", "Error fetching places: ${exception.localizedMessage}", exception)
+            _nearbyPlaces.value = NetworkResponse.Error("An error occurred: ${exception.localizedMessage}")
+        }
+    }
+
+    fun resetNearbyPlaces() {
+        _nearbyPlaces.value = NetworkResponse.Loading()
+    }
+}
+
+

@@ -67,24 +67,24 @@ fun AddCaptainBoatInfoScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
     val fetchState by viewModelfetch.registrationState.collectAsState()
     val registrationState by viewModel.registrationState.collectAsState()
 
     when (fetchState) {
         is NetworkResponse.Success -> {
-            if(getingData) {
+            if(gettingData) {
                 viewModel.loadInitialData(fetchState.data)
-                getingData = false
+                gettingData = false
             }
         }
         is NetworkResponse.Error -> {
-            getingData = false
+            gettingData = false
         }
         else -> {}
     }
 
-    LaunchedEffect(getingData) {
+    LaunchedEffect(gettingData) {
         viewModelfetch.GetCaptainBoat()
     }
 

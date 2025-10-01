@@ -55,10 +55,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.view.CaptainVoyageDetails
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.StartVoyageViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageStartRequest
+import com.boatit.boatsharing.ui.captain.dashboard.view.CaptainVoyageDetails
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainActiveVoyagesViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.StartVoyageViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 

@@ -92,7 +92,7 @@ fun AddBusinessLogo(navController: NavController,
     val isValidate = selectedImageUri!= null
     val context = LocalContext.current
     var businesslogo by remember { mutableStateOf("") }
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
     val fetchState by viewModelfetch.registrationState.collectAsState()
 
 
@@ -132,17 +132,17 @@ fun AddBusinessLogo(navController: NavController,
     }
 
     LaunchedEffect(fetchState) {
-        if (fetchState is NetworkResponse.Success && getingData) {
+        if (fetchState is NetworkResponse.Success && gettingData) {
             businesslogo = fetchState.data?.obj?.LogoPath!!
             viewModel.imageList = fetchState.data?.obj?.ImagesPath
                 ?.map { it.toUri() }
                 ?: emptyList()
-            getingData = false
+            gettingData = false
         }
     }
 
-    LaunchedEffect(getingData) {
-        if (getingData) viewModelfetch.GetBusinessProfile()
+    LaunchedEffect(gettingData) {
+        if (gettingData) viewModelfetch.GetBusinessProfile()
     }
 
     when (registrationState) {
@@ -174,7 +174,7 @@ fun AddBusinessLogo(navController: NavController,
             })
         },
         content = { innerPadding ->
-            if (isLoading || getingData) {
+            if (isLoading || gettingData) {
                 Dialog(
                     onDismissRequest = {},
                     properties = DialogProperties(

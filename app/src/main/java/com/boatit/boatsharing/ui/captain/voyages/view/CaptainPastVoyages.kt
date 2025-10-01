@@ -40,11 +40,11 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CAPTAIN_FEEDBACK_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.VOYAGER_FEEDBACK_SCREEN
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.CaptainCompletedVoyage
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.ConfirmBookedVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.PastVoyages
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageDetails
+import com.boatit.boatsharing.ui.voyager.dashboard.model.CancelBookedVoyages
+import com.boatit.boatsharing.ui.voyager.dashboard.model.CaptainCompletedVoyage
+import com.boatit.boatsharing.ui.voyager.dashboard.model.ConfirmBookedVoyages
+import com.boatit.boatsharing.ui.voyager.dashboard.model.PastVoyages
+import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageDetails
 
 
 @Composable

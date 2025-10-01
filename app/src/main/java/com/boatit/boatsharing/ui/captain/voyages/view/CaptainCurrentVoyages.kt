@@ -64,12 +64,12 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.AcceptRequestViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.model.AcceptVoyageRequest
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.AcceptRequestViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainActiveVoyagesViewModel
 import com.boatit.boatsharing.ui.captain.voyages.view.AcceptedRequestTab
 import com.boatit.boatsharing.ui.captain.voyages.view.StartedRequestTab
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
+import com.boatit.boatsharing.ui.voyager.dashboard.model.CancelBookedVoyages
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants

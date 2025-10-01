@@ -79,7 +79,7 @@ fun AddBusinessDescriptions(navController: NavController,
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
     val fetchState by viewModelfetch.registrationState.collectAsState()
     val isValidate = businessDescription.isNotEmpty()&&selectedOption.isNotEmpty()
 
@@ -115,7 +115,7 @@ fun AddBusinessDescriptions(navController: NavController,
     }
 
     LaunchedEffect(fetchState) {
-        if (fetchState is NetworkResponse.Success && getingData) {
+        if (fetchState is NetworkResponse.Success && gettingData) {
             businessDescription = fetchState.data?.obj?.Description!!
             selectedOptionBolean = fetchState.data?.obj?.IsDock!!
             if(selectedOptionBolean){
@@ -123,12 +123,12 @@ fun AddBusinessDescriptions(navController: NavController,
             }   else{
                 selectedOption = "No"
             }
-            getingData = false
+            gettingData = false
         }
     }
 
-    LaunchedEffect(getingData) {
-        if (getingData) viewModelfetch.GetBusinessProfile()
+    LaunchedEffect(gettingData) {
+        if (gettingData) viewModelfetch.GetBusinessProfile()
     }
 
     Scaffold(
@@ -140,7 +140,7 @@ fun AddBusinessDescriptions(navController: NavController,
             })
         },
         content = { innerPadding ->
-            if (isLoading || getingData) {
+            if (isLoading || gettingData) {
                 Dialog(
                     onDismissRequest = {},
                     properties = DialogProperties(

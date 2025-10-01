@@ -9,7 +9,7 @@ import com.boatit.boatsharing.ui.signup.general.model.VoyagerProfileRequest
 import com.boatit.boatsharing.ui.signup.general.model.VoyagerProfileResponse
 import com.boatit.boatsharing.ui.signup.general.viewmodel.GetVoyagerProfileRepository
 import com.boatit.boatsharing.ui.signup.general.viewmodel.VoyagerProfileRepository
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.RegistrationRepository
+import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.RegistrationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

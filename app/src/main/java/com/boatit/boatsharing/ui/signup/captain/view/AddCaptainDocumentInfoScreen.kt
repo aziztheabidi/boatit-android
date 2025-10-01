@@ -64,7 +64,7 @@ fun AddCaptainDocumentInfoScreen(
     val focusManager = LocalFocusManager.current
     val registrationState by viewModel.registrationState.collectAsState()
     val fetchState by viewModelfetch.registrationState.collectAsState()
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val handleError = {
@@ -88,14 +88,14 @@ fun AddCaptainDocumentInfoScreen(
         }
     }
 
-    LaunchedEffect(getingData) {
-        if (getingData) viewModelfetch.GetDocs()
+    LaunchedEffect(gettingData) {
+        if (gettingData) viewModelfetch.GetDocs()
     }
 
     LaunchedEffect(fetchState) {
-        if (fetchState is NetworkResponse.Success && getingData) {
+        if (fetchState is NetworkResponse.Success && gettingData) {
             viewModel.loadInitialData(fetchState.data)
-            getingData = false
+            gettingData = false
         }
     }
 

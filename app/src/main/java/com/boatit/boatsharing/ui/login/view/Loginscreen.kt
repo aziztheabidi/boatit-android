@@ -59,7 +59,7 @@ import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
 import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.ui.userroles.viewmodel.FCMTokenViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.repository.RegistrationViewModel
+import com.boatit.boatsharing.ui.voyager.dashboard.repository.RegistrationViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomClickableSmallTextview
 import com.boatit.boatsharing.uihelpers.CustomClickableTextView

@@ -1,9 +1,9 @@
 package com.boatit.boatsharing.utils
 
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.BusinessData
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.Place
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageCategory
+import com.boatit.boatsharing.ui.voyager.dashboard.model.BusinessData
+import com.boatit.boatsharing.ui.voyager.dashboard.model.Place
+import com.boatit.boatsharing.ui.voyager.dashboard.model.Sponser
+import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageCategory
 
 object AppConstants {
     var IMG_PATH: String? = "https://testbyfarhan.squarecod.com/"
@@ -16,7 +16,7 @@ object AppConstants {
     var Business: BusinessData? = null
     var Business_Status: Boolean? = false
     var BusinessDock:Boolean? = false
-    var BusinessDockTYpe:String? = "Pick"
+    var BusinessDockType:String? = "Pick"
     var PLACES: List<Place> = emptyList()
     var BPLACES: List<Place> = emptyList()
     var sponsorList = arrayListOf<Sponser>()
@@ -50,7 +50,7 @@ object AppConstants {
         Cates = emptyList()
         Business = null
         BusinessDock = false
-        BusinessDockTYpe = "Pick"
+        BusinessDockType = "Pick"
         PLACES = emptyList()
         BPLACES = emptyList()
         sponsorList = arrayListOf()

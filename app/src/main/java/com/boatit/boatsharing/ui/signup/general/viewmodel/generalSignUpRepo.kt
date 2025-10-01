@@ -1,11 +1,11 @@
-package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
+package com.boatit.boatsharing.ui.voyager.dashboard.viewmodel
 
 
 import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationRequest
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.BookVoyageResponse
+import com.boatit.boatsharing.ui.voyager.dashboard.model.BookVoyageResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post

@@ -112,7 +112,7 @@ fun UserAccountInfoScreen(navController: NavController,
 
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
 
 
@@ -161,24 +161,24 @@ fun UserAccountInfoScreen(navController: NavController,
 
     when (fetchState) {
         is NetworkResponse.Success -> {
-            if(getingData) {
+            if(gettingData) {
                 phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
                 firstName = fetchState.data?.obj?.FirstName.toString()
                 lastName = fetchState.data?.obj?.LastName.toString()
                 address = fetchState.data?.obj?.Address.toString()
                 dob = fetchState.data?.obj?.DateOfBirth.toString()
                 paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
-                getingData = false
+                gettingData = false
             }
         }
         is NetworkResponse.Error -> {
             Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
-            getingData = false
+            gettingData = false
         }
         else -> {}
     }
 
-    LaunchedEffect(getingData) {
+    LaunchedEffect(gettingData) {
         viewModelfeth.GetVoyagerProfile()
     }
 
@@ -204,7 +204,7 @@ fun UserAccountInfoScreen(navController: NavController,
 
         },
         content = { innerPadding ->
-            if (getingData) {
+            if (gettingData) {
                 Dialog(
                     onDismissRequest = {},
                     DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)

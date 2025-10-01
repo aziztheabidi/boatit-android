@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.ui.voyager.dashbaord.repository
+package com.boatit.boatsharing.ui.voyager.dashboard.repository
 
 import android.content.Context
 import android.util.Log
@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.RegistrationRepository
+import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.RegistrationRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -101,8 +101,8 @@ import com.boatit.boatsharing.ui.business.model.DeleteRequest
 import com.boatit.boatsharing.ui.business.model.DockDropdownItem
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.view.AcceptVoyagerRequest
+import com.boatit.boatsharing.ui.captain.dashboard.model.AcceptVoyageRequest
+import com.boatit.boatsharing.ui.captain.dashboard.view.AcceptVoyagerRequest
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
@@ -127,7 +127,7 @@ fun BusinessDashboard(navController: NavController,
     )
     val galleryState by viewModelGallery.registrationState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    var BDetail by remember { mutableStateOf<BusinessData?>(null) }
+    var businessDetail by remember { mutableStateOf<BusinessData?>(null) }
     var shores by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
     var zones by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
     var island by remember { mutableStateOf<List<DockDropdownItem>?>(null) }
@@ -147,11 +147,11 @@ fun BusinessDashboard(navController: NavController,
     val fetchDocksState by viewModel.docksState.collectAsState()
     val logoutEvent by viewModel.logoutEvent.collectAsState()
     var expanded by remember { mutableStateOf(false) }
-    var expandeds by remember { mutableStateOf(false) }
-    var expandedi by remember { mutableStateOf(false) }
+    var isShoreExpanded by remember { mutableStateOf(false) }
+    var isIslandExpanded by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
-    val editableList = remember(BDetail?.BusinessHours) {
-        BDetail?.BusinessHours?.distinctBy { it.Day }?.map { it.copy() }?.toMutableStateList() ?: mutableStateListOf()
+    val editableList = remember(businessDetail?.BusinessHours) {
+        businessDetail?.BusinessHours?.distinctBy { it.Day }?.map { it.copy() }?.toMutableStateList() ?: mutableStateListOf()
     }
 
     when (registrationState) {
@@ -178,11 +178,11 @@ fun BusinessDashboard(navController: NavController,
 
     when (fetchState) {
         is NetworkResponse.Success -> {
-            BDetail = fetchState.data?.obj
-            zone.value = Pair(BDetail?.ZoneId!!, BDetail?.ZoneName!!)
-            shore.value = Pair(BDetail?.ShoreId!!, BDetail?.ShoreName!!)
-            islnd.value = Pair(BDetail?.IslandId!!, BDetail?.IslandName!!)
-            AppConstants.Busines_DOCK = BDetail?.IsDock!!
+            businessDetail = fetchState.data?.obj
+            zone.value = Pair(businessDetail?.ZoneId!!, businessDetail?.ZoneName!!)
+            shore.value = Pair(businessDetail?.ShoreId!!, businessDetail?.ShoreName!!)
+            islnd.value = Pair(businessDetail?.IslandId!!, businessDetail?.IslandName!!)
+            AppConstants.Busines_DOCK = businessDetail?.IsDock!!
             isLoading = false
             viewModel.resetNearbyPlaces()
         }
@@ -325,7 +325,7 @@ fun BusinessDashboard(navController: NavController,
                                     .height(110.dp)
                             ) {
                                 AsyncImage(
-                                    model = AppConstants.IMG_PATH + BDetail?.LogoPath,
+                                    model = AppConstants.IMG_PATH + businessDetail?.LogoPath,
                                     contentDescription = "Grid Image",
                                     modifier = Modifier
                                         .height(110.dp)
@@ -343,7 +343,7 @@ fun BusinessDashboard(navController: NavController,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = BDetail?.Name!!
+                                text = businessDetail?.Name!!
                             )
 
                             Spacer(Modifier.height(10.dp))
@@ -354,7 +354,7 @@ fun BusinessDashboard(navController: NavController,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = BDetail?.BusinessType!!
+                                text = businessDetail?.BusinessType!!
                             )
 
                             Spacer(Modifier.height(20.dp))
@@ -373,7 +373,7 @@ fun BusinessDashboard(navController: NavController,
                                 colors = ButtonDefaults.buttonColors(containerColor = White)
                             ) {
                                 Text(
-                                    text = "Established In : " + BDetail?.YearOfEstablishment,
+                                    text = "Established In : " + businessDetail?.YearOfEstablishment,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = colorResource(id = R.color.black) // Text color matches border
@@ -390,7 +390,7 @@ fun BusinessDashboard(navController: NavController,
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                text = BDetail?.Description!!,
+                                text = businessDetail?.Description!!,
                             )
                         }
 
@@ -410,7 +410,7 @@ fun BusinessDashboard(navController: NavController,
 
                         val imageList = remember {
                             mutableStateListOf<String>().apply {
-                                BDetail?.ImagesPath?.let { addAll(it) }
+                                businessDetail?.ImagesPath?.let { addAll(it) }
                             }
                         }
 
@@ -450,7 +450,7 @@ fun BusinessDashboard(navController: NavController,
 
                         EditableLocationSection(
                             navController,
-                            location = BDetail?.Location ?: ""
+                            location = businessDetail?.Location ?: ""
                         )
 
                         Spacer(Modifier.height(20.dp))
@@ -529,7 +529,7 @@ fun BusinessDashboard(navController: NavController,
 
                         Spacer(Modifier.height(10.dp))
 
-                        Box( modifier = Modifier.clickable { expandeds = true }){
+                        Box( modifier = Modifier.clickable { isShoreExpanded = true }){
                             CustomDobField(
                                 textValue = shore.value?.second!!,
                                 placeholderText = stringResource(R.string.shores),
@@ -552,8 +552,8 @@ fun BusinessDashboard(navController: NavController,
                             )
 
                             DropdownMenu(
-                                expanded = expandeds,
-                                onDismissRequest = { expandeds = false },
+                                expanded = isShoreExpanded,
+                                onDismissRequest = { isShoreExpanded = false },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
@@ -565,7 +565,7 @@ fun BusinessDashboard(navController: NavController,
                                 shores?.forEach { category ->
                                     DropdownMenuItem(
                                         onClick = {
-                                            expandeds = false
+                                            isShoreExpanded = false
                                            shore.value = Pair(category.Id, category.Name)
                                         },
                                         text = {
@@ -667,7 +667,7 @@ fun BusinessDashboard(navController: NavController,
 
                         Spacer(Modifier.height(10.dp))
 
-                        Box( modifier = Modifier.clickable { expandedi = true }){
+                        Box( modifier = Modifier.clickable { isIslandExpanded = true }){
                             CustomDobField(
                                 textValue = islnd.value?.second!!,
                                 placeholderText = stringResource(R.string.island),
@@ -690,8 +690,8 @@ fun BusinessDashboard(navController: NavController,
                             )
 
                             DropdownMenu(
-                                expanded = expandedi,
-                                onDismissRequest = { expandedi = false },
+                                expanded = isIslandExpanded,
+                                onDismissRequest = { isIslandExpanded = false },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
@@ -703,7 +703,7 @@ fun BusinessDashboard(navController: NavController,
                                 island?.forEach { category ->
                                     DropdownMenuItem(
                                         onClick = {
-                                            expandedi = false
+                                            isIslandExpanded = false
                                             islnd.value = Pair(category.Id, category.Name)
                                         },
                                         text = {
@@ -725,7 +725,7 @@ fun BusinessDashboard(navController: NavController,
 
                         Spacer(Modifier.height(10.dp))
 
-                        AddDockSection(navController,BDetail?.IsDock!!,BDetail?.Name!!, BDetail?.Address!!, BDetail?.Description!!)
+                        AddDockSection(navController,businessDetail?.IsDock!!,businessDetail?.Name!!, businessDetail?.Address!!, businessDetail?.Description!!)
 
                         Spacer(modifier = Modifier.height(40.dp))
                         CustomButton(
@@ -736,9 +736,9 @@ fun BusinessDashboard(navController: NavController,
                                 viewModelUpdate.saveBusinessProfile( profile =
                                     BusinessRequest(
                                         AppConstants.Busines_Location!!,
-                                        BusinessHours = BDetail?.BusinessHours!!,
+                                        BusinessHours = businessDetail?.BusinessHours!!,
                                         IsDock = AppConstants.Busines_DOCK!!,
-                                        Name = BDetail?.Name!!,
+                                        Name = businessDetail?.Name!!,
                                         ZoneId = zone.value?.first!!,
                                         ShoreId = shore.value?.first!!,
                                         IslandId = islnd.value?.first!!,
@@ -746,7 +746,7 @@ fun BusinessDashboard(navController: NavController,
                                         City = AppConstants.Busines_City!!,
                                         ZipCode = AppConstants.Busines_Zip!!,
                                         ShoreLine = shore.value?.second!!,
-                                        Address = BDetail?.Address!!,
+                                        Address = businessDetail?.Address!!,
                                         Latitude = AppConstants.Busines_Lat!!,
                                         Longitude = AppConstants.Busines_Lont!!,
                                     ),
