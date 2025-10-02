@@ -10,6 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
+import java.util.Base64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -92,9 +93,11 @@ class TokenRefreshService(
             }
 
             // LLR-2.1.2: Token Expiry Detection Implementation
-            // TODO: Implement JWT token expiry parsing
-            // For now, we'll assume tokens are valid if format is correct
-            val isNotExpired = isValidFormat // Placeholder for JWT expiry check
+            val isNotExpired = if (isValidFormat) {
+                isTokenNotExpired(token)
+            } else {
+                false
+            }
 
             Log.i(
                 "TokenRefreshService",
@@ -348,5 +351,65 @@ class TokenRefreshService(
      */
     fun getRefreshAttempts(): Int {
         return _refreshAttempts.value
+    }
+    
+    /**
+     * LLR-2.1.2: Token Expiry Detection Implementation
+     * 
+     * Parses JWT token to check if it's expired
+     */
+    private fun isTokenNotExpired(token: String): Boolean {
+        return try {
+            Log.d("TokenRefreshService", "Parsing JWT token for expiry")
+            
+            // JWT tokens have 3 parts separated by dots: header.payload.signature
+            val parts = token.split(".")
+            if (parts.size != 3) {
+                Log.w("TokenRefreshService", "Invalid JWT format: expected 3 parts, got ${parts.size}")
+                return false
+            }
+            
+            // Decode the payload (second part)
+            val payload = parts[1]
+            val decodedPayload = try {
+                // Add padding if needed for Base64 decoding
+                val paddedPayload = payload + "=".repeat((4 - payload.length % 4) % 4)
+                String(Base64.getDecoder().decode(paddedPayload))
+            } catch (e: Exception) {
+                Log.w("TokenRefreshService", "Failed to decode JWT payload: ${e.message}")
+                return false
+            }
+            
+            // Parse the payload JSON to get the expiry time
+            val json = Json { ignoreUnknownKeys = true }
+            val payloadData = json.decodeFromString<Map<String, Any>>(decodedPayload)
+            
+            // Get the 'exp' (expiry) claim
+            val exp = payloadData["exp"]
+            if (exp == null) {
+                Log.w("TokenRefreshService", "JWT token missing 'exp' claim")
+                return false
+            }
+            
+            // Convert to timestamp and check if expired
+            val expiryTime = when (exp) {
+                is Number -> exp.toLong()
+                is String -> exp.toLongOrNull() ?: 0L
+                else -> {
+                    Log.w("TokenRefreshService", "Invalid 'exp' claim type: ${exp::class.simpleName}")
+                    return false
+                }
+            }
+            
+            val currentTime = System.currentTimeMillis() / 1000 // Convert to seconds
+            val isNotExpired = expiryTime > currentTime
+            
+            Log.i("TokenRefreshService", "JWT expiry check: current=$currentTime, expiry=$expiryTime, valid=$isNotExpired")
+            isNotExpired
+            
+        } catch (e: Exception) {
+            Log.e("TokenRefreshService", "JWT expiry parsing failed: ${e.message}")
+            false
+        }
     }
 }

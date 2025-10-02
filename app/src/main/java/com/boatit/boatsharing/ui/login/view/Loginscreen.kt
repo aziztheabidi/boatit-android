@@ -101,19 +101,19 @@ fun LoginScreen(
                 viewModelFcm.fcm(AppConstants.USER_ID.toString(), token)
             }
         }
-        when (response?.obj?.Role) {
+        when (response?.obj?.role) {
             "Voyager" -> {
-                if(response?.obj?.MissingStep == 0){
+                if(response?.obj?.missingStep == 0){
                     navController.navigate("$DASHBOARD_SCREEN/null") }
                 else{navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole") }
             }
             "Business" -> {
-                if(response?.obj?.MissingStep == 0) {
+                if(response?.obj?.missingStep == 0) {
                     navController.navigate(NavigationManager.BUSINESS_SCREEN) }
                 else{navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN) }
             }
             "Captain" -> {
-                if(response?.obj?.MissingStep == 0) {
+                if(response?.obj?.missingStep == 0) {
                     navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
                 }else{
                     navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)

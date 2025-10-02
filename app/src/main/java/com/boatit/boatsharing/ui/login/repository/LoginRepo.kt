@@ -25,7 +25,7 @@ class LoginRepository(private val client: HttpClient) {
                 Result.success(result)
             } else {
                 val result = response.body<LoginResponse>()
-                Result.failure(Exception(result.Message))
+                Result.failure(Exception(result.message))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Error registering: ${e.localizedMessage}", e))

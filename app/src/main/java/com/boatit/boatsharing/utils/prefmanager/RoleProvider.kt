@@ -8,13 +8,11 @@ class RoleProvider(context: Context) {
     private val sharedPrefManager = SharedPrefManager(context)
 
     fun getRole(): String? {
-        return sharedPrefManager.getUserData()?.Role
+        return sharedPrefManager.getUserData()?.role
     }
 
     fun saveRole(role: String) {
-        val userData = sharedPrefManager.getUserData()?.apply {
-            Role = role
-        }
+        val userData = sharedPrefManager.getUserData()?.copy(role = role)
         if (userData != null) {
             sharedPrefManager.saveLoginData(userData)
         }

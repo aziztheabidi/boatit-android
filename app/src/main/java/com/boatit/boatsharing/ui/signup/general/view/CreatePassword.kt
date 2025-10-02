@@ -83,7 +83,7 @@ fun CreatePassword(
         when (registrationState) {
             is NetworkResponse.Success -> {
                 Toast
-                    .makeText(context, registrationState.data?.Message ?: "Success", Toast.LENGTH_SHORT)
+                    .makeText(context, registrationState.data?.message ?: "Success", Toast.LENGTH_SHORT)
                     .show()
                 viewModel.resetState()
                 navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)

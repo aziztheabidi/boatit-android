@@ -154,7 +154,7 @@ val Modules = module {
 
     // Session Management
     single { TokenRefreshService(get(), get()) }
-    single { SessionManager(get(), get()) }
+    single { SessionManager(get(), get(), get()) }
 
     single { createKtorClient(get(), get()) }
 

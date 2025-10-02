@@ -36,7 +36,7 @@ class CalculateFairRepository(private val httpClient: HttpClient) {
                 val bodyString = response.body() ?: ""
                 val apiError = Gson().fromJson(bodyString, ApiError::class.java)
 
-                Result.failure(Exception(apiError.Message))
+                Result.failure(Exception(apiError.message))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))

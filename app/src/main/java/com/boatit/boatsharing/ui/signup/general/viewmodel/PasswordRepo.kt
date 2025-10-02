@@ -32,7 +32,7 @@ class PasswordRepository(private val httpClient: HttpClient) {
                 Result.success(registrationResponse)
             } else {
                 val registrationResponse: LoginResponse = response.body()
-                Result.failure(Exception("Registration failed:${registrationResponse.Message}"))
+                Result.failure(Exception("Registration failed:${registrationResponse.message}"))
             }
         } catch (e: Exception) {
             println("Parsing Error: ${e.message}")

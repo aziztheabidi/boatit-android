@@ -22,16 +22,16 @@ class SharedPrefManager(context: Context) {
     }
 
     fun saveLoginData(userData: UserData) {
-        AppConstants.USER_ID = userData.UserId
-        AppConstants.USER_NAME = userData.Username
+        AppConstants.USER_ID = userData.userId
+        AppConstants.USER_NAME = userData.username
         sharedPreferences.edit().apply {
-            putString(KEY_EMAIL, userData.Email)
-            putString(KEY_USER_ID, userData.UserId)
-            putString(KEY_USERNAME, userData.Username)
-            putString(KEY_USERROLE, userData.Role)
-            putInt(KEY_STEP, userData.MissingStep)
-            putString(KEY_ACCESS_TOKEN, userData.Accesstoken)
-            putString(KEY_REFRESH_TOKEN, userData.Refreshtoken)
+            putString(KEY_EMAIL, userData.email)
+            putString(KEY_USER_ID, userData.userId)
+            putString(KEY_USERNAME, userData.username)
+            putString(KEY_USERROLE, userData.role)
+            putInt(KEY_STEP, userData.missingStep)
+            putString(KEY_ACCESS_TOKEN, userData.accessToken)
+            putString(KEY_REFRESH_TOKEN, userData.refreshToken)
             apply()
         }
     }
@@ -57,14 +57,14 @@ class SharedPrefManager(context: Context) {
         val refreshToken = sharedPreferences.getString(KEY_REFRESH_TOKEN, null) ?: return null
 
         return UserData(
-            Email = email,
-            Password = "",
-            UserId = userId,
-            Username = username,
-            Role = userrole,
-            MissingStep = step,
-            Accesstoken = accessToken,
-            Refreshtoken = refreshToken
+            email = email,
+            password = "",
+            userId = userId,
+            username = username,
+            role = userrole,
+            missingStep = step,
+            accessToken = accessToken,
+            refreshToken = refreshToken
         )
     }
 

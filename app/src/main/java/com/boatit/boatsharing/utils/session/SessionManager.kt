@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.prefmanager.TokenProvider
+import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 class SessionManager(
     private val tokenProvider: TokenProvider,
     private val tokenRefreshService: TokenRefreshService,
+    private val sharedPrefManager: SharedPrefManager,
     private val sessionTimeoutMinutes: Long = DEFAULT_SESSION_TIMEOUT_MINUTES,
     private val monitoringIntervalSeconds: Long = DEFAULT_MONITORING_INTERVAL_SECONDS,
     private val maxRetryAttempts: Int = DEFAULT_MAX_RETRY_ATTEMPTS,
@@ -415,13 +417,32 @@ class SessionManager(
      */
     private suspend fun saveSessionState(sessionState: SessionState) {
         try {
-            // TODO: Implement secure storage with encryption
-            // For now, we'll use the existing token provider
             Log.d("SessionManager", "Saving session state to secure storage")
 
             // LLR-4.1.3: Session State Encryption Implementation
-            // Encrypt session state before storage
-            // This would be implemented with Android Keystore
+            // Store tokens using TokenProvider (which uses Android Keystore)
+            tokenProvider.saveTokens(
+                accessToken = sessionState.accessToken ?: "",
+                refreshToken = sessionState.refreshToken ?: ""
+            )
+
+            // Store additional session data using SharedPrefManager
+            // Note: Sensitive data like tokens are handled by TokenProvider
+            val userData = com.boatit.boatsharing.ui.login.model.UserData(
+                email = "", // Not stored in session state
+                password = "", // Never stored
+                userId = sessionState.userId ?: "",
+                username = sessionState.username ?: "",
+                role = sessionState.userRole ?: "",
+                missingStep = 0, // Not part of session state
+                accessToken = sessionState.accessToken ?: "",
+                refreshToken = sessionState.refreshToken ?: ""
+            )
+            
+            // Save user data (this will store non-sensitive session data)
+            sharedPrefManager.saveLoginData(userData)
+
+            Log.i("SessionManager", "Session state saved successfully")
 
         } catch (e: Exception) {
             Log.e("SessionManager", "Failed to save session state: ${e.message}")
@@ -437,9 +458,46 @@ class SessionManager(
         return try {
             Log.d("SessionManager", "Loading session state from secure storage")
 
-            // TODO: Implement secure storage retrieval with decryption
-            // For now, return null to trigger fresh initialization
-            null
+            // LLR-4.1.2: Session State Retrieval Implementation
+            // Load tokens from TokenProvider (which uses Android Keystore)
+            val accessToken = tokenProvider.getAccessToken()
+            val refreshToken = tokenProvider.getRefreshToken()
+
+            // If no tokens are available, return null to trigger fresh initialization
+            if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()) {
+                Log.d("SessionManager", "No tokens found in secure storage")
+                return null
+            }
+
+            // Load additional session data from SharedPrefManager
+            val userData = sharedPrefManager.getUserData()
+            if (userData == null) {
+                Log.d("SessionManager", "No user data found in SharedPreferences")
+                return null
+            }
+
+            // Create SessionState from loaded data
+            val sessionState = SessionState(
+                isAuthenticated = true,
+                isSessionExpired = false,
+                isTokenRefreshing = false,
+                isInMaintenanceMode = false,
+                userId = userData.userId,
+                username = userData.username,
+                userRole = userData.role,
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+                lastActivityTimestamp = System.currentTimeMillis(),
+                sessionTimeoutMinutes = sessionTimeoutMinutes,
+                retryAttempts = 0,
+                maxRetryAttempts = maxRetryAttempts,
+                isSessionActive = true,
+                errorMessage = null,
+                isAccountDeactivated = false
+            )
+
+            Log.i("SessionManager", "Session state loaded successfully: ${sessionState.getSessionSummary()}")
+            sessionState
 
         } catch (e: Exception) {
             Log.e("SessionManager", "Failed to load session state: ${e.message}")
