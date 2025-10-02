@@ -1,11 +1,12 @@
 package com.boatit.boatsharing.network.di
 
+import com.boatit.boatsharing.network.interceptors.NetworkInterceptor
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.prefmanager.TokenProvider
 import com.boatit.boatsharing.utils.session.SessionManager
-import com.boatit.boatsharing.network.interceptors.NetworkInterceptor
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpClientPlugin
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -14,9 +15,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.HttpSend
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.HttpRequestPipeline
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.AttributeKey
 import kotlinx.serialization.json.Json
 
 /**
@@ -42,11 +46,19 @@ class NetworkInterceptorPlugin(private val sessionManager: SessionManager) {
             // Intercept requests using the standard Ktor pipeline
             scope.requestPipeline.intercept(HttpRequestPipeline.State) { request ->
                 try {
-                    val response = networkInterceptor.intercept(request as HttpRequestBuilder) { req ->
-                        proceedWith(req) as HttpResponse
+                    // Safe casting with type checking
+                    val requestBuilder = request as? HttpRequestBuilder
+                        ?: throw IllegalStateException("Expected HttpRequestBuilder at HttpRequestPipeline.State")
+                    
+                    val response = networkInterceptor.intercept(requestBuilder) { req ->
+                        val result = proceedWith(req)
+                        result as? HttpResponse
+                            ?: throw IllegalStateException("Expected HttpResponse from proceedWith")
                     }
                     proceedWith(response)
                 } catch (e: Exception) {
+                    // Log the error for debugging
+                    android.util.Log.e("NetworkInterceptorPlugin", "Pipeline interception failed: ${e.message}")
                     throw e
                 }
             }
