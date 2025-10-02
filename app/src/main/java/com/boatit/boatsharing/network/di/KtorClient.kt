@@ -15,11 +15,8 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import android.util.Log
 
 /**
@@ -91,15 +88,14 @@ fun createKtorClient(
  * - Logging: Request/response logging for debugging
  * 
  * Migration from NetworkInterceptor:
- * - ✅ Server Error Retry (5xx) - Native Ktor HttpRequestRetry
- * - ✅ Timeout Error Retry - Native Ktor HttpRequestRetry
- * - ✅ Client Error Handling (4xx) - Native Ktor Auth plugin
- * - ✅ Exception-based Retry - Native Ktor HttpRequestRetry
- * - ✅ Session Management - Native Ktor Auth plugin + SessionManager
- * - ✅ Token Refresh - Automatic via Auth plugin
- * - ✅ Logging - Native Ktor Logging plugin
- * - ✅ Timeout Configuration - Native Ktor HttpTimeout plugin
- * - ⚠️ Malformed Response Detection - Not implemented (non-critical)
+ * - Server Error Retry (5xx) - Native Ktor HttpRequestRetry
+ * - Timeout Error Retry - Native Ktor HttpRequestRetry
+ * - Client Error Handling (4xx) - Native Ktor Auth plugin
+ * - Exception-based Retry - Native Ktor HttpRequestRetry
+ * - Session Management - Native Ktor Auth plugin + SessionManager
+ * - Token Refresh - Automatic via Auth plugin
+ * - Logging - Native Ktor Logging plugin
+ * - Timeout Configuration - Native Ktor HttpTimeout plugin
  * 
  * @param tokenProvider TokenProvider for accessing stored tokens
  * @param sessionManager SessionManager for handling token refresh and session management
