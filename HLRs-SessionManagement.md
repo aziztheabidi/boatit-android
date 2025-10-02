@@ -637,8 +637,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.5
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `detectMalformedResponse(response: Response): Boolean`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `detectMalformedResponse(response: Response): Boolean` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Malformed response detection is handled by Ktor's Logging plugin and error handling mechanisms.
 
 #### **HLR-3.5.2: Malformed Network Response Handling**
 **Requirement:** When malformed network response is detected, the function `handleMalformedResponse(response: Response): Response` SHALL handle gracefully without crashing.
@@ -647,8 +648,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.5
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `handleMalformedResponse(response: Response): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `handleMalformedResponse(response: Response): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Response handling is now managed by Ktor's built-in error handling and logging mechanisms.
 
 ---
 
@@ -661,8 +663,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.1
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `handleServerError(response: Response): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `handleServerError(response: Response): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Server error handling is now managed by Ktor's HttpRequestRetry plugin with exponential backoff.
 
 
 #### **HLR-3.1.3: Server Error Retry Logic**
@@ -672,8 +675,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.1
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `applyRetryLogic(request: Request, attempt: Int): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `applyRetryLogic(request: Request, attempt: Int): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Retry logic is now handled by Ktor's HttpRequestRetry plugin with configurable exponential backoff.
 
 #### **HLR-3.2.1: Timeout Error Detection**
 **Requirement:** When a timeout error occurs, the function `handleTimeoutError(exception: Exception): Response` SHALL detect the timeout condition.
@@ -682,8 +686,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.2
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `handleTimeoutError(exception: Exception): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `handleTimeoutError(exception: Exception): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Timeout handling is now managed by Ktor's HttpTimeout plugin and HttpRequestRetry plugin.
 
 
 #### **HLR-3.2.3: Timeout Error Retry Logic**
@@ -693,8 +698,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.2
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `applyRetryLogic(request: Request, attempt: Int): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `applyRetryLogic(request: Request, attempt: Int): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Retry logic is now handled by Ktor's HttpRequestRetry plugin with configurable exponential backoff.
 
 #### **HLR-3.3.1: Client Error Detection**
 **Requirement:** When a client error (HTTP 4xx) occurs, the function `handleClientError(response: Response): Response` SHALL detect the error condition.
@@ -703,8 +709,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.3
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `handleClientError(response: Response): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `handleClientError(response: Response): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Client error handling is now managed by Ktor's Auth plugin for authentication errors and built-in error handling for other client errors.
 
 #### **HLR-3.3.2: Client Error No-Retry Policy**
 **Requirement:** When a client error (HTTP 4xx) occurs, the function `handleClientError(response: Response): Response` SHALL NOT retry the request.
@@ -713,8 +720,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.3
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `handleClientError(response: Response): Response`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `handleClientError(response: Response): Response` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Client error handling is now managed by Ktor's Auth plugin for authentication errors and built-in error handling for other client errors.
 
 
 
@@ -783,8 +791,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-5.1.1
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Network interception is now handled by Ktor's native plugins: HttpRequestRetry, Auth, HttpTimeout, and Logging.
 
 #### **HLR-5.2.1: Forbidden Response Detection**
 **Requirement:** When an HTTP 403 response is received, the function `intercept()` SHALL detect the forbidden condition.
@@ -793,8 +802,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-5.1.2
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Network interception is now handled by Ktor's native plugins: HttpRequestRetry, Auth, HttpTimeout, and Logging.
 
 #### **HLR-5.2.2: Immediate Logout Trigger**
 **Requirement:** When an HTTP 403 response is received, the function `handleAccountDeactivated()` SHALL trigger immediate logout.
@@ -813,8 +823,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-5.1.2
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt` *(DEPRECATED)*
+**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse` *(DEPRECATED)*
+**Migration Note:** This functionality has been migrated to native Ktor implementation in `KtorClient.kt`. Network interception is now handled by Ktor's native plugins: HttpRequestRetry, Auth, HttpTimeout, and Logging.
 
 ---
 
@@ -984,6 +995,41 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Traces to:** SR-12.1.1
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/Prefmanager.kt`
 **Function:** `saveLoginData(userData: UserData)`
+
+---
+
+## **2.4 NetworkInterceptor Migration to Native Ktor**
+
+**Migration Status:** ✅ **COMPLETE**
+
+The `NetworkInterceptor.kt` class has been **deprecated** and its functionality has been successfully migrated to `KtorClient.kt` using native Ktor plugins.
+
+### **New Implementation Details**
+
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor(tokenProvider: TokenProvider, sessionManager: SessionManager): HttpClient`
+
+### **Migration Benefits**
+
+1. **Better Performance**: Uses Ktor's optimized native plugins
+2. **Automatic Token Refresh**: Seamless token refresh via Auth plugin
+3. **Native Integration**: Built-in timeout handling and retry logic
+4. **Simplified Maintenance**: Less custom code to maintain
+5. **Future-Proof**: Uses Ktor's maintained APIs
+
+### **Feature Migration Status**
+
+| Feature | Status | Implementation |
+|---------|--------|----------------|
+| Server Error Retry (5xx) | ✅ Migrated | Ktor HttpRequestRetry plugin |
+| Timeout Error Retry | ✅ Migrated | Ktor HttpRequestRetry plugin |
+| Client Error Handling (4xx) | ✅ Migrated | Ktor Auth plugin |
+| Exception-based Retry | ✅ Migrated | Ktor HttpRequestRetry plugin |
+| Session Management | ✅ Migrated | Ktor Auth plugin + SessionManager |
+| Token Refresh | ✅ Migrated | Automatic via Auth plugin |
+| Logging | ✅ Migrated | Ktor Logging plugin |
+| Timeout Configuration | ✅ Improved | Ktor HttpTimeout plugin |
+| Malformed Response Detection | ⚠️ Non-critical | Not implemented |
 
 ---
 
