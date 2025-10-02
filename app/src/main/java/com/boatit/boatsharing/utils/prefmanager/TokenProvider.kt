@@ -61,12 +61,19 @@ class TokenProvider(context: Context) {
                 keyGenerator.generateKey()
                 
                 Log.i("TokenProvider", "Keystore key generated successfully")
+                
+                // Verify the key was created successfully
+                if (keyStore.containsAlias(keyAlias)) {
+                    Log.d("TokenProvider", "Keystore key verification successful")
+                } else {
+                    Log.e("TokenProvider", "Keystore key verification failed - key not found after generation")
+                }
             } else {
                 Log.d("TokenProvider", "Keystore key already exists")
             }
             
         } catch (e: Exception) {
-            Log.e("TokenProvider", "Failed to generate Keystore key: ${e.message}")
+            Log.e("TokenProvider", "Failed to generate Keystore key: ${e.message}", e)
         }
     }
     
@@ -78,6 +85,12 @@ class TokenProvider(context: Context) {
     private fun encryptToken(token: String): ByteArray? {
         return try {
             Log.d("TokenProvider", "Encrypting token")
+            
+            // Ensure keystore key exists before trying to use it
+            if (!keyStore.containsAlias(keyAlias)) {
+                Log.w("TokenProvider", "Keystore key does not exist, generating new key")
+                generateKeystoreKey()
+            }
             
             val secretKey = keyStore.getKey(keyAlias, null) as SecretKey
             val cipher = Cipher.getInstance(transformation)
@@ -95,7 +108,7 @@ class TokenProvider(context: Context) {
             encryptedWithIv
             
         } catch (e: Exception) {
-            Log.e("TokenProvider", "Token encryption failed: ${e.message}")
+            Log.e("TokenProvider", "Token encryption failed: ${e.message}", e)
             null
         }
     }
@@ -111,6 +124,12 @@ class TokenProvider(context: Context) {
             
             if (encryptedToken.size < gcmIvLength) {
                 Log.w("TokenProvider", "Encrypted token too short")
+                return null
+            }
+            
+            // Ensure keystore key exists before trying to use it
+            if (!keyStore.containsAlias(keyAlias)) {
+                Log.w("TokenProvider", "Keystore key does not exist, cannot decrypt")
                 return null
             }
             
@@ -134,7 +153,7 @@ class TokenProvider(context: Context) {
             decryptedToken
             
         } catch (e: Exception) {
-            Log.e("TokenProvider", "Token decryption failed: ${e.message}")
+            Log.e("TokenProvider", "Token decryption failed: ${e.message}", e)
             null
         }
     }
@@ -259,7 +278,7 @@ class TokenProvider(context: Context) {
             Log.i("TokenProvider", "Saving tokens to Keystore")
             
             if (accessToken != null && refreshToken != null) {
-                // Encrypt and store in Keystore
+                // Try to encrypt and store in Keystore first
                 val encryptedAccessToken = encryptToken(accessToken)
                 val encryptedRefreshToken = encryptToken(refreshToken)
                 
@@ -273,17 +292,49 @@ class TokenProvider(context: Context) {
                         // Clear old SharedPreferences data after successful Keystore storage
                         sharedPrefManager.clearUserData()
                     } else {
-                        Log.w("TokenProvider", "Failed to save tokens to Keystore")
+                        Log.w("TokenProvider", "Failed to save tokens to Keystore, falling back to SharedPreferences")
+                        // Fallback to SharedPreferences
+                        saveTokensToSharedPrefs(accessToken, refreshToken)
                     }
                 } else {
-                    Log.e("TokenProvider", "Failed to encrypt tokens")
+                    Log.e("TokenProvider", "Failed to encrypt tokens, falling back to SharedPreferences")
+                    // Fallback to SharedPreferences
+                    saveTokensToSharedPrefs(accessToken, refreshToken)
                 }
             } else {
                 Log.w("TokenProvider", "Cannot save null tokens")
             }
             
         } catch (e: Exception) {
-            Log.e("TokenProvider", "Failed to save tokens: ${e.message}")
+            Log.e("TokenProvider", "Failed to save tokens to Keystore: ${e.message}, falling back to SharedPreferences")
+            // Fallback to SharedPreferences
+            if (accessToken != null && refreshToken != null) {
+                saveTokensToSharedPrefs(accessToken, refreshToken)
+            }
+        }
+    }
+    
+    /**
+     * Fallback method to save tokens to SharedPreferences when Keystore fails
+     */
+    private fun saveTokensToSharedPrefs(accessToken: String, refreshToken: String) {
+        try {
+            Log.i("TokenProvider", "Saving tokens to SharedPreferences as fallback")
+            // Create a UserData object with the tokens for SharedPreferences storage
+            val userData = com.boatit.boatsharing.ui.login.model.UserData(
+                email = "temp@example.com", // Temporary values
+                password = "temp",
+                userId = "temp",
+                username = "temp",
+                role = "temp",
+                missingStep = 0,
+                accessToken = accessToken,
+                refreshToken = refreshToken
+            )
+            sharedPrefManager.saveLoginData(userData)
+            Log.i("TokenProvider", "Tokens saved to SharedPreferences successfully")
+        } catch (e: Exception) {
+            Log.e("TokenProvider", "Failed to save tokens to SharedPreferences: ${e.message}")
         }
     }
 

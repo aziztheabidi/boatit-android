@@ -132,6 +132,7 @@ import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.google.android.gms.location.LocationServices
 
@@ -152,172 +153,176 @@ val Modules = module {
     single { RoleProvider(androidContext()) }
     single { StatusProvider(androidContext()) }
 
-    // Session Management
+    // Create HttpClient without SessionManager dependency first
+    single { createKtorClient(get()) }
+    
+    // Session Management - TokenRefreshService uses the basic HttpClient
     single { TokenRefreshService(get(), get()) }
     single { SessionManager(get(), get(), get()) }
+    
+    // Create HttpClient with interceptor for repositories that need session management
+    single(named("httpClientWithInterceptor")) { createKtorClientWithInterceptor(get(), get()) }
 
-    single { createKtorClient(get(), get()) }
-
-    single { FetchNearByVoyagesRepo(get(), androidContext()) }
-    single { FetchCategoryRepo(get(), androidContext()) }
+    single { FetchNearByVoyagesRepo(get(named("httpClientWithInterceptor")), androidContext()) }
+    single { FetchCategoryRepo(get(named("httpClientWithInterceptor")), androidContext()) }
     viewModel {NearByVoyagesViewModel(get(), get())}
 
     single { SharedPrefManager(androidContext()) }
-    single { LoginRepository(get()) }
+    single { LoginRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { LoginViewModel(get(),get ()) }
 
-    single { RegistrationRepository(get()) }
+    single { RegistrationRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { RegistrationViewModel(get()) }
 
-    single { VerifyEmailRepository(get()) }
+    single { VerifyEmailRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { VerifyEmailViewModel(get()) }
 
-    single { PasswordRepository(get()) }
+    single { PasswordRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { PasswordViewModel(get(), get()) }
 
-    single { ForgotPassRepository(get()) }
+    single { ForgotPassRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { ForgotPassViewModel(get()) }
 
-    single { RoleRepository(get()) }
+    single { RoleRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { RoleViewModel(get(), get(), get()) }
 
-    single { VoyagerProfileRepository(get()) }
+    single { VoyagerProfileRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { VoyagerProfileViewModel(get(), get()) }
 
-    single { GetVoyagerProfileRepository(get()) }
+    single { GetVoyagerProfileRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetVoyagerProfileViewModel(get())}
 
-    single { CaptainProfileRepository(get()) }
+    single { CaptainProfileRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CaptainProfileViewModel(get()) }
 
-    single { CaptainDocsRepository(get()) }
+    single { CaptainDocsRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CaptainDocsViewModel(get()) }
 
-    single { CaptainBoatRepository(get()) }
+    single { CaptainBoatRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CaptainBoatViewModel(get(), get()) }
 
-    single { GetCaptainProfileRepository(get()) }
+    single { GetCaptainProfileRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetCaptainProfileViewModel(get()) }
 
-    single { GetCaptainDocsRepository(get()) }
+    single { GetCaptainDocsRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetCaptainDocsViewModel(get()) }
 
-    single { GetCaptainBoatRepository(get()) }
+    single { GetCaptainBoatRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetCaptainBoatViewModel(get()) }
 
-    single { UpdateStatusRepository(get()) }
+    single { UpdateStatusRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { UpdateStatusViewModel(get(), get())  }
 
-    single { FCMTokenRepository(get()) }
+    single { FCMTokenRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { FCMTokenViewModel(get()) }
 
-    single { AcceptRequestRepository(get()) }
+    single { AcceptRequestRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { AcceptRequestViewModel(get()) }
 
-    single { PaymentRepository(get()) }
+    single { PaymentRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { PaymentViewModel(get()) }
 
-    single { StartVoyageRepository(get()) }
+    single { StartVoyageRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { StartVoyageViewModel(get()) }
 
-    single { CompleteVoyageRepository(get()) }
+    single { CompleteVoyageRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CompleteVoyageViewModel(get()) }
 
-    single { CancelVoyageRepository(get()) }
+    single { CancelVoyageRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CancelVoyageViewModel(get()) }
 
-    single { CaptainVoyagesRepository(get()) }
+    single { CaptainVoyagesRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CaptainVoyagesViewModel(get()) }
 
-    single { VoyagerVoyagesRepository(get()) }
+    single { VoyagerVoyagesRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { VoyagerVoyagesViewModel(get()) }
 
-    single { FindBoatRepo(get()) }
+    single { FindBoatRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { FindBoatViewModel(get()) }
 
-    single { GetActiveVoyageRepository(get()) }
+    single { GetActiveVoyageRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetActiveVoyageViewModel(get()) }
 
-    single { ChatRepository(get()) }
+    single { ChatRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { ChatViewModel(get()) }
 
-    single { VoyagersRepository(get()) }
+    single { VoyagersRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { VoyagersListViewModel(get()) }
 
-    single { PaymentSheetConfigRepository(get()) }
+    single { PaymentSheetConfigRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { PaymentSheetConfigViewModel(get()) }
 
-    single { CaptainActiveVoyagesRepository(get()) }
+    single { CaptainActiveVoyagesRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CaptainActiveVoyagesViewModel(get()) }
 
-    single { CalculateFairRepository(get()) }
+    single { CalculateFairRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CalculateFairViewModel(get()) }
 
-    single { BookVoyageRepo(get()) }
+    single { BookVoyageRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { BookVoyageViewModel(get()) }
 
-    single { FollowedVoyagerRepository(get()) }
+    single { FollowedVoyagerRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { FollowedVoyagerViewModel(get()) }
 
-    single { SponcerVoyagesRepo(get()) }
+    single { SponcerVoyagesRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { SponcerVoyagesViewModel(get()) }
 
-    single { FutureVoyagesRepo(get()) }
+    single { FutureVoyagesRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { FutureVoyagesViewModel(get()) }
 
-    single { SponsorPaymentSheetConfigRepository(get()) }
+    single { SponsorPaymentSheetConfigRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { SponsorPaymentSheetConfigViewModel(get()) }
 
-    single { SponsorPaymentConfirmationRepository(get()) }
+    single { SponsorPaymentConfirmationRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { SponsorPaymentConfirmationViewModel(get()) }
 
-    single { ConfirmBookedVoyageRepository(get()) }
+    single { ConfirmBookedVoyageRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { ConfirmBookedVoyageViewModel(get()) }
 
-    single { CancelBookedVoyageRepository(get()) }
+    single { CancelBookedVoyageRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CancelBookedVoyageViewModel(get()) }
 
-    single { CaptainFeedbackRepository(get()) }
+    single { CaptainFeedbackRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { CaptainFeedbackViewModel(get()) }
 
-    single { FollowRepository(get()) }
+    single { FollowRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { FollowViewModel(get()) }
 
-    single { FetchBusinessRepo(get()) }
+    single { FetchBusinessRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { FetchBusinessViewModel(get()) }
 
-    single { GetBusinessRepo(get()) }
-    single { GetBusinessDocksRepo(get()) }
+    single { GetBusinessRepo(get(named("httpClientWithInterceptor"))) }
+    single { GetBusinessDocksRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { GetBusinessViewModel(get(),get())}
 
-    single { GetBusinessProfileRepository(get()) }
+    single { GetBusinessProfileRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetBusinessProfileViewModel(get()) }
 
-    single { BusinessProfileRepository(get()) }
+    single { BusinessProfileRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { BusinessProfileViewModel(get()) }
 
-    single { BusinessInfoRepository(get()) }
+    single { BusinessInfoRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { BusinessInfoViewModel(get()) }
 
-    single { GetBusinessInfoRepository(get()) }
+    single { GetBusinessInfoRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { GetBusinessInfoViewModel(get()) }
 
-    single { BusinessAboutRepository(get()) }
+    single { BusinessAboutRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { BusinessAboutViewModel(get()) }
 
-    single { BusinessLogoRepository(get()) }
+    single { BusinessLogoRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { BusinessLogoViewModel(get(), get()) }
 
-    single { BusinessDashboardRepository(get()) }
+    single { BusinessDashboardRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { BusinessDashViewModel(get()) }
 
-    single { TravelNowRepo(get()) }
+    single { TravelNowRepo(get(named("httpClientWithInterceptor"))) }
     viewModel { TravelNowViewModel(get(), get(), get()) }
 
-    single { VoyagerFeedbackRepository(get()) }
+    single { VoyagerFeedbackRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { VoyagerFeedbackViewModel(get()) }
 
-    single { FollowBusinessRepository(get()) }
+    single { FollowBusinessRepository(get(named("httpClientWithInterceptor"))) }
     viewModel { VoyagerFollowBusinessViewModel(get()) }
 
 }

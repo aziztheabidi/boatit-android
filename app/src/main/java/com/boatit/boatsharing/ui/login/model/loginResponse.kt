@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.ui.login.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /**
  * Data class representing a login response
@@ -15,8 +16,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class LoginResponse(
-    val isSuccess: Boolean,           // Bit position: 0-7
+    @SerialName("Status")
     val status: Int,                  // Bit position: 8-39
+    @SerialName("Message")
     val message: String,              // Bit position: 40-103
     val obj: UserData? = null         // Bit position: 104-167
 ) {
@@ -44,16 +46,9 @@ data class LoginResponse(
         }
         
         // Validate success consistency
-        if (isSuccess) {
-            require(status in 200..299) {
-                "Success response must have 2xx status code"
-            }
+        if (status in 200..299) {
             require(obj != null) {
                 "Success response must include user data"
-            }
-        } else {
-            require(status !in 200..299) {
-                "Failure response cannot have 2xx status code"
             }
         }
         
@@ -67,7 +62,7 @@ data class LoginResponse(
      * Check if the response indicates successful login
      */
     fun isLoginSuccessful(): Boolean {
-        return isSuccess && status in 200..299 && obj != null
+        return status in 200..299 && obj != null
     }
     
     /**
@@ -75,7 +70,6 @@ data class LoginResponse(
      */
     fun getResponseSummary(): String {
         return "LoginResponse(" +
-                "success=$isSuccess, " +
                 "status=$status, " +
                 "message='$message', " +
                 "hasUserData=${obj != null}" +
@@ -91,7 +85,6 @@ data class LoginResponse(
             message: String = "Login successful"
         ): LoginResponse {
             return LoginResponse(
-                isSuccess = true,
                 status = 200,
                 message = message,
                 obj = userData
@@ -106,7 +99,6 @@ data class LoginResponse(
             message: String
         ): LoginResponse {
             return LoginResponse(
-                isSuccess = false,
                 status = status,
                 message = message,
                 obj = null
@@ -126,14 +118,22 @@ data class LoginResponse(
  */
 @Serializable
 data class UserData(
+    @SerialName("Email")
     val email: String,                // Bit position: 0-63
+    @SerialName("Password")
     val password: String,             // Bit position: 64-127
+    @SerialName("UserId")
     val userId: String,               // Bit position: 128-191
+    @SerialName("Username")
     val username: String,             // Bit position: 192-255
-    val role: String,                 // Bit position: 256-319
+    @SerialName("Role")
+    var role: String,                 // Bit position: 256-319
+    @SerialName("MissingStep")
     val missingStep: Int,             // Bit position: 320-351
-    val accessToken: String,          // Bit position: 352-415
-    val refreshToken: String          // Bit position: 416-479
+    @SerialName("Accesstoken")
+    var accessToken: String,          // Bit position: 352-415
+    @SerialName("Refreshtoken")
+    var refreshToken: String          // Bit position: 416-479
 ) {
     
     /**
@@ -148,85 +148,78 @@ data class UserData(
      * Validates UserData field constraints
      */
     fun validateUserData() {
-        // Validate email
-        require(email.isNotBlank()) {
-            "Email cannot be blank"
-        }
-        require(email.contains("@") && email.contains(".")) {
-            "Email must be in valid format"
-        }
-        require(email.length in 5..254) {
-            "Email length must be between 5 and 254 characters"
+        // Validate email (allow temporary email for token storage)
+        if (email.isNotBlank()) {
+            require(email.contains("@") && email.contains(".")) {
+                "Email must be in valid format"
+            }
+            require(email.length in 5..254) {
+                "Email length must be between 5 and 254 characters"
+            }
         }
         
         // Validate password (basic checks, not exposing actual password)
-        require(password.isNotBlank()) {
-            "Password cannot be blank"
-        }
-        require(password.length >= 8) {
-            "Password must be at least 8 characters long"
-        }
-        
-        // Validate userId
-        require(userId.isNotBlank()) {
-            "User ID cannot be blank"
-        }
-        require(userId.length in 1..50) {
-            "User ID length must be between 1 and 50 characters"
+        // Allow empty password for temporary token storage objects
+        if (password.isNotBlank()) {
+            require(password.length >= 8) {
+                "Password must be at least 8 characters long"
+            }
         }
         
-        // Validate username
-        require(username.isNotBlank()) {
-            "Username cannot be blank"
-        }
-        require(username.length in 3..50) {
-            "Username length must be between 3 and 50 characters"
-        }
-        require(username.matches(Regex("^[a-zA-Z0-9._-]+$"))) {
-            "Username contains invalid characters"
+        // Validate userId (allow temporary userId for token storage)
+        if (userId.isNotBlank()) {
+            require(userId.length in 1..50) {
+                "User ID length must be between 1 and 50 characters"
+            }
         }
         
-        // Validate role
-        require(role.isNotBlank()) {
-            "Role cannot be blank"
-        }
-        require(role in listOf("captain", "voyager", "business")) {
-            "Role must be one of: captain, voyager, business"
-        }
-        
-        // Validate missing step
-        require(missingStep >= 0) {
-            "Missing step cannot be negative"
-        }
-        require(missingStep <= 10) {
-            "Missing step cannot exceed 10"
+        // Validate username (can be email address or traditional username)
+        if (username.isNotBlank()) {
+            require(username.length in 3..254) { // Increased max length to accommodate email addresses
+                "Username length must be between 3 and 254 characters"
+            }
+            // Allow email addresses or traditional usernames
+            val isEmail = username.contains("@") && username.contains(".")
+            val isTraditionalUsername = username.matches(Regex("^[a-zA-Z0-9._-]+$"))
+            require(isEmail || isTraditionalUsername) {
+                "Username must be a valid email address or contain only alphanumeric characters, dots, underscores, and hyphens"
+            }
         }
         
-        // Validate access token
+        // Validate role (allow temporary role for token storage)
+        if (role.isNotBlank()) {
+            // Normalize role to lowercase for comparison (server sends capitalized)
+            val normalizedRole = role.lowercase().trim()
+            require(normalizedRole in VALID_ROLES) {
+                "Role must be one of: ${VALID_ROLES.joinToString(", ")} (received: '$role')"
+            }
+        }
+        
+        // Validate missingStep
+        require(missingStep in 0..MAX_MISSING_STEP) {
+            "Missing step must be between 0 and $MAX_MISSING_STEP"
+        }
+        
+        // Validate accessToken
         require(accessToken.isNotBlank()) {
             "Access token cannot be blank"
         }
-        require(accessToken.length in 10..2048) {
-            "Access token length must be between 10 and 2048 characters"
+        require(accessToken.length in MIN_TOKEN_LENGTH..MAX_TOKEN_LENGTH) {
+            "Access token length must be between $MIN_TOKEN_LENGTH and $MAX_TOKEN_LENGTH characters"
         }
-        require(accessToken.matches(Regex("^[A-Za-z0-9._-]+$"))) {
-            "Access token contains invalid characters"
+        require(accessToken.matches(TOKEN_PATTERN)) {
+            "Access token must contain only alphanumeric characters, dots, underscores, and hyphens"
         }
         
-        // Validate refresh token
+        // Validate refreshToken
         require(refreshToken.isNotBlank()) {
             "Refresh token cannot be blank"
         }
-        require(refreshToken.length in 10..2048) {
-            "Refresh token length must be between 10 and 2048 characters"
+        require(refreshToken.length in MIN_TOKEN_LENGTH..MAX_TOKEN_LENGTH) {
+            "Refresh token length must be between $MIN_TOKEN_LENGTH and $MAX_TOKEN_LENGTH characters"
         }
-        require(refreshToken.matches(Regex("^[A-Za-z0-9._-]+$"))) {
-            "Refresh token contains invalid characters"
-        }
-        
-        // Tokens should be different
-        require(accessToken != refreshToken) {
-            "Access token and refresh token must be different"
+        require(refreshToken.matches(TOKEN_PATTERN)) {
+            "Refresh token must contain only alphanumeric characters, dots, underscores, and hyphens"
         }
     }
     
@@ -235,7 +228,7 @@ data class UserData(
      */
     fun getUserSummary(): String {
         return "UserData(" +
-                "email='$email', " +
+                "email='${email.take(3)}***', " +
                 "userId='$userId', " +
                 "username='$username', " +
                 "role='$role', " +
@@ -276,7 +269,12 @@ data class UserData(
         private val USERNAME_PATTERN = Regex("^[a-zA-Z0-9._-]+$")
         private val TOKEN_PATTERN = Regex("^[A-Za-z0-9._-]+$")
         
-        val VALID_ROLES = listOf("captain", "voyager", "business")
+        val VALID_ROLES = listOf(
+            "captain", "voyager", "business",
+            "user", "admin", "member", "customer",
+            "Captain", "Voyager", "Business", // Capitalized versions
+            "USER", "ADMIN", "MEMBER", "CUSTOMER" // Uppercase versions
+        )
         
         /**
          * Create UserData for testing purposes

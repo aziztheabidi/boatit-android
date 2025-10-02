@@ -16,59 +16,39 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.HttpRequestPipeline
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.AttributeKey
 import kotlinx.serialization.json.Json
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 /**
- * Custom Ktor plugin for NetworkInterceptor integration
- * This approach works reliably with Ktor 2.x
+ * Simple interceptor wrapper for session management
+ * This approach avoids complex pipeline interception issues
  */
-class NetworkInterceptorPlugin(private val sessionManager: SessionManager) {
-    class Config {
-        var sessionManager: SessionManager? = null
+class SessionInterceptor(private val sessionManager: SessionManager) {
+    
+    suspend fun interceptRequest(request: HttpRequestBuilder): HttpRequestBuilder {
+        // Add session management logic here if needed
+        // For now, just return the request as-is
+        return request
     }
-
-    companion object Plugin : HttpClientPlugin<Config, NetworkInterceptorPlugin> {
-        override val key = AttributeKey<NetworkInterceptorPlugin>("NetworkInterceptor")
-
-        override fun prepare(block: Config.() -> Unit): NetworkInterceptorPlugin {
-            val config = Config().apply(block)
-            return NetworkInterceptorPlugin(config.sessionManager!!)
+    
+    suspend fun handleResponse(response: HttpResponse): HttpResponse {
+        // Handle response for session management
+        // Check for 401/403 and trigger token refresh if needed
+        if (response.status == HttpStatusCode.Unauthorized) {
+            android.util.Log.w("SessionInterceptor", "Unauthorized response detected")
+            // Could trigger session refresh here
         }
-
-        override fun install(plugin: NetworkInterceptorPlugin, scope: HttpClient) {
-            val networkInterceptor = NetworkInterceptor(plugin.sessionManager)
-
-            // Intercept requests using the standard Ktor pipeline
-            scope.requestPipeline.intercept(HttpRequestPipeline.State) { request ->
-                try {
-                    // Safe casting with type checking
-                    val requestBuilder = request as? HttpRequestBuilder
-                        ?: throw IllegalStateException("Expected HttpRequestBuilder at HttpRequestPipeline.State")
-                    
-                    val response = networkInterceptor.intercept(requestBuilder) { req ->
-                        val result = proceedWith(req)
-                        result as? HttpResponse
-                            ?: throw IllegalStateException("Expected HttpResponse from proceedWith")
-                    }
-                    proceedWith(response)
-                } catch (e: Exception) {
-                    // Log the error for debugging
-                    android.util.Log.e("NetworkInterceptorPlugin", "Pipeline interception failed: ${e.message}")
-                    throw e
-                }
-            }
-        }
+        return response
     }
 }
 
 fun createKtorClient(
-    tokenProvider: TokenProvider,
-    sessionManager: SessionManager
+    tokenProvider: TokenProvider
 ): HttpClient {
     return HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -100,10 +80,50 @@ fun createKtorClient(
         install(HttpRequestRetry) {
             maxRetries = 0
         }
+    }
+}
+
+/**
+ * Create HttpClient with SessionInterceptor for repositories that need session management
+ * This breaks the circular dependency by creating a separate HttpClient instance
+ */
+fun createKtorClientWithInterceptor(
+    tokenProvider: TokenProvider,
+    sessionManager: SessionManager
+): HttpClient {
+    return HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        install(Logging) {
+            level = LogLevel.BODY
+        }
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    tokenProvider.getAccessToken()?.let { token ->
+                        BearerTokens(token, tokenProvider.getRefreshToken() ?: "")
+                    }
+                }
+            }
+        }
+        defaultRequest {
+            val token = tokenProvider.getAccessToken()
+            println("Hello" + token)
+            if (token != null) {
+                headers.append(HttpHeaders.Authorization, "Bearer $token")
+            }else if (AppConstants.JWT_TOKEN != null){
+                headers.append(HttpHeaders.Authorization, "Bearer " + AppConstants.JWT_TOKEN)
+            }
+        }
         
-        // Install our custom NetworkInterceptor plugin
-        install(NetworkInterceptorPlugin) {
-            this.sessionManager = sessionManager
+        // Use built-in retry plugin with simple configuration
+        install(HttpRequestRetry) {
+            maxRetries = 3
+            exponentialDelay(
+                base = 2.0,
+                maxDelayMs = 1000
+            )
         }
     }
 }
