@@ -53,22 +53,22 @@ fun SplashComposable(navController: NavController,
 
     val userData = viewModel.getUserData()
     val userStatus = viewModelS.getCaptainStatus()
-    AppConstants.USER_ID = userData?.UserId
-    AppConstants.USER_NAME = userData?.Username
+    AppConstants.USER_ID = userData?.userId
+    AppConstants.USER_NAME = userData?.username
     println("userid" + AppConstants.USER_ID)
 
     LaunchedEffect(Unit) {
         delay(5000)
         if (userData != null) {
-            if(userData.Role.equals("Voyager")){
-                if(userData.MissingStep == 0) {
+            if(userData.role.equals("Voyager")){
+                if(userData.missingStep == 0) {
                     navController.navigate(route = "$DASHBOARD_SCREEN/null")
                 }else{
                     navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
                 }
-            }else if(userData.Role.equals("Captain")){
+            }else if(userData.role.equals("Captain")){
                 Log.e("userStatus",userStatus.toString())
-                if(userData.MissingStep == 0) {
+                if(userData.missingStep == 0) {
                    if(userStatus)
                     {navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)}
                     else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
@@ -76,8 +76,8 @@ fun SplashComposable(navController: NavController,
                     navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
                 }
 
-            }else if(userData.Role.equals("Business")){
-                if(userData.MissingStep == 0) {
+            }else if(userData.role.equals("Business")){
+                if(userData.missingStep == 0) {
                     navController.navigate(NavigationManager.BUSINESS_SCREEN)
                 }else{
                     navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN)
