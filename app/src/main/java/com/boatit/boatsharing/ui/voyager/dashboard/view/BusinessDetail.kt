@@ -58,7 +58,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyagerFollowBusinessRequest
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.VoyagerFollowBusinessViewModel

@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.RegistrationRepository
 import com.google.gson.Gson

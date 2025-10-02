@@ -9,6 +9,7 @@ object AppConstants {
     var IMG_PATH: String? = "https://testbyfarhan.squarecod.com/"
     var USER_ID: String? = null
     var USER_NAME: String? = null
+    var USER_ROLE: String? = null
     var Voyage_ID: String? = null
     var JWT_TOKEN: String? = null
     var Cates: List<VoyageCategory> = emptyList()
@@ -45,6 +46,9 @@ object AppConstants {
 
     fun resetDefaults() {
         IMG_PATH = "https://testbyfarhan.squarecod.com/"
+        USER_ID = null
+        USER_NAME = null
+        USER_ROLE = null
         Voyage_ID = null
         JWT_TOKEN = null
         Cates = emptyList()

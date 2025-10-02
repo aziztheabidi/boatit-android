@@ -45,7 +45,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.uihelpers.CustomTopBar

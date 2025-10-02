@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.chat.model.ComplainRequest
 import com.boatit.boatsharing.ui.chat.model.FollowRequest
 import com.boatit.boatsharing.ui.chat.model.FollowResponse

@@ -118,8 +118,8 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 
 | Type | Name | Description |
 |------|------|-------------|
-| String | accessToken | Current access token to be refreshed |
-| String | refreshToken | Refresh token used to obtain new access token |
+| String? | accessToken | Current access token to be refreshed |
+| String? | refreshToken | Refresh token used to obtain new access token |
 
 #### **HLR-0.4.1: TokenResponse Data Structure**
 **Requirement:** The TokenResponse data class SHALL support the following structure for token refresh API responses.
@@ -133,9 +133,9 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 
 | Type | Name | Description |
 |------|------|-------------|
-| Boolean | isSuccess | Indicates whether the token refresh operation was successful |
+| Int | status | HTTP status code of the token refresh response |
 | String | message | Response message from the server |
-| TokenData? | obj | Token data object containing new tokens if successful |
+| TokenData | obj | Token data object containing new tokens |
 
 #### **HLR-0.4.2: TokenData Data Structure**
 **Requirement:** The TokenData data class SHALL support the following structure for token information within API responses.
@@ -144,28 +144,13 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.2
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/networkreposne/TokenResponse.kt`
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/networkreposne/RefreshResponse.kt`
 **Function:** `data class TokenData`
 
 | Type | Name | Description |
 |------|------|-------------|
 | String | accessToken | New access token received from refresh operation |
 | String | refreshToken | New refresh token received from refresh operation |
-
-#### **HLR-0.5.1: TokenData Data Structure**
-**Requirement:** The TokenData data class SHALL support the following structure for token information.
-**EARS Template:** Ubiquitous Requirement
-**Rationale:** Provides structured data format for token information within API responses.
-**Safety Classification:** DAL D
-**Verification Method:** Analysis, Testing
-**Traces to:** SR-2.1.2
-**Source File:** `app/src/main/java/com/boatit/boatsharing/network/networkreposne/TokenResponse.kt`
-**Function:** `data class TokenData`
-
-| Type | Name | Description |
-|------|------|-------------|
-| String | Accesstoken | New access token received from refresh operation |
-| String | Refreshtoken | New refresh token received from refresh operation |
 
 #### **HLR-0.6.1: UserData Data Structure**
 **Requirement:** The UserData data class SHALL support the following structure for user information storage.
@@ -179,13 +164,83 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 
 | Type | Name | Description |
 |------|------|-------------|
+| String? | email | Email address of the user |
+| String? | password | User password (not stored in HLR, for API use only) |
 | String? | userId | Unique identifier for the user |
 | String? | username | Display name of the user |
 | String? | userRole | Role of the user (captain, voyager, business) |
+| Int | missingStep | Step number in user onboarding process |
 | String? | accessToken | Current access token for the user |
 | String? | refreshToken | Current refresh token for the user |
 | Long | loginTime | Timestamp when user logged in |
 | Boolean | isLoggedIn | Whether the user is currently logged in |
+
+#### **HLR-0.7.1: LoginResponse Data Structure**
+**Requirement:** The LoginResponse data class SHALL support the following structure for login API responses.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides structured data format for login API responses containing user authentication data.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-1.1.1, SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt`
+**Function:** `data class LoginResponse`
+
+| Type | Name | Description |
+|------|------|-------------|
+| Int | status | HTTP status code of the login response |
+| String | message | Response message from the server |
+| UserData? | obj | User data object containing user information if login successful |
+
+#### **HLR-0.8.1: NetworkResponse Data Structure**
+**Requirement:** The NetworkResponse sealed class SHALL support the following generic response structure for network operations.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides type-safe generic response handling for all network operations with success, error, and loading states.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.1, SR-5.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/networkreposne/NetworkResponse.kt`
+**Function:** `sealed class NetworkResponse<T>`
+
+| Type | Name | Description |
+|------|------|-------------|
+| Success<T> | Success | Represents successful network operation with data |
+| Error<T> | Error | Represents failed network operation with error message |
+| Loading<T> | Loading | Represents ongoing network operation |
+
+#### **HLR-0.9.1: ApiError Data Structure**
+**Requirement:** The ApiError data class SHALL support the following structure for API error handling and reporting.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides structured error information for consistent error handling across the application.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.1, SR-5.1.1, SR-8.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/ApiError.kt`
+**Function:** `data class ApiError`
+
+| Type | Name | Description |
+|------|------|-------------|
+| Int | code | HTTP status code or application-specific error code |
+| String | message | Human-readable error message |
+| String? | details | Additional error details or stack trace |
+| Long | timestamp | Timestamp when the error occurred |
+| String? | requestId | Unique identifier for the request that caused the error |
+
+#### **HLR-0.10.1: CaptainStatus Data Structure**
+**Requirement:** The CaptainStatus data class SHALL support the following structure for captain availability status management.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides structured data format for managing captain online/offline status and availability.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-4.1.1, SR-6.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/StatusProvider.kt`
+**Function:** `data class CaptainStatus`
+
+| Type | Name | Description |
+|------|------|-------------|
+| Boolean | isOnline | Indicates whether the captain is currently online and available |
+| Long | lastSeenTime | Timestamp of when the captain was last seen online |
+| String? | captainId | Unique identifier for the captain |
+| String? | statusMessage | Optional status message from the captain |
 
 ---
 
@@ -262,14 +317,14 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Function:** `isSessionValid(): Boolean`
 
 #### **HLR-1.3.2: Token Expiry Validation**
-**Requirement:** The function `refreshToken(): Boolean` SHALL validate token expiry during periodic session validation.
+**Requirement:** The function `validateTokenFormat(token: String): Boolean` SHALL validate token expiry during periodic session validation.
 **EARS Template:** Ubiquitous Requirement
 **Rationale:** Ensures tokens are still valid and triggers refresh if needed.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-1.1.3
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean`
+**Function:** `validateTokenFormat(token: String): Boolean`
 
 #### **HLR-1.3.3: Session Timeout Validation**
 **Requirement:** The function `isSessionValid(): Boolean` SHALL validate session timeout during periodic session validation.
@@ -346,34 +401,34 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Function:** `saveLoginData(userData: UserData)`
 
 #### **HLR-2.2.1: Token Expiry Detection**
-**Requirement:** When the access token expires, the function `refreshToken(): Boolean` SHALL detect the expiry condition.
+**Requirement:** When the access token expires, the function `makeRefreshRequest(): TokenResponse?` SHALL detect the expiry condition.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Enables automatic token refresh when needed.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.2
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean`
+**Function:** `makeRefreshRequest(): TokenResponse?`
 
 #### **HLR-2.2.2: Refresh Token Usage**
-**Requirement:** When refreshing an expired access token, the function `refreshToken(): Boolean` SHALL use the stored refresh token.
+**Requirement:** When refreshing an expired access token, the function `makeRefreshRequest(): TokenResponse?` SHALL use the stored refresh token.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Ensures proper authentication flow using refresh token.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.2
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean`
+**Function:** `makeRefreshRequest(): TokenResponse?`
 
 #### **HLR-2.2.3: New Token Storage**
-**Requirement:** When token refresh succeeds, the function `refreshToken(): Boolean` SHALL store the new access token securely.
+**Requirement:** When token refresh succeeds, the function `processRefreshResponse(response: TokenResponse): Boolean` SHALL store the new access token securely.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Ensures new tokens are properly stored for future use.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.2
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean` - calls `tokenProvider.saveTokens()`
+**Function:** `processRefreshResponse(response: TokenResponse): Boolean` - calls `tokenProvider.saveTokens()`
 
 #### **HLR-2.3.1: Token Format Validation**
 **Requirement:** The function `getAccessToken(): String?` SHALL validate token format before each network request.
@@ -386,34 +441,34 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Function:** `getAccessToken(): String?`
 
 #### **HLR-2.3.2: Token Expiry Validation**
-**Requirement:** The function `refreshToken(): Boolean` SHALL validate token expiry before each network request.
+**Requirement:** The function `validateTokenFormat(token: String): Boolean` SHALL validate token expiry before each network request.
 **EARS Template:** Ubiquitous Requirement
 **Rationale:** Ensures tokens haven't expired before use.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.3
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean`
+**Function:** `validateTokenFormat(token: String): Boolean`
 
 #### **HLR-2.3.3: Token Signature Validation**
-**Requirement:** The function `refreshToken(): Boolean` SHALL validate token signature before each network request.
+**Requirement:** The function `validateTokenFormat(token: String): Boolean` SHALL validate token signature before each network request.
 **EARS Template:** Ubiquitous Requirement
 **Rationale:** Ensures tokens are authentic and haven't been tampered with.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.3
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean`
+**Function:** `validateTokenFormat(token: String): Boolean`
 
 #### **HLR-2.4.1: Refresh Failure Detection**
-**Requirement:** When token refresh fails, the function `refreshToken(): Boolean` SHALL detect the failure condition.
+**Requirement:** When token refresh fails, the function `processRefreshResponse(response: TokenResponse): Boolean` SHALL detect the failure condition.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Enables proper handling of refresh failures.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-2.1.4
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
-**Function:** `refreshToken(): Boolean`
+**Function:** `processRefreshResponse(response: TokenResponse): Boolean`
 
 #### **HLR-2.4.2: Logout Trigger on Refresh Failure**
 **Requirement:** When token refresh fails, the function `handleTokenRefreshFailed()` SHALL trigger user logout.
@@ -435,71 +490,231 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
 **Function:** `performLogout()` (private)
 
+#### **HLR-2.5.1: Malformed Token Response Detection**
+**Requirement:** When token refresh returns malformed data, the function `detectMalformedResponse(response: TokenResponse): Boolean` SHALL detect malformed response conditions.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Enables proper handling of invalid token data from server.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
+**Function:** `detectMalformedResponse(response: TokenResponse): Boolean`
+
+#### **HLR-2.5.2: Malformed Token Response Handling**
+**Requirement:** When malformed token response is detected, the function `handleMalformedResponse(response: TokenResponse): Boolean` SHALL handle gracefully and trigger logout if necessary.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Ensures system stability when server returns invalid token data.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
+**Function:** `handleMalformedResponse(response: TokenResponse): Boolean`
+
+#### **HLR-2.6.1: Token Format Validation**
+**Requirement:** The function `validateTokenFormat(token: String): Boolean` SHALL validate token formats before using them.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Prevents system errors from malformed or corrupted tokens.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.6
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
+**Function:** `validateTokenFormat(token: String): Boolean`
+
+#### **HLR-2.6.2: Invalid Token Format Handling**
+**Requirement:** When invalid token format is detected, the function `validateTokenFormat(token: String): Boolean` SHALL reject invalid tokens and trigger appropriate actions.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Prevents system errors from malformed or corrupted tokens.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.6
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/TokenRefreshService.kt`
+**Function:** `validateTokenFormat(token: String): Boolean`
+
+#### **HLR-2.7.1: Keystore Key Generation**
+**Requirement:** The function `generateEncryptionKey(): SecretKey` SHALL generate AES encryption keys for token storage.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides secure encryption keys for protecting tokens in Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `generateEncryptionKey(): SecretKey`
+
+#### **HLR-2.7.2: Token Encryption**
+**Requirement:** The function `encryptToken(token: String, key: SecretKey): String` SHALL encrypt tokens before Keystore storage.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures tokens are encrypted before being stored in Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `encryptToken(token: String, key: SecretKey): String`
+
+#### **HLR-2.7.3: Keystore Token Storage**
+**Requirement:** The function `storeEncryptedToken(keyAlias: String, encryptedToken: String)` SHALL store encrypted tokens in Android Keystore.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides secure storage of encrypted tokens in Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `storeEncryptedToken(keyAlias: String, encryptedToken: String)`
+
+#### **HLR-2.7.4: Token Decryption**
+**Requirement:** The function `decryptToken(encryptedToken: String, key: SecretKey): String` SHALL decrypt tokens retrieved from Keystore.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Enables secure retrieval and decryption of tokens from Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `decryptToken(encryptedToken: String, key: SecretKey): String`
+
+#### **HLR-2.7.5: Keystore Token Retrieval**
+**Requirement:** The function `retrieveEncryptedToken(keyAlias: String): String?` SHALL retrieve encrypted tokens from Android Keystore.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides secure retrieval of encrypted tokens from Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `retrieveEncryptedToken(keyAlias: String): String?`
+
+#### **HLR-2.8.1: Login Response Token Extraction**
+**Requirement:** When login succeeds, the function `saveLoginData(userData: UserData)` SHALL extract access and refresh tokens from the login response.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Ensures tokens from login response are properly extracted for secure storage.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-1.1.1, SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/login/viewmodel/LoginViewModel.kt`
+**Function:** `saveLoginData(userData: UserData)`
+
+#### **HLR-2.8.2: Token Processing for Keystore**
+**Requirement:** The function `processTokensForKeystore(accessToken: String, refreshToken: String)` SHALL prepare tokens for secure Keystore storage.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures tokens are properly processed before being stored in Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `processTokensForKeystore(accessToken: String, refreshToken: String)`
+
+#### **HLR-2.8.3: Keystore Token Storage Implementation**
+**Requirement:** The function `storeTokensInKeystore(accessToken: String, refreshToken: String)` SHALL store both tokens securely in Android Keystore.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides complete implementation for storing both access and refresh tokens in Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `storeTokensInKeystore(accessToken: String, refreshToken: String)`
+
+#### **HLR-2.8.4: Keystore Token Retrieval Implementation**
+**Requirement:** The function `getAccessToken(): String?` SHALL retrieve and decrypt access tokens from Android Keystore.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides complete implementation for retrieving and decrypting access tokens from Android Keystore.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-2.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `getAccessToken(): String?`
+
+#### **HLR-2.8.5: Keystore Token Cleanup**
+**Requirement:** The function `clearTokens()` SHALL remove all tokens from Android Keystore.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures complete cleanup of tokens from Android Keystore during logout or session termination.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-1.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/prefmanager/TokenProvider.kt`
+**Function:** `clearTokens()`
+
+#### **HLR-3.5.1: Malformed Network Response Detection**
+**Requirement:** When API responses contain malformed data, the function `detectMalformedResponse(response: Response): Boolean` SHALL detect malformed response conditions.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Enables proper handling of invalid response data from APIs.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
+**Function:** `detectMalformedResponse(response: Response): Boolean`
+
+#### **HLR-3.5.2: Malformed Network Response Handling**
+**Requirement:** When malformed network response is detected, the function `handleMalformedResponse(response: Response): Response` SHALL handle gracefully without crashing.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Ensures system stability when receiving invalid response data.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
+**Function:** `handleMalformedResponse(response: Response): Response`
+
 ---
 
 ### **2.3 Network Error Handling and Recovery**
 
 #### **HLR-3.1.1: Server Error Detection**
-**Requirement:** When a server error (HTTP 5xx) occurs, the function `intercept()` SHALL detect the error condition.
+**Requirement:** When a server error (HTTP 5xx) occurs, the function `handleServerError(response: Response): Response` SHALL detect the error condition.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Enables proper handling of server errors.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.1
 **Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Function:** `handleServerError(response: Response): Response`
 
 
 #### **HLR-3.1.3: Server Error Retry Logic**
-**Requirement:** When a server error (HTTP 5xx) occurs, the function `intercept()` SHALL retry the request.
+**Requirement:** When a server error (HTTP 5xx) occurs, the function `applyRetryLogic(request: Request, attempt: Int): Response` SHALL retry the request.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Attempts to recover from temporary server issues.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.1
 **Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Function:** `applyRetryLogic(request: Request, attempt: Int): Response`
 
 #### **HLR-3.2.1: Timeout Error Detection**
-**Requirement:** When a timeout error occurs, the function `intercept()` SHALL detect the timeout condition.
+**Requirement:** When a timeout error occurs, the function `handleTimeoutError(exception: Exception): Response` SHALL detect the timeout condition.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Enables proper handling of timeout errors.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.2
 **Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Function:** `handleTimeoutError(exception: Exception): Response`
 
 
 #### **HLR-3.2.3: Timeout Error Retry Logic**
-**Requirement:** When a timeout error occurs, the function `intercept()` SHALL retry the request.
+**Requirement:** When a timeout error occurs, the function `applyRetryLogic(request: Request, attempt: Int): Response` SHALL retry the request.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Attempts to recover from temporary network timeout issues.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.2
 **Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Function:** `applyRetryLogic(request: Request, attempt: Int): Response`
 
 #### **HLR-3.3.1: Client Error Detection**
-**Requirement:** When a client error (HTTP 4xx) occurs, the function `intercept()` SHALL detect the error condition.
+**Requirement:** When a client error (HTTP 4xx) occurs, the function `handleClientError(response: Response): Response` SHALL detect the error condition.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Enables proper handling of client errors.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.3
 **Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Function:** `handleClientError(response: Response): Response`
 
 #### **HLR-3.3.2: Client Error No-Retry Policy**
-**Requirement:** When a client error (HTTP 4xx) occurs, the function `intercept()` SHALL NOT retry the request.
+**Requirement:** When a client error (HTTP 4xx) occurs, the function `handleClientError(response: Response): Response` SHALL NOT retry the request.
 **EARS Template:** Unwanted Behavior Requirement
 **Rationale:** Prevents unnecessary retries for permanent client-side errors.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-3.1.3
 **Source File:** `app/src/main/java/com/boatit/boatsharing/network/interceptors/NetworkInterceptor.kt`
-**Function:** `intercept(request: HttpRequestBuilder, execute: suspend (HttpRequestBuilder) -> HttpResponse): HttpResponse`
+**Function:** `handleClientError(response: Response): Response`
 
 
 
@@ -783,6 +998,11 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 | HLR-0.1.5 | HLR-0.1.4 | Functional |
 | HLR-0.1.6 | None | Foundation |
 | HLR-0.4.2 | HLR-0.4.1 | Functional |
+| HLR-0.6.1 | None | Foundation |
+| HLR-0.7.1 | HLR-0.6.1 | Functional |
+| HLR-0.8.1 | None | Foundation |
+| HLR-0.9.1 | HLR-0.8.1 | Functional |
+| HLR-0.10.1 | None | Foundation |
 | HLR-1.1.1 | HLR-0.1.1, HLR-0.1.6 | Functional |
 | HLR-1.1.2 | HLR-1.1.1 | Functional |
 | HLR-1.1.3 | HLR-1.1.1 | Functional |
@@ -806,12 +1026,28 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 | HLR-2.4.1 | HLR-2.2.1 | Functional |
 | HLR-2.4.2 | HLR-2.4.1 | Functional |
 | HLR-2.4.3 | HLR-2.4.2 | Functional |
+| HLR-2.5.1 | HLR-2.2.1 | Functional |
+| HLR-2.5.2 | HLR-2.5.1 | Functional |
+| HLR-2.6.1 | HLR-2.3.1 | Functional |
+| HLR-2.6.2 | HLR-2.6.1 | Functional |
+| HLR-2.7.1 | HLR-2.1.1 | Functional |
+| HLR-2.7.2 | HLR-2.7.1 | Functional |
+| HLR-2.7.3 | HLR-2.7.2 | Functional |
+| HLR-2.7.4 | HLR-2.7.1 | Functional |
+| HLR-2.7.5 | HLR-2.7.3 | Functional |
+| HLR-2.8.1 | HLR-1.1.1 | Functional |
+| HLR-2.8.2 | HLR-2.8.1 | Functional |
+| HLR-2.8.3 | HLR-2.8.2, HLR-2.7.3 | Functional |
+| HLR-2.8.4 | HLR-2.7.5, HLR-2.7.4 | Functional |
+| HLR-2.8.5 | HLR-1.1.4 | Functional |
 | HLR-3.1.1 | HLR-2.3.1 | Functional |
 | HLR-3.1.3 | HLR-3.1.1 | Functional |
 | HLR-3.2.1 | HLR-2.3.1 | Functional |
 | HLR-3.2.3 | HLR-3.2.1 | Functional |
 | HLR-3.3.1 | HLR-2.3.1 | Functional |
 | HLR-3.3.2 | HLR-3.3.1 | Functional |
+| HLR-3.5.1 | HLR-3.1.1, HLR-3.2.1 | Functional |
+| HLR-3.5.2 | HLR-3.5.1 | Functional |
 | HLR-4.1.2 | HLR-4.1.1 | Functional |
 | HLR-4.1.3 | HLR-4.1.1 | Functional |
 | HLR-5.1.1 | HLR-2.2.1 | Functional |

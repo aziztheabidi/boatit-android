@@ -116,6 +116,8 @@ import com.boatit.boatsharing.utils.prefmanager.RoleProvider
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import com.boatit.boatsharing.utils.prefmanager.StatusProvider
 import com.boatit.boatsharing.utils.prefmanager.TokenProvider
+import com.boatit.boatsharing.utils.session.SessionManager
+import com.boatit.boatsharing.utils.session.TokenRefreshService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -150,7 +152,11 @@ val Modules = module {
     single { RoleProvider(androidContext()) }
     single { StatusProvider(androidContext()) }
 
-    single { createKtorClient(get()) }
+    // Session Management
+    single { TokenRefreshService(get(), get()) }
+    single { SessionManager(get(), get()) }
+
+    single { createKtorClient(get(), get()) }
 
     single { FetchNearByVoyagesRepo(get(), androidContext()) }
     single { FetchCategoryRepo(get(), androidContext()) }

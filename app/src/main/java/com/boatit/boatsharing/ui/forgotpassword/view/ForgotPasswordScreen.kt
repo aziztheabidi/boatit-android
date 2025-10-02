@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.di.ApiConstants
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.LOGIN_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack

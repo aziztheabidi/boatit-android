@@ -56,7 +56,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.model.Sponser

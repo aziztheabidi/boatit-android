@@ -148,6 +148,30 @@ The system follows a centralized architecture pattern with:
 **Verification Method:** Analysis, Testing
 **Elaboration:** "Token refresh fails" means: (1) HTTP 401/403 response from refresh endpoint, (2) network timeout after 3 retry attempts, (3) refresh token is expired or invalid, (4) server returns error response. "Trigger user logout" means: (1) clear all stored tokens, (2) emit SessionEvent.TokenRefreshFailed, (3) show "Session expired, please login again" dialog, (4) navigate to login screen, (5) clear all cached user data.
 
+#### **SR-2.1.5: Malformed Token Response Handling**
+**Requirement:** When token refresh returns malformed data, the system SHALL handle gracefully and trigger logout if necessary.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Ensures system stability when server returns invalid token data.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** "Malformed data" means: (1) invalid JSON format in response, (2) missing required fields (accessToken, refreshToken), (3) null or empty token values, (4) invalid data types (non-string tokens). "Handle gracefully" means: (1) log the malformed response error, (2) attempt to parse partial data if possible, (3) if critical fields missing, trigger logout, (4) if tokens are null/empty, trigger logout, (5) emit SessionEvent.TokenRefreshFailed. The system shall not retry malformed responses.
+
+#### **SR-2.1.6: Invalid Token Format Handling**
+**Requirement:** When tokens contain invalid formats, the system SHALL validate and reject invalid tokens.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Prevents system errors from malformed or corrupted tokens.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** "Invalid token format" means: (1) access token is not valid JWT structure (missing header.payload.signature), (2) refresh token contains invalid characters, (3) tokens are not Base64 encoded, (4) JWT payload is malformed JSON. "Validate and reject" means: (1) check JWT structure before using tokens, (2) validate Base64 encoding, (3) parse JWT payload to ensure valid JSON, (4) if validation fails, trigger token refresh, (5) if refresh also fails, trigger logout. The system shall log token format validation failures.
+
+#### **SR-3.1.5: Malformed Network Response Handling**
+**Requirement:** When API responses contain malformed data, the system SHALL handle gracefully without crashing.
+**EARS Template:** Event-Driven Requirement
+**Rationale:** Ensures system stability when receiving invalid response data.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** "Malformed network response" means: (1) response is not valid JSON, (2) response structure doesn't match expected format, (3) required fields are missing or null, (4) data types don't match expected types. "Handle gracefully" means: (1) catch JSON parsing exceptions, (2) validate response structure before processing, (3) log malformed response errors with request details, (4) return appropriate error to calling component, (5) do not retry malformed responses. The system shall not crash or show generic error messages for malformed responses.
+
 ---
 
 #### **SR-3.1.1: Server Error Retry**
@@ -394,10 +418,13 @@ The system follows a centralized architecture pattern with:
 | SR-2.1.2 | SR-2.1.1 | Functional |
 | SR-2.1.3 | SR-2.1.1 | Functional |
 | SR-2.1.4 | SR-2.1.2 | Functional |
+| SR-2.1.5 | SR-2.1.2 | Functional |
+| SR-2.1.6 | SR-2.1.3 | Functional |
 | SR-3.1.1 | SR-2.1.3 | Functional |
 | SR-3.1.2 | SR-2.1.3 | Functional |
 | SR-3.1.3 | SR-2.1.3 | Functional |
 | SR-3.1.4 | SR-3.1.1, SR-3.1.2 | Functional |
+| SR-3.1.5 | SR-3.1.1, SR-3.1.2 | Functional |
 | SR-4.1.2 | SR-4.1.1 | Functional |
 | SR-4.1.3 | SR-4.1.1 | Functional |
 | SR-4.1.4 | SR-4.1.1, SR-4.1.3 | Functional |

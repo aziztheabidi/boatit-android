@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainDocumentResponse
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainDocumentRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainDocumentResponse

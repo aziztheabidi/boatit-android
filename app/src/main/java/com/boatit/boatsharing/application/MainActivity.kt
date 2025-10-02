@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.routes.AppNavGraph
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
+import com.boatit.boatsharing.ui.session.GlobalSessionHandler
 import com.boatit.boatsharing.utils.theme.BoatSharingAppTheme
 import org.koin.android.ext.android.inject
 
@@ -34,6 +35,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             BoatSharingAppTheme {
                 val navController = rememberNavController()
+                
+                // Global session handler at the root level
+                GlobalSessionHandler(navController = navController)
+                
                 Box(
                     modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars) // Handle system bars padding
                 ) {

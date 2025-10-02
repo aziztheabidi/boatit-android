@@ -26,7 +26,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.ConfirmBookedVoyageViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.TravelNowViewModel
