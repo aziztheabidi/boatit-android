@@ -153,14 +153,17 @@ val Modules = module {
     single { RoleProvider(androidContext()) }
     single { StatusProvider(androidContext()) }
 
-    // Create HttpClient without SessionManager dependency first
+    // Implements LLR-3.10.9: Basic HttpClient Implementation
+    // Create HttpClient without SessionManager dependency first to avoid circular dependencies
     single { createKtorClient(get()) }
     
     // Session Management - TokenRefreshService uses the basic HttpClient
     single { TokenRefreshService(get(), get()) }
     single { SessionManager(get(), get(), get()) }
     
+    // Implements LLR-3.10.10: Dependency Injection Configuration
     // Create HttpClient with interceptor for repositories that need session management
+    // Configure Koin modules to provide both basic HttpClient and HttpClient with interceptor using named qualifiers
     single(named("httpClientWithInterceptor")) { createKtorClientWithInterceptor(get(), get()) }
 
     single { FetchNearByVoyagesRepo(get(named("httpClientWithInterceptor")), androidContext()) }

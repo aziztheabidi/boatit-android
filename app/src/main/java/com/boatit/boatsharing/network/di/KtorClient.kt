@@ -22,16 +22,33 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import android.util.Log
 
+/**
+ * Create basic HttpClient without session management for TokenRefreshService
+ * 
+ * Implements LLR-3.10.9: Basic HttpClient Implementation
+ * Provides basic HttpClient for services that don't require session management to avoid circular dependencies
+ * 
+ * @param tokenProvider TokenProvider for accessing stored tokens
+ * @return HttpClient configured with basic plugins (ContentNegotiation, Logging, Auth, defaultRequest)
+ */
 fun createKtorClient(
     tokenProvider: TokenProvider
 ): HttpClient {
     return HttpClient(CIO) {
+        // Implements LLR-3.10.6: ContentNegotiation Plugin Implementation
+        // Configure ContentNegotiation plugin with Json serializer using ignoreUnknownKeys=true
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
+        
+        // Implements LLR-3.10.5: Logging Plugin Implementation
+        // Configure Logging plugin with level=LogLevel.BODY for comprehensive request/response logging
         install(Logging) {
             level = LogLevel.BODY
         }
+        
+        // Implements LLR-3.10.3: Auth Plugin Bearer Implementation (basic version)
+        // Configure Auth plugin with bearer provider that loads tokens from TokenProvider
         install(Auth) {
             bearer {
                 loadTokens {
@@ -41,6 +58,9 @@ fun createKtorClient(
                 }
             }
         }
+        
+        // Implements LLR-3.10.8: Default Request Headers Implementation (basic version)
+        // Implement defaultRequest block that sets Authorization header with bearer token from TokenProvider or AppConstants.JWT_TOKEN
         defaultRequest {
             val token = tokenProvider.getAccessToken()
             println("Hello" + token)
@@ -61,6 +81,9 @@ fun createKtorClient(
 /**
  * Create HttpClient with native Ktor session management and retry logic
  * 
+ * Implements LLR-3.10.1: Native Ktor HttpClient Implementation
+ * Provides the foundation for all network operations using Ktor's native capabilities
+ * 
  * This implementation replaces the deprecated NetworkInterceptor with Ktor's built-in capabilities:
  * - HttpRequestRetry: Native retry logic with exponential backoff
  * - Auth plugin: Automatic token refresh and bearer token management
@@ -77,30 +100,41 @@ fun createKtorClient(
  * - ✅ Logging - Native Ktor Logging plugin
  * - ✅ Timeout Configuration - Native Ktor HttpTimeout plugin
  * - ⚠️ Malformed Response Detection - Not implemented (non-critical)
+ * 
+ * @param tokenProvider TokenProvider for accessing stored tokens
+ * @param sessionManager SessionManager for handling token refresh and session management
+ * @return HttpClient configured with native Ktor plugins for comprehensive network handling
  */
 fun createKtorClientWithInterceptor(
     tokenProvider: TokenProvider,
     sessionManager: SessionManager
 ): HttpClient {
     return HttpClient(CIO) {
+        // Implements LLR-3.10.6: ContentNegotiation Plugin Implementation
+        // Configure ContentNegotiation plugin with Json serializer using ignoreUnknownKeys=true
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
         
+        // Implements LLR-3.10.5: Logging Plugin Implementation
+        // Configure Logging plugin with level=LogLevel.BODY for comprehensive request/response logging
         install(Logging) {
             level = LogLevel.BODY
         }
         
-        // Configure timeouts
+        // Implements LLR-3.10.4: HttpTimeout Plugin Implementation
+        // Configure HttpTimeout plugin with requestTimeoutMillis=30000, connectTimeoutMillis=10000, socketTimeoutMillis=30000
         install(HttpTimeout) {
             requestTimeoutMillis = 30000
             connectTimeoutMillis = 10000
             socketTimeoutMillis = 30000
         }
         
-        // Configure authentication with automatic token refresh
+        // Implements LLR-3.10.3: Auth Plugin Bearer Implementation
+        // Configure Auth plugin with bearer provider that loads tokens from TokenProvider and refreshes via SessionManager
         install(Auth) {
             bearer {
+                // Load tokens from TokenProvider
                 loadTokens {
                     val accessToken = tokenProvider.getAccessToken()
                     val refreshToken = tokenProvider.getRefreshToken()
@@ -114,6 +148,8 @@ fun createKtorClientWithInterceptor(
                     }
                 }
                 
+                // Implements LLR-3.10.7: Token Refresh Logic Implementation
+                // Implement refreshTokens block that calls sessionManager.handleUnauthorized() and retrieves new tokens from TokenProvider
                 refreshTokens {
                     Log.d("KtorClient", "Attempting token refresh")
                     try {
@@ -141,7 +177,8 @@ fun createKtorClientWithInterceptor(
             }
         }
         
-        // Configure default request headers
+        // Implements LLR-3.10.8: Default Request Headers Implementation
+        // Implement defaultRequest block that sets Authorization header with bearer token from TokenProvider or AppConstants.JWT_TOKEN
         defaultRequest {
             val token = tokenProvider.getAccessToken()
             Log.d("KtorClient", "Setting authorization header: ${if (token != null) "Bearer token present" else "No token"}")
@@ -153,7 +190,8 @@ fun createKtorClientWithInterceptor(
             }
         }
         
-        // Configure retry logic using Ktor's native HttpRequestRetry
+        // Implements LLR-3.10.2: HttpRequestRetry Plugin Implementation
+        // Configure HttpRequestRetry plugin with maxRetries=3 and exponentialDelay(base=2.0, maxDelayMs=10000)
         install(HttpRequestRetry) {
             maxRetries = 3
             exponentialDelay(

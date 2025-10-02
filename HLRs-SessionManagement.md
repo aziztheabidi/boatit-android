@@ -1033,6 +1033,90 @@ The `NetworkInterceptor.kt` class has been **deprecated** and its functionality 
 
 ---
 
+## **2.5 Native Ktor Network Implementation Requirements**
+
+### **HLR-3.10.1: Native Ktor HttpClient Configuration**
+**Requirement:** The system SHALL use Ktor's native HttpClient with configured plugins for network operations.
+**EARS Template:** System Requirement
+**Rationale:** Provides optimized, maintainable network layer using Ktor's native capabilities.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.1, SR-3.1.2, SR-3.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor(tokenProvider: TokenProvider, sessionManager: SessionManager): HttpClient`
+
+### **HLR-3.10.2: HttpRequestRetry Plugin Configuration**
+**Requirement:** The system SHALL configure Ktor's HttpRequestRetry plugin with exponential backoff for automatic retry logic.
+**EARS Template:** System Requirement
+**Rationale:** Enables automatic recovery from temporary network issues using native Ktor retry mechanisms.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.1, SR-3.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - HttpRequestRetry plugin configuration
+
+### **HLR-3.10.3: Auth Plugin Bearer Token Management**
+**Requirement:** The system SHALL use Ktor's Auth plugin for automatic bearer token management and refresh.
+**EARS Template:** System Requirement
+**Rationale:** Provides seamless authentication handling with automatic token refresh capabilities.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-5.1.1, SR-5.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - Auth plugin bearer configuration
+
+### **HLR-3.10.4: HttpTimeout Plugin Configuration**
+**Requirement:** The system SHALL configure Ktor's HttpTimeout plugin for comprehensive timeout management.
+**EARS Template:** System Requirement
+**Rationale:** Ensures proper timeout handling for requests, connections, and socket operations.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - HttpTimeout plugin configuration
+
+### **HLR-3.10.5: Logging Plugin Configuration**
+**Requirement:** The system SHALL use Ktor's Logging plugin for comprehensive request and response logging.
+**EARS Template:** System Requirement
+**Rationale:** Provides detailed logging for debugging and monitoring network operations.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - Logging plugin configuration
+
+### **HLR-3.10.6: ContentNegotiation Plugin Configuration**
+**Requirement:** The system SHALL use Ktor's ContentNegotiation plugin for JSON serialization and deserialization.
+**EARS Template:** System Requirement
+**Rationale:** Enables proper JSON handling with ignoreUnknownKeys configuration for API compatibility.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - ContentNegotiation plugin configuration
+
+### **HLR-3.10.7: Automatic Token Refresh Implementation**
+**Requirement:** The system SHALL implement automatic token refresh through Ktor's Auth plugin refreshTokens block.
+**EARS Template:** System Requirement
+**Rationale:** Ensures seamless user experience by automatically refreshing expired tokens.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-5.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - Auth plugin refreshTokens block
+
+### **HLR-3.10.8: Default Request Headers Configuration**
+**Requirement:** The system SHALL configure default request headers including Authorization header with bearer tokens.
+**EARS Template:** System Requirement
+**Rationale:** Ensures consistent authentication headers across all network requests.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-5.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - defaultRequest configuration
+
+---
+
 ## **3. REQUIREMENT DEPENDENCIES**
 
 | HLR ID | Depends On | Dependency Type |
@@ -1115,6 +1199,14 @@ The `NetworkInterceptor.kt` class has been **deprecated** and its functionality 
 | HLR-10.1.1 | HLR-9.1.1 | Functional |
 | HLR-11.1.1 | HLR-10.1.1 | Functional |
 | HLR-12.1.1 | HLR-11.1.1 | Functional |
+| HLR-3.10.1 | HLR-0.1.1, HLR-0.1.2 | Functional |
+| HLR-3.10.2 | HLR-3.10.1 | Functional |
+| HLR-3.10.3 | HLR-3.10.1, HLR-5.1.1 | Functional |
+| HLR-3.10.4 | HLR-3.10.1 | Functional |
+| HLR-3.10.5 | HLR-3.10.1 | Functional |
+| HLR-3.10.6 | HLR-3.10.1 | Functional |
+| HLR-3.10.7 | HLR-3.10.3, HLR-5.1.1 | Functional |
+| HLR-3.10.8 | HLR-3.10.1, HLR-5.1.1 | Functional |
 
 ---
 

@@ -16,6 +16,13 @@ import java.lang.Math.pow
 /**
  * Network interceptor that handles automatic retry logic and session management
  * 
+ * @deprecated This class is deprecated. Use KtorClient.kt with native Ktor plugins instead.
+ * The functionality has been migrated to createKtorClientWithInterceptor() which provides:
+ * - Better performance using Ktor's native HttpRequestRetry plugin
+ * - Automatic token refresh via Auth plugin
+ * - Native timeout handling via HttpTimeout plugin
+ * - Simplified maintenance and future-proofing
+ * 
  * Implements LLR-3.1.1: Server Error Detection Implementation
  * Implements LLR-3.1.2: Exponential Backoff Implementation
  * Implements LLR-3.1.3: Retry Logic Implementation
@@ -28,6 +35,11 @@ import java.lang.Math.pow
  * Implements LLR-3.4.2: Malformed Response Handling Implementation
  * Implements LLR-3.5.1: Retry Limit Enforcement Implementation
  */
+@Deprecated(
+    message = "Use KtorClient.kt with native Ktor plugins instead. Migrated to createKtorClientWithInterceptor()",
+    replaceWith = ReplaceWith("createKtorClientWithInterceptor(tokenProvider, sessionManager)", "com.boatit.boatsharing.network.di.createKtorClientWithInterceptor"),
+    level = DeprecationLevel.WARNING
+)
 class NetworkInterceptor(
     private val sessionManager: SessionManager
 ) {

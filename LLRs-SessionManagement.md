@@ -297,6 +297,110 @@ The new implementation uses Ktor's native plugins:
 
 ---
 
+## **2.5 Native Ktor Network Implementation Low-Level Requirements**
+
+### **LLR-3.10.1: Native Ktor HttpClient Implementation**
+**Requirement:** The system SHALL implement `createKtorClientWithInterceptor()` function that creates HttpClient with native Ktor plugins.
+**EARS Template:** Implementation Requirement
+**Rationale:** Provides the foundation for all network operations using Ktor's native capabilities.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor(tokenProvider: TokenProvider, sessionManager: SessionManager): HttpClient`
+
+### **LLR-3.10.2: HttpRequestRetry Plugin Implementation**
+**Requirement:** The system SHALL configure HttpRequestRetry plugin with maxRetries=3 and exponentialDelay(base=2.0, maxDelayMs=10000).
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements automatic retry logic with exponential backoff for network resilience.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - HttpRequestRetry configuration block
+
+### **LLR-3.10.3: Auth Plugin Bearer Implementation**
+**Requirement:** The system SHALL configure Auth plugin with bearer provider that loads tokens from TokenProvider and refreshes via SessionManager.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements automatic bearer token management and refresh functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - Auth plugin bearer configuration
+
+### **LLR-3.10.4: HttpTimeout Plugin Implementation**
+**Requirement:** The system SHALL configure HttpTimeout plugin with requestTimeoutMillis=30000, connectTimeoutMillis=10000, socketTimeoutMillis=30000.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements comprehensive timeout handling for all network operations.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - HttpTimeout configuration block
+
+### **LLR-3.10.5: Logging Plugin Implementation**
+**Requirement:** The system SHALL configure Logging plugin with level=LogLevel.BODY for comprehensive request/response logging.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements detailed logging for debugging and monitoring network operations.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - Logging configuration block
+
+### **LLR-3.10.6: ContentNegotiation Plugin Implementation**
+**Requirement:** The system SHALL configure ContentNegotiation plugin with Json serializer using ignoreUnknownKeys=true.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements JSON serialization/deserialization with API compatibility.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.6
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - ContentNegotiation configuration block
+
+### **LLR-3.10.7: Token Refresh Logic Implementation**
+**Requirement:** The system SHALL implement refreshTokens block that calls sessionManager.handleUnauthorized() and retrieves new tokens from TokenProvider.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements automatic token refresh logic through SessionManager integration.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.7
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - Auth plugin refreshTokens block
+
+### **LLR-3.10.8: Default Request Headers Implementation**
+**Requirement:** The system SHALL implement defaultRequest block that sets Authorization header with bearer token from TokenProvider or AppConstants.JWT_TOKEN.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements consistent authentication headers across all network requests.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.8
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClientWithInterceptor()` - defaultRequest configuration block
+
+### **LLR-3.10.9: Basic HttpClient Implementation**
+**Requirement:** The system SHALL implement `createKtorClient()` function that creates basic HttpClient without session management for TokenRefreshService.
+**EARS Template:** Implementation Requirement
+**Rationale:** Provides basic HttpClient for services that don't require session management to avoid circular dependencies.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt`
+**Function:** `createKtorClient(tokenProvider: TokenProvider): HttpClient`
+
+### **LLR-3.10.10: Dependency Injection Configuration**
+**Requirement:** The system SHALL configure Koin modules to provide both basic HttpClient and HttpClient with interceptor using named qualifiers.
+**EARS Template:** Implementation Requirement
+**Rationale:** Implements proper dependency injection to avoid circular dependencies while providing appropriate HttpClient instances.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-3.10.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/network/di/Modules.kt`
+**Function:** Koin module configuration with named HttpClient instances
+
+---
+
 ## **3. IMPLEMENTATION CONSTRAINTS**
 
 ### **3.1 Memory Alignment Requirements**
@@ -1291,7 +1395,128 @@ stop
 @enduml
 ```
 
-### **9.3 Network Error Handling Control Flow**
+### **9.3 Native Ktor Network Implementation Control Flow**
+
+This diagram shows the native Ktor implementation with HttpRequestRetry, Auth, HttpTimeout, and Logging plugins.
+
+```plantuml
+@startuml NativeKtorNetworkControlFlow
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam activity {
+    BackgroundColor #E8F4FD
+    BorderColor #1976D2
+    FontColor #000000
+}
+skinparam note {
+    BackgroundColor #FFF3E0
+    BorderColor #F57C00
+    FontColor #000000
+}
+
+title Native Ktor Network Implementation Control Flow
+
+start
+
+:Network Request Initiated;
+note right: HttpClient with native Ktor plugins
+
+:HttpRequestRetry Plugin;
+note right: maxRetries=3, exponentialDelay
+
+:Auth Plugin;
+note right: Bearer token management
+
+:HttpTimeout Plugin;
+note right: requestTimeout=30s, connectTimeout=10s
+
+:Logging Plugin;
+note right: LogLevel.BODY
+
+:ContentNegotiation Plugin;
+note right: JSON with ignoreUnknownKeys=true
+
+:Execute network request;
+
+if (Request successful?) then (yes)
+  :Return successful response;
+  stop
+else (no)
+  if (HTTP 401 Unauthorized?) then (yes)
+    :Auth Plugin refreshTokens;
+    :Call sessionManager.handleUnauthorized();
+    :Retrieve new tokens from TokenProvider;
+    if (Token refresh successful?) then (yes)
+      :Retry request with new token;
+      if (Retry successful?) then (yes)
+        :Return successful response;
+        stop
+      else (no)
+        :Logout user;
+        stop
+      endif
+    else (no)
+      :Logout user;
+      stop
+    endif
+  else (no)
+    if (HTTP 403 Forbidden?) then (yes)
+      :Logout user immediately;
+      stop
+    else (no)
+      if (Server Error (5xx)?) then (yes)
+        :HttpRequestRetry Plugin;
+        :Apply exponential backoff;
+        if (Retry attempts < maxRetries?) then (yes)
+          :Wait for backoff delay;
+          :Retry request;
+          if (Retry successful?) then (yes)
+            :Return successful response;
+            stop
+          else (no)
+            :Continue to next retry;
+          endif
+        else (no)
+          :Return error response;
+          stop
+        endif
+      else (no)
+        if (Timeout Error?) then (yes)
+          :HttpRequestRetry Plugin;
+          :Apply exponential backoff;
+          if (Retry attempts < maxRetries?) then (yes)
+            :Wait for backoff delay;
+            :Retry request;
+            if (Retry successful?) then (yes)
+              :Return successful response;
+              stop
+            else (no)
+              :Continue to next retry;
+            endif
+          else (no)
+            :Return timeout error;
+            stop
+          endif
+        else (no)
+          if (Client Error (4xx)?) then (yes)
+            :No retry - return error;
+            stop
+          else (no)
+            :Return generic error;
+            stop
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+
+stop
+
+@enduml
+```
+
+### **9.4 Network Error Handling Control Flow (Deprecated)**
 
 This diagram shows the comprehensive network error handling and retry logic implemented in the NetworkInterceptor *(DEPRECATED)*. The functionality has been migrated to native Ktor implementation in `KtorClient.kt` using HttpRequestRetry, Auth, HttpTimeout, and Logging plugins.
 
