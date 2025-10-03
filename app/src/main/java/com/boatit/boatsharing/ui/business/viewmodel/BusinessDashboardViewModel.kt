@@ -87,14 +87,18 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     // FULFILLS: LLR-1.1.12 - Dropdown Data Loading
     fun loadDropdownData() {
         viewModelScope.launch {
-            updateLoadingState(true)
             try {
                 // TODO: Call existing GetBusinessViewModel.docks() or similar
-                // For now, we'll simulate the loading
-                updateLoadingState(false)
+                // For now, we'll simulate the loading with NetworkResponse
+                val response = NetworkResponse.Loading<Any>()
+                updateStateFromNetworkResponse(response)
+                
+                // Simulate successful response
+                val successResponse = NetworkResponse.Success<Any>(Unit)
+                updateStateFromNetworkResponse(successResponse)
             } catch (e: Exception) {
-                updateErrorState(true, "Failed to load dropdown data: ${e.message}")
-                updateLoadingState(false)
+                val errorResponse = NetworkResponse.Error<Any>("Failed to load dropdown data: ${e.message}")
+                updateStateFromNetworkResponse(errorResponse)
             }
         }
     }
@@ -102,14 +106,18 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     // FULFILLS: LLR-1.1.13 - Business Data Loading
     fun loadBusinessData() {
         viewModelScope.launch {
-            updateLoadingState(true)
             try {
                 // TODO: Call existing GetBusinessViewModel.voyages() or similar
-                // For now, we'll simulate the loading
-                updateLoadingState(false)
+                // For now, we'll simulate the loading with NetworkResponse
+                val response = NetworkResponse.Loading<Any>()
+                updateStateFromNetworkResponse(response)
+                
+                // Simulate successful response
+                val successResponse = NetworkResponse.Success<Any>(Unit)
+                updateStateFromNetworkResponse(successResponse)
             } catch (e: Exception) {
-                updateErrorState(true, "Failed to load business data: ${e.message}")
-                updateLoadingState(false)
+                val errorResponse = NetworkResponse.Error<Any>("Failed to load business data: ${e.message}")
+                updateStateFromNetworkResponse(errorResponse)
             }
         }
     }
@@ -142,22 +150,25 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     fun saveBusinessProfile() {
         viewModelScope.launch {
             if (!validateForm()) {
-                updateErrorState(true, "Please fill in all required fields")
+                val errorResponse = NetworkResponse.Error<Any>("Please fill in all required fields")
+                updateStateFromNetworkResponse(errorResponse)
                 return@launch
             }
             
-            updateLoadingState(true)
-            disableSaveButton()
-            
             try {
                 // TODO: Call existing BusinessDashViewModel.saveBusinessProfile() or similar
-                // For now, we'll simulate the save operation
-                updateLoadingState(false)
+                // For now, we'll simulate the save operation with NetworkResponse
+                val loadingResponse = NetworkResponse.Loading<Any>()
+                updateStateFromNetworkResponse(loadingResponse)
+                disableSaveButton()
+                
+                // Simulate successful save
+                val successResponse = NetworkResponse.Success<Any>(Unit)
+                updateStateFromNetworkResponse(successResponse)
                 enableSaveButton()
-                updateErrorState(false, null)
             } catch (e: Exception) {
-                updateErrorState(true, "Failed to save business profile: ${e.message}")
-                updateLoadingState(false)
+                val errorResponse = NetworkResponse.Error<Any>("Failed to save business profile: ${e.message}")
+                updateStateFromNetworkResponse(errorResponse)
                 enableSaveButton()
             }
         }
@@ -166,5 +177,23 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     // FULFILLS: LLR-2.1.1 - Session Management
     fun checkAuthentication(): Boolean {
         return sessionManager.sessionState.value.isAuthenticated
+    }
+    
+    // FULFILLS: LLR-3.1.1 - ViewModel Error State Management
+    fun updateStateFromNetworkResponse(response: NetworkResponse<Any>) {
+        when (response) {
+            is NetworkResponse.Loading -> {
+                updateLoadingState(true)
+                updateErrorState(false, null)
+            }
+            is NetworkResponse.Success -> {
+                updateLoadingState(false)
+                updateErrorState(false, null)
+            }
+            is NetworkResponse.Error -> {
+                updateLoadingState(false)
+                updateErrorState(true, response.message)
+            }
+        }
     }
 }

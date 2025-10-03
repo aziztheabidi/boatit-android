@@ -20,6 +20,36 @@ import kotlinx.serialization.json.Json
 import android.util.Log
 
 /**
+ * Create HttpClient specifically for authentication operations (login, register, etc.)
+ * 
+ * This HttpClient has NO authentication headers or token management to avoid circular dependencies
+ * during login/registration operations.
+ * 
+ * @return HttpClient configured with basic plugins (ContentNegotiation, Logging) - NO AUTH
+ */
+fun createAuthKtorClient(): HttpClient {
+    return HttpClient(CIO) {
+        // Configure ContentNegotiation plugin with Json serializer
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        
+        // Configure Logging plugin
+        install(Logging) {
+            level = LogLevel.BODY
+        }
+        
+        // NO Auth plugin - authentication operations don't need tokens
+        // NO defaultRequest with authorization headers
+        
+        // Disable retry plugin for auth operations
+        install(HttpRequestRetry) {
+            maxRetries = 0
+        }
+    }
+}
+
+/**
  * Create basic HttpClient without session management for TokenRefreshService
  * 
  * Implements LLR-3.10.9: Basic HttpClient Implementation
@@ -60,11 +90,17 @@ fun createKtorClient(
         // Implement defaultRequest block that sets Authorization header with bearer token from TokenProvider or AppConstants.JWT_TOKEN
         defaultRequest {
             val token = tokenProvider.getAccessToken()
-            println("Hello" + token)
+            Log.d("BasicKtorClient", "Basic client - Access token: ${if (token != null) "Present" else "None"}")
+            Log.d("BasicKtorClient", "Basic client - JWT_TOKEN: ${if (AppConstants.JWT_TOKEN != null) "Present" else "None"}")
+            
             if (token != null) {
+                Log.d("BasicKtorClient", "Basic client - Adding Bearer token from TokenProvider")
                 headers.append(HttpHeaders.Authorization, "Bearer $token")
-            }else if (AppConstants.JWT_TOKEN != null){
-                headers.append(HttpHeaders.Authorization, "Bearer " + AppConstants.JWT_TOKEN)
+            } else if (AppConstants.JWT_TOKEN != null) {
+                Log.d("BasicKtorClient", "Basic client - Adding Bearer token from AppConstants")
+                headers.append(HttpHeaders.Authorization, "Bearer ${AppConstants.JWT_TOKEN}")
+            } else {
+                Log.d("BasicKtorClient", "Basic client - No authorization header added")
             }
         }
         

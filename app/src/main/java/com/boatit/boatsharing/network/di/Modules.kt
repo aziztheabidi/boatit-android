@@ -157,6 +157,9 @@ val Modules = module {
     // Create HttpClient without SessionManager dependency first to avoid circular dependencies
     single { createKtorClient(get()) }
     
+    // Create HttpClient specifically for authentication operations (no auth headers)
+    single(named("authHttpClient")) { createAuthKtorClient() }
+    
     // Session Management - TokenRefreshService uses the basic HttpClient
     single { TokenRefreshService(get(), get()) }
     single { SessionManager(get(), get(), get()) }
@@ -171,19 +174,19 @@ val Modules = module {
     viewModel {NearByVoyagesViewModel(get(), get())}
 
     single { SharedPrefManager(androidContext()) }
-    single { LoginRepository(get(named("httpClientWithInterceptor"))) }
+    single { LoginRepository(get(named("authHttpClient"))) }
     viewModel { LoginViewModel(get(),get ()) }
 
-    single { RegistrationRepository(get(named("httpClientWithInterceptor"))) }
+    single { RegistrationRepository(get(named("authHttpClient"))) }
     viewModel { RegistrationViewModel(get()) }
 
-    single { VerifyEmailRepository(get(named("httpClientWithInterceptor"))) }
+    single { VerifyEmailRepository(get(named("authHttpClient"))) }
     viewModel { VerifyEmailViewModel(get()) }
 
-    single { PasswordRepository(get(named("httpClientWithInterceptor"))) }
+    single { PasswordRepository(get(named("authHttpClient"))) }
     viewModel { PasswordViewModel(get(), get()) }
 
-    single { ForgotPassRepository(get(named("httpClientWithInterceptor"))) }
+    single { ForgotPassRepository(get(named("authHttpClient"))) }
     viewModel { ForgotPassViewModel(get()) }
 
     single { RoleRepository(get(named("httpClientWithInterceptor"))) }
