@@ -24,6 +24,14 @@ The BusinessDashboard Refactoring System encompasses:
 - **Essential**: Integration with centralized session management
 - **Essential**: Basic error handling and retry mechanisms
 - **Essential**: Performance optimization and maintainability improvements
+- **CRITICAL**: Multiple image selection and upload functionality
+- **CRITICAL**: Advanced business hours editing with dropdown time selection
+- **CRITICAL**: Location management with map picker integration
+- **CRITICAL**: Comprehensive dock service management
+- **CRITICAL**: Business logo display and management
+- **CRITICAL**: Real backend data integration (replacing mock data)
+- **CRITICAL**: Image deletion and gallery management
+- **CRITICAL**: Navigation menu integration
 
 ### **1.3 Culling Summary**
 **CULLED Requirements (Overly Complex/Unnecessary):**
@@ -37,6 +45,17 @@ The BusinessDashboard Refactoring System encompasses:
 - 🔄 **SR-2.1.1**: Basic retry logic (3 attempts, existing Ktor retry)
 - 🔄 **SR-7.1.1**: Component size limit (200 → 300 lines)
 - 🔄 **SR-7.1.3**: Memory usage (remove specific limit, focus on efficiency)
+
+**⚠️ CRITICAL ADDITIONS (Missing Features from Original):**
+- ✅ **Added SR-3.1.3**: Multiple Image Selection Implementation (critical UX gap)
+- ✅ **Added SR-3.1.4**: Image Deletion Implementation (core functionality)
+- ✅ **Added SR-4.1.4**: Map Picker Integration (location accuracy)
+- ✅ **Added SR-4.1.5**: Comprehensive Dock Service Management (complete functionality)
+- ✅ **Added SR-5.1.4**: Advanced Business Hours Editor (precise editing)
+- ✅ **Added SR-6.1.1**: Business Logo Display System (essential branding)
+- ✅ **Added SR-6.1.2**: Real Backend Data Integration (production requirements)
+- ✅ **Added SR-6.1.3**: Navigation Menu Integration (user access)
+- ✅ **Added SR-6.1.4**: Comprehensive Session Management Integration (security)
 
 ---
 
@@ -174,6 +193,80 @@ The BusinessDashboard Refactoring System encompasses:
 
 ---
 
+#### **SR-3.1.3: Multiple Image Selection Implementation*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement multiple image selection using ActivityResultContracts.GetMultipleContents() allowing users to select and upload multiple images simultaneously.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Users need efficient batch image upload functionality to create comprehensiveness business galleries in fewer operations.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Use ActivityResultContracts.GetMultipleContents() for gallery selection returning List<Uri>, convert selected URIs to File objects using uriToFile() helper, handle file conversion failures gracefully, limit selection to remaining slots (6 - current images), upload file list to backend using BusinessLogoViewModel.uploadBusinessGallery(), provide upload progress feedback, and handle concurrent upload operations.
+
+#### **SR-3.1.4: Image Deletion Implementation*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement image deletion functionality with backend synchronization using DeleteRequest API.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Users must be able to remove unwanted images from their business gallery with proper backend cleanup.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Implement delete button on each image in gallery grid, show confirmation dialog before deletion, call BusinessDashViewModel.deleteImage() with DeleteRequest(userId, imagePath), remove image from local UI immediately, update backend storage to remove image file, handle deletion failures with retry options, provide success/failure feedback via toast messages, and synchronize gallery state after successful deletion.
+
+#### **SR-4.1.4: Map Picker Integration*** ✅ **CRITICAL**
+**Requirement:** The system SHALL integrate with map picker functionality for precise location selection and address management.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Precise location selection through map interface is essential for accurate business address management.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Navigate to "map_picker" screen using navController.navigate(), handle selected address from navigation back stack using currentBackStackEntry.savedStateHandle.get<String>("selected_address"), update business address immediately when selected, clear saved state handle after processing, validate selected address format and completeness, update both business location and dock address (when dock enabled), provide map selection feedback to user.
+
+#### **SR-4.1.5: Comprehensive Dock Service Management*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement comprehensive dock service management including business information, location services, and form validation beyond basic toggle functionality.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Dock services require detailed configuration including business name, address, description, and location integration for complete service management.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Implement AddDockSection composable with toggle switch for dock enable/disable, collect dock-specific business name when enabled, integrate dock address selection with map picker, collect dock description when enabled, validate dock information before saving (name, address, description required when dock enabled), update AppConstants.Busines_DOCK with toggle state, save dock configuration with business profile, provide visual feedback for dock configuration state.
+
+#### **SR-5.1.4: Advanced Business Hours Editor*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement advanced business hours editing with modal bottom sheet, dropdown time selection, drag gestures, and real-time editing capabilities.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Businesses require precise control over operating hours with intuitive editing interface allowing individual day configuration with predefined time slots.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Implement ModalBottomSheet with rememberModalBottomSheetState for hours editing, create editable list from BusinessHours for each day, provide dropdown time selection from AppConstants.hourList for start/end times, implement drag gesture detection for modal interaction, provide individual start/end time configuration per day, update editable list with copy() for immutable modifications, validate hours configuration (start before end time), provide save/cancel operations with state management, update business hours display after successful save.
+
+#### **SR-6.1.1: Business Logo Display System*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement business logo display functionality with backend integration, image loading optimization, and fallback handling.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Business logos provide essential branding and identification requiring proper display and management integration.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Display business logo using AsyncImage with model from AppConstants.IMG_PATH + businessDetail.LogoPath, implement Card component with rounded corners and elevation for logo display, provide fallback image handling for missing or corrupted logos, optimize image loading with ContentScale.Crop and proper aspect ratios, implement placeholder and error states for logo loading, integrate logo display with business profile section, handle logo path validation and error states.
+
+#### **SR-6.1.2: Real Backend Data Integration*** ✅ **CRITICAL**
+**Requirement:** The system SHALL integrate with real business data APIs replacing all mock implementations with actual backend services and data models.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Production system requires integration with actual business data services rather than sample/mock implementations for data integrity and functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Replace sample zones/shores/islands with real data from fetchDocksState API response, integrate BusinessData model from backend for business information, load real business hours from businessDetail.BusinessHours, integrate actual dropdown data from zones/shores/islands API responses, replace sample image gallery with real ImagesPath from business data, integrate real business name, type, description, establishment year from backend, update all form validation based on real data constraints, synchronize all UI state with backend data models.
+
+#### **SR-6.1.3: Navigation Menu Integration*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement navigation menu integration and navigation-related functionality including wheel icon menu access.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Users require access to business menu options and comprehensive business management features beyond dashboard functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Implement clickable wheel icon with Image and painterResource(R.drawable.wheel_icon), navigate to NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN on icon click, integrate navigation state management for business menu access, provide visual feedback for navigation interactions, integrate with navigation graph and route definitions, handle navigation state preservation and restoration, provide consistent navigation patterns throughout business management flow.
+
+#### **SR-6.1.4: Comprehensive Session Management Integration*** ✅ **CRITICAL**
+**Requirement:** The system SHALL implement comprehensive session management integration including session expiration detection, logout handling, and SessionDialog integration.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Robust session management ensures secure operation and prevents unauthorized access with proper user notification and automatic logout functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Elaboration:** Integrate with SessionManager logoutEvent.collectAsState() for session monitoring, implement SessionDialog for session expiry notification with clear messaging, handle automatic navigation to login screen on logout event, implement session expiration detection and user notification, provide logout confirmation dialog with appropriate messaging, integrate session state monitoring throughout business operations, handle session timeout warnings and preventive measures, maintain session state consistency across navigation operations.
+
+---
+
 ### **2.2 Non-Functional Requirements**
 
 #### **SR-6.1.1: Component Size Limits** 🔄 **SIMPLIFIED**
@@ -238,14 +331,17 @@ The BusinessDashboard Refactoring System encompasses:
 | SR-2.1.2 | SR-2.1.1 | Functional |
 | SR-2.1.3 | SR-2.1.1 | Functional |
 | SR-3.1.2 | SR-3.1.1 | Functional |
+| SR-3.1.4 | SR-3.1.3 | Functional |
 | SR-4.1.2 | SR-4.1.1 | Functional |
 | SR-4.1.3 | SR-4.1.1 | Functional |
+| SR-4.1.5 | SR-4.1.4 | Functional |
 | SR-5.1.2 | SR-5.1.1 | Functional |
 | SR-5.1.3 | SR-5.1.1 | Functional |
+| SR-5.1.4 | SR-5.1.1 | Functional |
 | SR-6.1.2 | SR-6.1.1 | Performance |
-| SR-6.1.3 | SR-6.1.1 | Performance |
+| SR-6.1.4 | SR-1.1.4 | Functional |
 | SR-7.1.2 | SR-7.1.1 | Quality |
-| SR-7.1.3 | SR-7.1.1 | Quality |
+| SR-7.1.5 | SR-7.1.1 | Quality |
 
 ---
 
@@ -263,22 +359,33 @@ The BusinessDashboard Refactoring System encompasses:
 7. **SR-2.1.3**: Basic Form Validation Implementation
 8. **SR-7.1.2**: Data Validation Implementation
 
-### **Phase 3: Feature Implementation (Essential)**
-9. **SR-3.1.1**: Basic Image Upload Management
-10. **SR-3.1.2**: Basic Gallery Management
-11. **SR-4.1.1**: Basic Location Management
-12. **SR-4.1.2**: Dock Management
-13. **SR-4.1.3**: Address Management
-14. **SR-5.1.1**: Business Hours Management
-15. **SR-5.1.2**: Basic Hours Validation
-16. **SR-5.1.3**: Hours Persistence
+### **Phase 3: Critical Missing Features Implementation**
+9. **SR-3.1.3**: Multiple Image Selection Implementation ⚠️ **CRITICAL**
+10. **SR-3.1.4**: Image Deletion Implementation ⚠️ **CRITICAL**
+11. **SR-4.1.4**: Map Picker Integration ⚠️ **CRITICAL**
+12. **SR-4.1.5**: Comprehensive Dock Service Management ⚠️ **CRITICAL**
+13. **SR-5.1.4**: Advanced Business Hours Editor ⚠️ **CRITICAL**
+14. **SR-6.1.1**: Business Logo Display System ⚠️ **CRITICAL**
+15. **SR-6.1.2**: Real Backend Data Integration ⚠️ **CRITICAL**
+16. **SR-6.1.3**: Navigation Menu Integration ⚠️ **CRITICAL**
+17. **SR-6.1.4**: Comprehensive Session Management Integration ⚠️ **CRITICAL**
 
-### **Phase 4: Performance & Quality (Essential)**
-17. **SR-6.1.1**: Component Size Limits
-18. **SR-6.1.2**: State Update Performance
-19. **SR-6.1.3**: Efficient Memory Usage
-20. **SR-7.1.1**: Basic Error Recovery Implementation
-21. **SR-7.1.3**: Session Integration Implementation
+### **Phase 4: Original Feature Implementation (Essential)**
+18. **SR-3.1.1**: Basic Image Upload Management
+19. **SR-3.1.2**: Basic Gallery Management
+20. **SR-4.1.1**: Basic Location Management
+21. **SR-4.1.2**: Dock Management
+22. **SR-4.1.3**: Address Management
+23. **SR-5.1.1**: Business Hours Management
+24. **SR-5.1.2**: Basic Hours Validation
+25. **SR-5.1.3**: Hours Persistence
+
+### **Phase 5: Performance & Quality (Essential)**
+26. **SR-6.1.1**: Component Size Limits
+27. **SR-6.1.2**: State Update Performance
+28. **SR-6.1.3**: Efficient Memory Usage
+29. **SR-7.1.1**: Basic Error Recovery Implementation
+30. **SR-7.1.3**: Session Integration Implementation
 
 ---
 
@@ -286,10 +393,13 @@ The BusinessDashboard Refactoring System encompasses:
 
 - **Phase 1 (Core Architecture)**: 1-2 weeks
 - **Phase 2 (Error Handling & Validation)**: 1 week
-- **Phase 3 (Feature Implementation)**: 2-3 weeks
-- **Phase 4 (Performance & Quality)**: 1 week
+- **Phase 3 (Critical Missing Features)**: 3-4 weeks ⚠️ **HIGH EFFORT**
+- **Phase 4 (Original Feature Implementation)**: 2-3 weeks
+- **Phase 5 (Performance & Quality)**: 1 week
 
-**Total estimated effort: 5-7 weeks** (reduced from original 7-8 weeks due to culling)
+**Total estimated effort: 8-11 weeks** (increased due to critical missing features discovery)
+
+**⚠️ CRITICAL FEATURES IMPACT**: The discovery of missing critical features significantly increases implementation effort, as these represent approximately 60-70% of the original functionality that was not captured in initial requirements analysis.
 
 ---
 

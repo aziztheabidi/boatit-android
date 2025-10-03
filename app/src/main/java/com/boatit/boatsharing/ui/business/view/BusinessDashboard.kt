@@ -1,24 +1,94 @@
 package com.boatit.boatsharing.ui.business.view
 
-import androidx.compose.foundation.layout.*
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.boatit.boatsharing.R
+import com.boatit.boatsharing.routes.NavigationManager
+import com.boatit.boatsharing.routes.navigateWithClearStack
+import com.boatit.boatsharing.ui.business.model.BusinessHour
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashboardViewModel
+import com.boatit.boatsharing.uihelpers.SessionDialog
+import com.boatit.boatsharing.utils.AppConstants
+import com.boatit.boatsharing.utils.permissions.PermissionsToAccessCamera
+import com.boatit.boatsharing.utils.permissions.PermissionsToAccessGallery
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -34,43 +104,318 @@ import org.koin.androidx.compose.koinViewModel
 fun BusinessDashboard(
     navController: NavController
 ) {
+    val context = LocalContext.current
     val viewModel: BusinessDashboardViewModel = koinViewModel()
     val state by viewModel.dashboardState.collectAsState()
+    val sessionEvents by viewModel.getSessionEvents().collectAsState(initial = null)
     
-    // Check authentication on launch
+    // Dropdown expansion states
+    var zoneDropdownExpanded by remember { mutableStateOf(false) }
+    var shoreDropdownExpanded by remember { mutableStateOf(false) }
+    var islandDropdownExpanded by remember { mutableStateOf(false) }
+    
+    // Time picker states - FULFILLS: LLR-2.2.1 - Modal Bottom Sheet State Management
+    var showTimePicker by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Image picker states
+    var showImagePicker by remember { mutableStateOf(false) }
+    var useGallery by remember { mutableStateOf(false) }
+    var useCamera by remember { mutableStateOf(false) }
+    
+    // Logo upload states - FULFILLS: LLR-2.5.2 - Logo Upload Integration
+    var showLogoPicker by remember { mutableStateOf(false) }
+    var useLogoGallery by remember { mutableStateOf(false) }
+    var useLogoCamera by remember { mutableStateOf(false) }
+    
+    // Check authentication on launch and initialize backend data
+    // FULFILLS: LLR-2.6.1 and LLR-2.6.2 - Backend Integration Initialization
+    // FULFILLS: LLR-2.3.1 - Map Picker Navigation Integration (location data retrieval)
     LaunchedEffect(Unit) {
         if (!viewModel.checkAuthentication()) {
             navController.navigate("login")
         } else {
-            viewModel.loadBusinessData()
-            viewModel.loadDropdownData()
+            viewModel.initializeDashboardData()
         }
     }
+    
+    // Handle map picker result - FULFILLS: LLR-2.3.1 - Map Picker Location Integration
+    LaunchedEffect(Unit) {
+        val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+        savedStateHandle?.let { handle ->
+            handle.getStateFlow<String?>("selected_address", null).collect { selectedAddress ->
+                selectedAddress?.let { address ->
+                    // Parse and update location data from map picker
+                    val addressLines = address.split("\n").filter { it.isNotBlank() }
+                    if (addressLines.size >= 5) {
+                        val extractedAddress = addressLines[0].substringAfter("Address: ")
+                        val extractedCity = addressLines[1].substringAfter("City: ")
+                        val extractedState = addressLines[2].substringAfter("State: ")
+                        val extractedLat = addressLines[3].substringAfter("Latitude: ").toDoubleOrNull() ?: 0.0
+                        val extractedLng = addressLines[4].substringAfter("Longitude: ").toDoubleOrNull() ?: 0.0
+                        
+                        // Update location data in ViewModel
+                        val locationData = com.boatit.boatsharing.ui.business.model.LocationData(
+                            address = extractedAddress,
+                            city = extractedCity,
+                            state = extractedState,
+                            latitude = extractedLat,
+                            longitude = extractedLng,
+                            zone = state.selectedZone ?: "",
+                            shore = state.selectedShore ?: "",
+                            island = state.selectedIsland ?: "",
+                            isWaterfront = true, // Assuming waterfront for marine businesses
+                            hasParking = false,
+                            hasAccessibility = false,
+                            isActive = true
+                        )
+                        viewModel.updateLocationData(locationData)
+                        
+                        // Clear the saved state
+                        handle.set("selected_address", null)
+                        
+                        Toast.makeText(context, "Location updated!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+    
+    // Business Menu Navigation Button - FULFILLS: Missing Business Menu Integration
+    Box(
+        modifier = Modifier
+            .width(80.dp)
+            .height(100.dp)
+            .padding(start = 20.dp, top = 15.dp),
+        contentAlignment = Alignment.TopStart,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.wheel_icon),
+            contentDescription = "Business Menu",
+            modifier = Modifier
+                .size(width = 80.dp, height = 80.dp)
+                .clickable(onClick = {
+                    navController.navigate(NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN)
+                })
+        )
+    }
+    
+    Spacer(modifier = Modifier.height(20.dp))
     
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 0.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // FULFILLS: LLR-1.2.1, LLR-1.2.2 - Business Profile Section
-        BusinessProfileSection(state, viewModel)
+        BusinessProfileSection(state, viewModel) { showLogoPicker = true }
         
         // FULFILLS: LLR-1.3.1, LLR-1.3.2, LLR-1.3.3 - Business Gallery Section
-        BusinessGallerySection(state, viewModel)
+        // FULFILLS: LLR-2.1.1 - Multiple Image Selection
+        BusinessGallerySection(state, viewModel, { showImagePicker = true }, context)
         
         // FULFILLS: LLR-1.4.1, LLR-1.4.2 - Business Location Section
-        BusinessLocationSection(state, viewModel, navController)
+        // FULFILLS: LLR-2.6.1 - Backend Dropdown Data Integration
+        BusinessLocationSection(
+            state = state,
+            viewModel = viewModel,
+            navController = navController,
+            zoneDropdownExpanded = zoneDropdownExpanded,
+            shoreDropdownExpanded = shoreDropdownExpanded,
+            islandDropdownExpanded = islandDropdownExpanded,
+            onZoneExpandedChange = { zoneDropdownExpanded = !zoneDropdownExpanded },
+            onShoreExpandedChange = { shoreDropdownExpanded = !shoreDropdownExpanded },
+            onIslandExpandedChange = { islandDropdownExpanded = !islandDropdownExpanded },
+            zones = state.zones,
+            shores = state.shores,
+            islands = state.islands
+        )
         
         // FULFILLS: LLR-1.5.1, LLR-1.5.2 - Business Hours Section
-        BusinessHoursSection(state, viewModel)
+        BusinessHoursSection(state, viewModel) { showTimePicker = true }
         
         // FULFILLS: LLR-1.6.1, LLR-1.6.2 - Business Dock Section
-        BusinessDockSection(state, viewModel)
+        BusinessDockSection(state, viewModel, navController)
         
         // FULFILLS: LLR-1.7.1, LLR-1.7.2 - Business Actions Section
         BusinessActionsSection(state, viewModel)
+    }
+    
+    // Advanced Business Hours Editor - FULFILLS: LLR-2.2.1 - Modal Bottom Sheet Implementation
+    if (showTimePicker) {
+        AdvancedBusinessHoursModal(
+            sheetState = sheetState,
+            onDismiss = { showTimePicker = false },
+            onSave = { updatedHours ->
+                viewModel.saveBusinessHours(updatedHours)
+                showTimePicker = false
+                Toast.makeText(context, "Business hours updated!", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+    
+    // Image Picker Dialog
+    if (showImagePicker) {
+        AlertDialog(
+            onDismissRequest = { showImagePicker = false },
+            title = { Text("Add Business Image") },
+            text = { 
+                Text("Choose an image source:")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { 
+                        showImagePicker = false
+                        useGallery = true
+                    }
+                ) {
+                    Text("Gallery")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { 
+                        showImagePicker = false
+                        useCamera = true
+                    }
+                ) {
+                    Text("Camera")
+                }
+            }
+        )
+    }
+    
+    // Logo Picker Dialog - FULFILLS: LLR-2.5.2 - Logo Upload Integration
+    if (showLogoPicker) {
+        AlertDialog(
+            onDismissRequest = { showLogoPicker = false },
+            title = { Text("Select Logo Source") },
+            text = { Text("Choose how to add your business logo:") },
+            confirmButton = {
+                TextButton(
+                    onClick = { 
+                        showLogoPicker = false
+                        useLogoGallery = true
+                    }
+                ) {
+                    Text("Gallery")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { 
+                        showLogoPicker = false
+                        useLogoCamera = true
+                    }
+                ) {
+                    Text("Camera")
+                }
+            }
+        )
+    }
+    
+    // Gallery Picker (triggered by flag) - FULFILLS: LLR-2.1.1 - Multiple Image Selection
+    if (useGallery) {
+        PermissionsToAccessGalleryMultiple(
+            onImagesSelected = { selectedUris: List<Uri> ->
+                // FULFILLS: LLR-2.1.3 - Backend Image Upload Integration
+                // Add URIs to UI state immediately for visual feedback
+                val newImageUris = selectedUris.map { it.toString() }
+                val updatedImageList = state.imageList + newImageUris
+                viewModel.updateImageList(updatedImageList)
+                
+                // Upload to backend
+                viewModel.uploadImagesToBackend(selectedUris, context)
+                
+                useGallery = false
+                Toast.makeText(context, "Uploading ${selectedUris.size} images...", Toast.LENGTH_SHORT).show()
+            },
+            onPermissionGranted = { /* Already handled */ },
+            onPermissionDenied = { 
+                useGallery = false
+                Toast.makeText(context, "Gallery permission denied", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+    
+    // Camera Picker (triggered by flag)
+    if (useCamera) {
+        PermissionsToAccessCamera(
+            onImageCaptured = { uri: Uri? ->
+                uri?.let {
+                    val uriString = it.toString()
+                    val newImageList = state.imageList + uriString
+                    viewModel.updateImageList(newImageList)
+                    useCamera = false
+                    Toast.makeText(context, "Image captured!", Toast.LENGTH_SHORT).show()
+                } ?: run {
+                    useCamera = false
+                    Toast.makeText(context, "Failed to capture image", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+    
+    // Logo Gallery Picker - FULFILLS: LLR-2.5.2 - Logo Upload Integration (Gallery)
+    if (useLogoGallery) {
+        PermissionsToAccessGallery(
+            onImageSelected = { uri: Uri ->
+                // Update logo path in business data
+                val logoUri = uri.toString()
+                val updatedData = state.businessData?.copy(logoPath = logoUri)
+                    ?: com.boatit.boatsharing.ui.business.model.BusinessProfileInfo(logoPath = logoUri)
+                viewModel.updateBusinessData(updatedData)
+                useLogoGallery = false
+                Toast.makeText(context, "Logo uploaded!", Toast.LENGTH_SHORT).show()
+            },
+            onPermissionGranted = { /* Already handled by gallery */ },
+            onPermissionDenied = { 
+                useLogoGallery = false
+                Toast.makeText(context, "Gallery permission denied", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+    
+    // Logo Camera Picker - FULFILLS: LLR-2.5.2 - Logo Upload Integration (Camera)
+    if (useLogoCamera) {
+        PermissionsToAccessCamera(
+            onImageCaptured = { uri: Uri? ->
+                uri?.let {
+                    // Update logo path in business data
+                    val logoUri = it.toString()
+                    val updatedData = state.businessData?.copy(logoPath = logoUri)
+                        ?: com.boatit.boatsharing.ui.business.model.BusinessProfileInfo(logoPath = logoUri)
+                    viewModel.updateBusinessData(updatedData)
+                    useLogoCamera = false
+                    Toast.makeText(context, "Logo captured!", Toast.LENGTH_SHORT).show()
+                } ?: run {
+                    useLogoCamera = false
+                    Toast.makeText(context, "Failed to capture logo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+    
+    // Session Expiration Dialog - FULFILLS: Missing SessionDialog Integration
+    sessionEvents?.let { event ->
+        when (event) {
+            is com.boatit.boatsharing.utils.session.SessionEvent.SessionExpired,
+            is com.boatit.boatsharing.utils.session.SessionEvent.TokenRefreshFailed,
+            is com.boatit.boatsharing.utils.session.SessionEvent.AccountDeactivated -> {
+                SessionDialog(
+                    text = "Session expired, please login again",
+                    onCancel = { /* No cancellation for expired session */ },
+                    onPressOk = {
+                        navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+                    },
+                    showCancelButton = false
+                )
+            }
+            else -> { /* Other events handled elsewhere */ }
+        }
     }
 }
 
@@ -83,7 +428,8 @@ fun BusinessDashboard(
 @Composable
 private fun BusinessProfileSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel
+    viewModel: BusinessDashboardViewModel,
+    onShowLogoPicker: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -112,6 +458,81 @@ private fun BusinessProfileSection(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+            
+            // Business Logo Display - FULFILLS: LLR-2.5.1 - Business Logo Display Implementation
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Business Logo",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Logo display area
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .background(
+                                androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.1f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .border(
+                                1.dp,
+                                androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.3f),
+                                RoundedCornerShape(8.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (state.businessData?.logoPath.isNullOrBlank()) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = "No logo",
+                                    modifier = Modifier.size(32.dp),
+                                    tint = androidx.compose.ui.graphics.Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "No logo uploaded",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = androidx.compose.ui.graphics.Color.Gray,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        } else {
+                            AsyncImage(
+                                model = state.businessData?.logoPath,
+                                contentDescription = "Business Logo",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Button(
+                        onClick = onShowLogoPicker,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Upload Logo")
+                    }
+                }
+            }
             
             // Business Type
             OutlinedTextField(
@@ -166,7 +587,9 @@ private fun BusinessProfileSection(
 @Composable
 private fun BusinessGallerySection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel
+    viewModel: BusinessDashboardViewModel,
+    onShowImagePicker: () -> Unit,
+    context: android.content.Context
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -198,8 +621,10 @@ private fun BusinessGallerySection(
                         )
                         IconButton(
                             onClick = {
+                                // FULFILS: LLR-2.1.1 - Image Deletion Implementation
                                 val updatedList = state.imageList.toMutableList().apply { remove(imageUrl) }
                                 viewModel.updateImageList(updatedList)
+                                Toast.makeText(context, "Image removed", Toast.LENGTH_SHORT).show()
                             },
                             modifier = Modifier.align(Alignment.TopEnd)
                         ) {
@@ -215,12 +640,7 @@ private fun BusinessGallerySection(
             
             // Upload Button
             FloatingActionButton(
-                onClick = {
-                    // TODO: Implement image selection
-                    // For now, add a placeholder image
-                    val newImageList = state.imageList + "https://via.placeholder.com/100"
-                    viewModel.updateImageList(newImageList)
-                },
+                onClick = onShowImagePicker,
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
@@ -243,7 +663,16 @@ private fun BusinessGallerySection(
 private fun BusinessLocationSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
     viewModel: BusinessDashboardViewModel,
-    navController: NavController
+    navController: NavController,
+    zoneDropdownExpanded: Boolean,
+    shoreDropdownExpanded: Boolean,
+    islandDropdownExpanded: Boolean,
+    onZoneExpandedChange: (Boolean) -> Unit,
+    onShoreExpandedChange: (Boolean) -> Unit,
+    onIslandExpandedChange: (Boolean) -> Unit,
+    zones: List<com.boatit.boatsharing.ui.business.model.DockDropdownItem>,
+    shores: List<com.boatit.boatsharing.ui.business.model.DockDropdownItem>,
+    islands: List<com.boatit.boatsharing.ui.business.model.DockDropdownItem>
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -261,8 +690,8 @@ private fun BusinessLocationSection(
             
             // Zone Selection
             ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = { }
+                expanded = zoneDropdownExpanded,
+                onExpandedChange = onZoneExpandedChange
             ) {
                 OutlinedTextField(
                     value = state.selectedZone ?: "",
@@ -275,17 +704,28 @@ private fun BusinessLocationSection(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) }
                 )
                 ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { }
+                    expanded = zoneDropdownExpanded,
+                    onDismissRequest = { onZoneExpandedChange(false) }
                 ) {
-                    // TODO: Add zone options
+                    // Zone options from backend data
+                    // FULFILLS: LLR- the state's dropdown items
+                    zones.forEach { zone ->
+                        DropdownMenuItem(
+                            text = { Text(zone.Name) },
+                            onClick = {
+                                viewModel.updateSelectedZone(zone.Name)
+                                onZoneExpandedChange(false)
+                                viewModel.validateForm()
+                            }
+                        )
+                    }
                 }
             }
             
             // Shore Selection
             ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = { }
+                expanded = shoreDropdownExpanded,
+                onExpandedChange = onShoreExpandedChange
             ) {
                 OutlinedTextField(
                     value = state.selectedShore ?: "",
@@ -298,17 +738,28 @@ private fun BusinessLocationSection(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) }
                 )
                 ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { }
+                    expanded = shoreDropdownExpanded,
+                    onDismissRequest = { onShoreExpandedChange(false) }
                 ) {
-                    // TODO: Add shore options
+                    // Shore options from backend data
+                    // FULFILLS: LLR-2.6.1 - Backend Shore Dropdown Integration
+                    shores.forEach { shore ->
+                        DropdownMenuItem(
+                            text = { Text(shore.Name) },
+                            onClick = {
+                                viewModel.updateSelectedShore(shore.Name)
+                                onShoreExpandedChange(false)
+                                viewModel.validateForm()
+                            }
+                        )
+                    }
                 }
             }
             
             // Island Selection
             ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = { }
+                expanded = islandDropdownExpanded,
+                onExpandedChange = onIslandExpandedChange
             ) {
                 OutlinedTextField(
                     value = state.selectedIsland ?: "",
@@ -321,31 +772,83 @@ private fun BusinessLocationSection(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) }
                 )
                 ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { }
+                    expanded = islandDropdownExpanded,
+                    onDismissRequest = { onIslandExpandedChange(false) }
                 ) {
-                    // TODO: Add island options
+                    // Island options from backend data
+                    // FULFILLS: LLR-2.6.1 - Backend Island Dropdown Integration
+                    islands.forEach { island ->
+                        DropdownMenuItem(
+                            text = { Text(island.Name) },
+                            onClick = {
+                                viewModel.updateSelectedIsland(island.Name)
+                                onIslandExpandedChange(false)
+                                viewModel.validateForm()
+                            }
+                        )
+                    }
                 }
             }
             
-            // Address Display and Edit
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Address Display and Edit - FULFILLS: LLR-2.3.1 - Map Picker Integration Display
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Address: ${state.businessData?.businessName ?: "Not set"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                IconButton(
-                    onClick = {
-                        navController.navigate("map_picker")
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Address"
+                    Text(
+                        text = "Business Location",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(
+                        onClick = {
+                            navController.navigate("map_picker")
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Address"
+                        )
+                    }
+                }
+                
+                // Display location details from map picker
+                state.locationData?.let { location ->
+                    if (location.address.isNotBlank()) {
+                        Text(
+                            text = location.address,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        if (location.city.isNotBlank()) {
+                            Text(
+                                text = "${location.city}, ${location.state}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = androidx.compose.ui.graphics.Color.Gray
+                            )
+                        }
+                        if (location.latitude != 0.0 && location.longitude != 0.0) {
+                            Text(
+                                text = "Coordinates: ${String.format("%.4f", location.latitude)}, ${String.format("%.4f", location.longitude)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = androidx.compose.ui.graphics.Color.Gray
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "No location selected",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = androidx.compose.ui.graphics.Color.Gray
+                        )
+                    }
+                } ?: run {
+                    Text(
+                        text = "No location selected", 
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = androidx.compose.ui.graphics.Color.Gray
                     )
                 }
             }
@@ -362,7 +865,8 @@ private fun BusinessLocationSection(
 @Composable
 private fun BusinessHoursSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel
+    viewModel: BusinessDashboardViewModel,
+    onShowTimePicker: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -379,24 +883,23 @@ private fun BusinessHoursSection(
             )
             
             // Hours Display
-            Text(
-                text = "Monday - Friday: 9:00 AM - 5:00 PM",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Saturday: 10:00 AM - 4:00 PM",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Sunday: Closed",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            if (state.businessHours.isNotEmpty()) {
+                state.businessHours.forEach { hour ->
+                    Text(
+                        text = "${hour.Day}: ${hour.StartTime} - ${hour.EndTimeTime}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                Text(
+                    text = "No business hours set",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
             
             // Edit Hours Button
             Button(
-                onClick = {
-                    // TODO: Implement TimePicker for editing hours
-                },
+                onClick = onShowTimePicker,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Edit Hours")
@@ -414,7 +917,8 @@ private fun BusinessHoursSection(
 @Composable
 private fun BusinessDockSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel
+    viewModel: BusinessDashboardViewModel,
+    navController: NavController
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -448,28 +952,202 @@ private fun BusinessDockSection(
                 )
             }
             
-            // Dock Information Display (when enabled)
+            // Enhanced Dock Information Display - FULFILLS: LLR-2.4.1 - Dock Service Details Enhancement
             if (state.dockEnabled) {
+                val dockData = state.dockData
+                if (dockData != null) {
+                    // Dock Header Information
+                    Text(
+                        text = "Dock Information:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    
+                    if (dockData.dockName.isNotBlank()) {
+                        Text(
+                            text = "• Name: ${dockData.dockName}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    if (dockData.dockType.isNotBlank()) {
+                        Text(
+                            text = "• Type: ${dockData.dockType}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    // Boat Specifications
+                    if (dockData.maxBoatLength > 0) {
+                        Text(
+                            text = "• Max boat length: ${dockData.maxBoatLength} ft",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    if (dockData.maxBoatWidth > 0) {
+                        Text(
+                            text = "• Max boat width: ${dockData.maxBoatWidth} ft",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    if (dockData.maxBoatDraft > 0) {
+                        Text(
+                            text = "• Max boat draft: ${dockData.maxBoatDraft} ft",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    // Slip Information
+                    if (dockData.totalSlips > 0) {
+                        Text(
+                            text = "• Available slips: ${dockData.availableSlips}/${dockData.totalSlips}",
+                    style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    // Pricing Information
+                    Text(
+                        text = "• Pricing:",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium
+                    )
+                    
+                    if (dockData.hourlyRate > 0) {
+                        Text(
+                            text = "  - Hourly: $${dockData.hourlyRate}/hour",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    if (dockData.dailyRate > 0) {
+                        Text(
+                            text = "  - Daily: $${dockData.dailyRate}/day",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    if (dockData.monthlyRate > 0) {
+                        Text(
+                            text = "  - Monthly: $${dockData.monthlyRate}/month",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    // Amenities Information
+                    Column {
+                        Text(
+                            text = "• Amenities:",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                        
+                        Row(modifier = Modifier.padding(start = 4.dp)) {
+                            Text(
+                                text = buildString {
+                                    if (dockData.hasPower) append("Power ") 
+                                    if (dockData.hasWater) append("Water ") 
+                                    if (dockData.hasWifi) append("WiFi ") 
+                                    if (dockData.hasRestrooms) append("Restrooms ") 
+                                    if (dockData.hasShowers) append("Showers ") 
+                                    if (dockData.hasFuel) append("Fuel ") 
+                                    if (dockData.hasPumpout) append("Pumpout ")
+                                }.trim(),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        
+                        if (dockData.hasPower.not() && dockData.hasWater.not() && dockData.hasWifi.not() && 
+                            dockData.hasRestrooms.not() && dockData.hasShowers.not() && dockData.hasFuel.not() && dockData.hasPumpout.not()) {
+                            Text(
+                                text = "None listed",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = androidx.compose.ui.graphics.Color.Gray
+                            )
+                        }
+                    }
+                } else {
+                    // Default dock information when no specific dock data
+                    Text(
+                        text = "Dock Information:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "• Standard dock services available",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Dock Details Form - FULFILLS: Missing Complete Dock Form
+                var dockName by remember { mutableStateOf(state.dockData?.dockName ?: state.businessData?.businessName ?: "") }
+                var dockAddress by remember { mutableStateOf(state.dockData?.dockName ?: state.locationData?.address ?: "") }
+                var dockDescription by remember { mutableStateOf(state.businessData?.businessDescription ?: "") }
+                
+                // Name Field
                 Text(
-                    text = "Dock Information:",
+                    text = "Dock Name",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
-                Text(
-                    text = "• Maximum boat length: 50 feet",
-                    style = MaterialTheme.typography.bodySmall
+                OutlinedTextField(
+                    value = dockName,
+                    onValueChange = { dockName = it },
+                    placeholder = { Text("Enter dock name") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    singleLine = true
                 )
-                Text(
-                    text = "• Maximum boat width: 15 feet",
-                    style = MaterialTheme.typography.bodySmall
+                
+                // Address Field with Edit Button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Dock Address", 
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    IconButton(onClick = { navController.navigate("map_picker") }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Address",
+                            tint = colorResource(R.color.button_normal)
+                        )
+                    }
+                }
+                OutlinedTextField(
+                    value = dockAddress,
+                    onValueChange = { dockAddress = it },
+                    placeholder = { Text("Enter dock address") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    singleLine = true
                 )
+                
+                // Description Field
                 Text(
-                    text = "• Available slips: 10",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "Dock Description",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
                 )
-                Text(
-                    text = "• Hourly rate: $25/hour",
-                    style = MaterialTheme.typography.bodySmall
+                OutlinedTextField(
+                    value = dockDescription,
+                    onValueChange = { dockDescription = it },
+                    placeholder = { Text("Enter dock details") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .padding(vertical = 4.dp),
+                    minLines = 3,
+                    maxLines = 5
                 )
             }
         }
@@ -528,6 +1206,264 @@ private fun BusinessActionsSection(
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+        }
+    }
+}
+
+/**
+ * PermissionsToAccessGalleryMultiple - Enhanced gallery access for multiple image selection
+ * 
+ * FULFILLS: LLR-2.1.1 - Multiple Image Selection Implementation
+ * 
+ * This composable provides multiple image selection from gallery using
+ * ActivityResultContracts.GetMultipleContents() for enhanced user experience.
+ */
+@Composable
+private fun PermissionsToAccessGalleryMultiple(
+    onImagesSelected: (List<Uri>) -> Unit,
+    onPermissionGranted: () -> Unit,
+    onPermissionDenied: () -> Unit,
+) {
+    var permissionGranted by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Multiple images gallery launcher
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris: List<Uri> ->
+        if (uris.isNotEmpty()) {
+            onImagesSelected(uris)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permissionGranted = isGranted
+        if (isGranted) {
+            onPermissionGranted()
+        } else {
+            onPermissionDenied()
+        }
+    }
+
+    val permission = if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    // Check permission and launch gallery
+    androidx.compose.runtime.LaunchedEffect(permission) {
+        val isPermissionGranted = androidx.core.content.ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        if (!isPermissionGranted) {
+            permissionLauncher.launch(permission)
+        } else {
+            galleryLauncher.launch("image/*")
+        }
+    }
+
+    // Handle permission granted case
+    LaunchedEffect(permissionGranted) {
+        if (permissionGranted) {
+            galleryLauncher.launch("image/*")
+        }
+    }
+}
+
+/**
+ * AdvancedBusinessHoursModal - Advanced business hours editing with ModalBottomSheet
+ * 
+ * FULFILLS: LLR-2.2.1 - Modal Bottom Sheet Implementation
+ * FULFILLS: LLR-2.2.2 - Time Slot Dropdown Integration
+ * 
+ * This composable provides comprehensive business hours editing with:
+ * - ModalBottomSheet with drag gestures
+ * - Time slot dropdowns using AppConstants.hourList
+ * - Individual day editing capabilities
+ * - Save/Cancel functionality
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AdvancedBusinessHoursModal(
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onSave: (List<BusinessHour>) -> Unit
+) {
+    var expandedRowIndex by remember { mutableStateOf<Int?>(null) }
+    var expandedEndIndex by remember { mutableStateOf<Int?>(null) }
+    
+    // Default days and editable business hours
+    val daysOfWeek = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    var editableHours by remember { 
+        mutableStateOf(
+            daysOfWeek.map { day ->
+                BusinessHour(Day = day, StartTime = "09:00:00", EndTimeTime = "17:00:00")
+            }
+        )
+    }
+    
+    val coroutineScope = rememberCoroutineScope()
+    
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        containerColor = Color.White,
+        tonalElevation = 16.dp,
+        modifier = Modifier
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { _, dragAmount ->
+                    if (dragAmount > 20) {
+                        coroutineScope.launch {
+                            sheetState.partialExpand()
+                        }
+                    }
+                }
+            }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Header
+            Text(
+                text = "Edit Business Hours",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            // Days editing section
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(editableHours.size) { index ->
+                    val hour = editableHours[index]
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Day TextField
+                        OutlinedTextField(
+                            value = hour.Day.orEmpty(),
+                            onValueChange = { },
+                            modifier = Modifier.weight(1f),
+                            label = { Text("Day") },
+                            readOnly = true
+                        )
+                        
+                        // Start Time Dropdown - FULFILLS: LLR-2.2.2 - Time Slot Dropdown
+                        Box(modifier = Modifier.weight(1f)) {
+                            OutlinedTextField(
+                                value = hour.StartTime.orEmpty(),
+                                onValueChange = { },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Open") },
+                                readOnly = true,
+                                suffix = { 
+                                    IconButton(onClick = { expandedRowIndex = if (expandedRowIndex == index) null else index }) {
+                                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                                    }
+                                }
+                            )
+                            
+                            DropdownMenu(
+                                expanded = expandedRowIndex == index,
+                                onDismissRequest = { expandedRowIndex = null },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(300.dp)
+                                    .background(Color.White)
+                            ) {
+                                AppConstants.hourList.forEach { time ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            editableHours = editableHours.toMutableList().apply {
+                                                set(index, hour.copy(StartTime = time))
+                                            }
+                                            expandedRowIndex = null
+                                        },
+                                        text = {
+                                            Text(
+                                                text = time,
+                                                modifier = Modifier.padding(vertical = 4.dp)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // End Time Dropdown - FULFILLS: LLR-2.2.2 - Time Slot Dropdown
+                        Box(modifier = Modifier.weight(1f)) {
+                            OutlinedTextField(
+                                value = hour.EndTimeTime.orEmpty(),
+                                onValueChange = { },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Close") },
+                                readOnly = true,
+                                suffix = { 
+                                    IconButton(onClick = { expandedEndIndex = if (expandedEndIndex == index) null else index }) {
+                                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                                    }
+                                }
+                            )
+                            
+                            DropdownMenu(
+                                expanded = expandedEndIndex == index,
+                                onDismissRequest = { expandedEndIndex = null },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(300.dp)
+                                    .background(Color.White)
+                            ) {
+                                AppConstants.hourList.forEach { time ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            editableHours = editableHours.toMutableList().apply {
+                                                set(index, hour.copy(EndTimeTime = time))
+                                            }
+                                            expandedEndIndex = null
+                                        },
+                                        text = {
+                                            Text(
+                                                text = time,
+                                                modifier = Modifier.padding(vertical = 4.dp)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+                
+                Button(
+                    onClick = { onSave(editableHours) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save Hours")
+                }
             }
         }
     }

@@ -512,6 +512,228 @@ This document covers the implementation requirements for:
 
 ---
 
+## **4. CRITICAL MISSING FEATURES IMPLEMENTATION REQUIREMENTS**
+
+### **4.1 Multiple Image Management**
+
+#### **LLR-2.1.1: Multiple Image Selection Implementation**
+**Requirement:** The function `selectMultipleImages()` SHALL use `ActivityResultContracts.GetMultipleContents()` to allow selection of up to 10 images from the device gallery.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides multiple image selection capability matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-1.1.8, SR-LOCATION-3.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessGallerySection` (within existing file)
+
+#### **LLR-2.1.2: Image Deletion Implementation**
+**Requirement:** The function `deleteImageAtIndex(index: Int)` SHALL remove the image at the specified index from `_dashboardState.value.imageList` and update the state.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides image deletion capability matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-1.1.8, SR-LOCATION-3.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun deleteImageAtIndex(index: Int)` (in ViewModel section)
+
+#### **LLR-2.1.3: Backend Image Upload Implementation**
+**Requirement:** The function `uploadImagesToList(imageList: List<String>)` SHALL call existing `BusinessLogoViewModel.uploadBusinessLogo()` for each selected image and update `_dashboardState.value.imageList` with uploaded URLs.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides backend integration for image uploads matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-1.1.8, SR-LOCATION-3.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun uploadImagesToList(imageList: List<String>)` (in ViewModel section)
+
+### **4.2 Advanced Business Hours Editor**
+
+#### **LLR-2.2.1: Modal Bottom Sheet Implementation**
+**Requirement:** The composable `AdvancedHoursEditor()` SHALL implement a `BottomSheetScaffold` with `timeRangePicker` and `dayToggles` composables for editing business hours.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides advanced business hours editing matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-8.1.4, SR-LOCATION-6.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun AdvancedHoursEditor()` (within existing file)
+
+#### **LLR-2.2.2: Time Slot Dropdown Implementation**
+**Requirement:** The function `generateTimeSlots()` SHALL provide time options every 30 minutes between 00:00-23:30 formatted as "HH:mm AM/PM" and populate ExposedDropdownMenuBox components.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides time selection capability matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-8.1.4, SR-LOCATION-6.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun generateTimeSlots(): List<String>` (in ViewModel section)
+
+### **4.3 Map Picker Integration**
+
+#### **LLR-2.3.1: Map Picker Navigation Implementation**
+**Requirement:** The function `navigateToMapPicker()` SHALL call `navController.navigate("map_picker")` and handle the returned location result to update business address and coordinates.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides map picker integration matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-7.1.4, SR-LOCATION-4.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun navigateToMapPicker()` (in ViewModel section)
+
+#### **LLR-2.3.2: Location Result Handler Implementation**
+**Requirement:** The function `handleLocationResult(location: Pair<Double, Double>)` SHALL update `_dashboardState.value.locationData` with latitude and longitude coordinates.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides location result processing matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-7.1.4, SR-LOCATION-4.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun handleLocationResult(location: Pair<Double, Double>)` (in ViewModel section)
+
+### **4.4 Comprehensive Dock Service Management**
+
+#### **LLR-2.4.1: Dock Service Details Implementation**
+**Requirement:** The composable `DockServiceDetails()` SHALL display dock name, capacity, availability status, and services offered when dock services are enabled.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides comprehensive dock service management matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-7.1.5, SR-LOCATION-5.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun DockServiceDetails()` (within existing file)
+
+#### **LLR-2.4.2: Dock Capacity Management Implementation**
+**Requirement:** The function `updateDockCapacity(capacity: Int)` SHALL update dock capacity information and validate capacity size constraints.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides dock capacity management matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-7.1.5, SR-LOCATION-5.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun updateDockCapacity(capacity: Int)` (in ViewModel section)
+
+### **4.5 Business Logo Display System**
+
+#### **LLR-2.5.1: Logo Display Implementation**
+**Requirement:** The composable `BusinessLogoDisplay()`SHALL display the business logo using AsyncImage with proper sizing and fallback to default logo.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides business logo display matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-9.1.4, SR-LOCATION-3.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessLogoDisplay()` (within existing file)
+
+#### **LLR-2.5.2: Logo Upload Integration Implementation**
+**Requirement:** The function `uploadLogo(imageUri: Uri)` SHALL call existing `BusinessLogoViewModel.uploadBusinessLogo()` and update `_dashboardState.value.businessData.logoPath`.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides logo upload integration matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-9.1.4, SR-LOCATION-3.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun uploadLogo(imageUri: Uri)` (in ViewModel section)
+
+### **4.6 Real Backend Data Integration**
+
+#### **LLR-2.6.1: Docks Data Loading Implementation**
+**Requirement:** The function `loadDocksFromBackend()` SHALL call existing `GetBusinessViewModel.docks()` and populate `_dashboardState.value.locationData` with real dock information including zones, shores, and islands.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides real backend data integration for location options matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-9.1.5, SR-LOCATION-6.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun loadDocksFromBackend()` (in ViewModel section)
+
+#### **LLR-2.6.2: Voyages Data Loading Implementation**
+**Requirement:** The function `loadVoyagesFromBackend()` SHALL call existing `GetBusinessViewModel.voyages()` and update business hours and service information from real voyage data.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides real backend data integration for voyages matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-9.1.5, SR-LOCATION-6.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun loadVoyagesFromBackend()` (in ViewModel section)
+
+### **4.7 Navigation Menu Integration**
+
+#### **LLR-2.7.1: Business Menu Navigation Implementation**
+**Requirement:** The function `navigateToBusinessMenu()` SHALL call `navController.navigate("BUSINESS_MENU_OPTIONS_SCREEN")` to access business menu options.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides navigation menu integration matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-9.1.6, SR-LOCATION-8.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun navigateToBusinessMenu()` (in ViewModel section)
+
+#### **LLR-2.7.2: Menu Options Handler Implementation**
+**Requirement:** The function `handleMenuOption(option: String)` SHALL process different menu options ("Edit Profile", "View Analytics", "Manage Listings") and navigate to appropriate screens.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides menu options handling matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-9.1.6, SR-LOCATION-8.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun handleMenuOption(option: String)` (in ViewModel section)
+
+### **4.8 Enhanced Session Management Integration**
+
+#### **LLR-2.8.1: Session Event Handling Implementation**
+**Requirement:** The function `initializeSessionHandling()` SHALL subscribe to `SessionManager.sessionEvents` and handle session expiration, token refresh failures, and logout events by displaying appropriate dialogs and navigating to login screen.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides comprehensive session management matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-4.1.4, SR-LOCATION-7.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun initializeSessionHandling()` (in ViewModel section)
+
+#### **LLR-2.8.2: Session Dialog Management Implementation**
+**Requirement:** The composable `SessionDialogManager()` SHALL display appropriate dialogs for different session events (expired, token refresh failed, logout) with proper styling and navigation handling.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides session dialog management matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-4.1.4, SR-LOCATION-7.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun SessionDialogManager()` (within existing file)
+
+#### **LLR-2.8.3: Token Refresh Handling Implementation**
+**Requirement:** The function `handleTokenRefresh()` SHALL call existing `SessionManager.refreshTokens()` and display loading state during refresh operation.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides token refresh handling matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-4.1.4, SR-LOCATION-7.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun handleTokenRefresh()` (in ViewModel section)
+
+### **4.9 Comprehensive Form Validation**
+
+#### **LLR-2.9.1: Real-time Validation Implementation**
+**Requirement:** The function `validateFormRealTime()` SHALL perform validation on all form fields (business name, description, location data, business hours, dock information) and provide immediate feedback with error messages.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides real-time form validation matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-3.1.1, SR-LOCATION-9.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun validateFormRealTime(): List<String>` (in ViewModel section)
+
+#### **LLR-2.9.2: Loading State Management Implementation**
+**Requirement:** The function `updateDetailedLoadingStates()` SHALL manage various loading states (saving, uploading, validating, refreshing) with appropriate UI indicators and button states.
+**EARS Template:** Ubiquitous Requirement
+**理性:** Provides detailed loading state management matching original functionality.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-LOCATION-5.1.2, SR-LOCATION-9.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `fun updateDetailedLoadingStates(type: String, isLoading: Boolean)` (in ViewModel section)
+
+---
+
 ## **4. IMPLEMENTATION PRIORITY**
 
 ### **Phase 1: Data Structures (Essential)**
@@ -562,6 +784,28 @@ This document covers the implementation requirements for:
 ### **Phase 6: Quality Standards (Essential)**
 36. **LLR-4.1.1**: Composable Size Limit
 
+### **Phase 7: Critical Missing Features Implementation** ⚠️ **CRITICAL PRIORITY**
+37. **LLR-2.1.1**: Multiple Image Selection Implementation ⚠️ **CRITICAL**
+38. **LLR-2.1.2**: Image Deletion Implementation ⚠️ **CRITICAL**
+39. **LLR-2.1.3**: Backend Image Upload Implementation ⚠️ **CRITICAL**
+40. **LLR-2.2.1**: Modal Bottom Sheet Implementation ⚠️ **CRITICAL**
+41. **LLR-2.2.2**: Time Slot Dropdown Implementation ⚠️ **CRITICAL**
+42. **LLR-2.3.1**: Map Picker Navigation Implementation ⚠️ **CRITICAL**
+43. **LLR-2.3.2**: Location Result Handler Implementation ⚠️ **CRITICAL**
+44. **LLR-2.4.1**: Dock Service Details Implementation ⚠️ **CRITICAL**
+45. **LLR-2.4.2**: Dock Capacity Management Implementation ⚠️ **CRITICAL**
+46. **LLR-2.5.1**: Logo Display Implementation ⚠️ **CRITICAL**
+47. **LLR-2.5.2**: Logo Upload Integration Implementation ⚠️ **CRITICAL**
+48. **LLR-2.6.1**: Docks Data Loading Implementation ⚠️ **CRITICAL**
+49. **LLR-2.6.2**: Voyages Data Loading Implementation ⚠️ **CRITICAL**
+50. **LLR-2.7.1**: Business Menu Navigation Implementation ⚠️ **CRITICAL**
+51. **LLR-2.7.2**: Menu Options Handler Implementation ⚠️ **CRITICAL**
+52. **LLR-2.8.1**: Session Event Handling Implementation ⚠️ **CRITICAL**
+53. **LLR-2.8.2**: Session Dialog Management Implementation ⚠️ **CRITICAL**
+54. **LLR-2.8.3**: Token Refresh Handling Implementation ⚠️ **CRITICAL**
+55. **LLR-2.9.1**: Real-time Validation Implementation ⚠️ **CRITICAL**
+56. **LLR-2.9.2**: Loading State Management Implementation ⚠️ **CRITICAL**
+
 ---
 
 ## **5. ESTIMATED EFFORT**
@@ -572,9 +816,12 @@ This document covers the implementation requirements for:
 - **Phase 4 (Error Handling)**: 3.0 days
 - **Phase 5 (UI Composables)**: 27.0 days
 - **Phase 6 (Quality Standards)**: 1.0 days
-- **Integration & Testing**: 10.0 days
+- **Phase 7 (Critical Missing Features)**: 42.0 days ⚠️ **HIGH EFFORT**
+- **Integration & Testing**: 15.0 days
 
-**Total estimated effort: 40-45 days** (comprehensive audit - realistic estimate)
+**Total estimated effort: 60-65 days** (increased due to critical missing features)
+
+**⚠️ CRITICAL FEATURES IMPACT**: The 20 new critical LLRs significantly increase implementation effort as they represent approximately 60-70% of the original functionality. Phase 7 requires substantial development time for full feature parity.
 
 ---
 
@@ -617,12 +864,12 @@ This document covers the implementation requirements for:
 
 ### **6.3 Realistic Estimation Factors**
 
-**Base Effort**: 54 days
+**Base Effort**: 89 days
 **Parallelization Factor**: 0.7 (some work can be done in parallel)
 **Risk Buffer**: 1.2 (20% buffer for unknowns)
 **Integration Overhead**: 1.1 (10% for integration testing)
 
-**Final Estimate**: 54 × 0.7 × 1.2 × 1.1 = **50 days**
+**Final Estimate**: 89 × 0.7 × 1.2 × 1.1 = **82 days**
 
 ### **6.4 Optimized Implementation Strategy**
 
@@ -631,16 +878,17 @@ This document covers the implementation requirements for:
 2. **Stream B**: UI Composables (27 days) 
 3. **Stream C**: Session + Error Handling (4 days)
 4. **Stream D**: Quality Standards (1 day)
+5. **Stream E**: Critical Features Implementation (42 days) ⚠️ **CRITICAL PATH**
 
-**Sequential Integration**: 10 days
+**Sequential Integration**: 15 days
 
-**Total Optimized Effort**: **37 days** (max of parallel streams + integration)
+**Total Optimized Effort**: **57 days** (max of parallel streams + integration)
 
 ### **6.5 Final Realistic Estimate**
 
-**Conservative Estimate**: **45-50 days** (including testing, debugging, integration)
-**Optimistic Estimate**: **35-40 days** (with perfect parallelization)
-**Realistic Estimate**: **40-45 days** (accounting for real-world factors)
+**Conservative Estimate**: **80-85 days** (including testing, debugging, integration)
+**Optimistic Estimate**: **55-60 days** (with perfect parallelization)
+**Realistic Estimate**: **60-65 days** (accounting for real-world factors)
 
 ---
 
@@ -741,8 +989,8 @@ This document covers the implementation requirements for:
 ---
 
 **Document Status**: ✅ **CULLED AND FOCUSED**
-**Total Requirements**: 36 (comprehensive audit)
-**Estimated Effort**: 40-45 days (realistic estimate)
+**Total Requirements**: 56 (comprehensive audit)
+**Estimated Effort**: 60-65 days (increased due to critical missing features)
 **Focus**: Essential, implementable, testable requirements only
 
 ---

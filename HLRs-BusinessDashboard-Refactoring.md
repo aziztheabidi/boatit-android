@@ -24,6 +24,14 @@ The BusinessDashboard Refactoring System encompasses:
 - **Essential**: Integration with centralized session management
 - **Essential**: Basic error handling and retry mechanisms
 - **Essential**: Performance optimization and maintainability improvements
+- **CRITICAL**: Multiple image selection and upload functionality
+- **CRITICAL**: Advanced business hours editing with dropdown time selection
+- **CRITICAL**: Location management with map picker integration
+- **CRITICAL**: Comprehensive dock service management
+- **CRITICAL**: Business logo display and management
+- **CRITICAL**: Real backend data integration (replacing mock data)
+- **CRITICAL**: Image deletion and gallery management
+- **CRITICAL**: Navigation menu integration
 
 ### **1.3 Culling Summary**
 **CULLED HLRs (Overly Complex/Unnecessary):**
@@ -48,6 +56,17 @@ The BusinessDashboard Refactoring System encompasses:
 - 🔄 **HLR-9.1.1**: Component size limit (200 → 300 lines)
 - 🔄 **HLR-3.1.1 + HLR-10.1.1**: Merge validation requirements (remove duplication)
 - 🔄 **HLR-4.1.1 + HLR-4.1.2**: Merge session requirements (remove duplication)
+
+**⚠️ CRITICAL ADDITIONS (Missing Features from Original Analysis):**
+- ✅ **Added HLR-6.1.3**: Multiple Image Selection Implementation (critical UX gap)
+- ✅ **Added HLR-6.1.4**: Image Deletion Implementation (core functionality)
+- ✅ **Added HLR-7.1.4**: Map Picker Integration (location accuracy)
+- ✅ **Added HLR-7.1.5**: Comprehensive Dock Service Management (complete functionality)
+- ✅ **Added HLR-8.1.4**: Advanced Business Hours Editor (precise editing)
+- ✅ **Added HLR-9.1.4**: Business Logo Display System (essential branding)
+- ✅ **Added HLR-9.1.5**: Real Backend Data Integration (production requirements)
+- ✅ **Added HLR-9.1.6**: Navigation Menu Integration (user access)
+- ✅ **Added HLR-4.1.4**: Comprehensive Session Management Integration (security)
 
 ### **1.4 Applicable Documents**
 - SRD-BusinessDashboard-Refactoring-Culled.md - Culled Systems Requirements Document
@@ -247,7 +266,27 @@ The BusinessDashboard Refactoring System encompasses:
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-5.1.3
 **Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessActionsComposable.kt`
-**Function:** `@Composable fun BusinessActionsComposable`
+**Target Function:** `@Composable fun BusinessActionsComposable`
+
+#### **HLR-1.1.8: ImageManagementComposable Implementation** ⚠️ **CRITICAL**
+**Requirement:** The function `ImageManagementComposable` SHALL implement multiple image selection using ActivityResultContracts.GetMultipleContents() and image deletion functionality.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides comprehensive image management including batch upload and deletion capabilities missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-3.1.3, SR-3.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/ImageManagementComposable.kt`
+**Target Function:** `@Composable fun ImageManagementComposable`
+
+#### **HLR-1.1.9: AdvancedHoursEditorComposable Implementation** ⚠️ **CRITICAL**
+**Requirement:** The function `AdvancedHoursEditorComposable` SHALL implement advanced business hours editing with modal bottom sheet, dropdown time selection, and real-time editing capabilities.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides precise business hours editing interface missing from current implementation requiring modal interactions and time dropdown selection.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-5.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/AdvancedHoursEditorComposable.kt`
+**Target Function:** `@Composable fun AdvancedHoursEditorComposable`
 
 ---
 
@@ -324,7 +363,45 @@ The BusinessDashboard Refactoring System encompasses:
 
 ---
 
-### **2.5 Error Handling Requirements**
+### **2.4 Location Management Requirements**
+
+#### **HLR-7.1.4: Map Picker Integration** ⚠️ **CRITICAL**
+**Requirement:** The function `BusinessLocationComposable` SHALL integrate with map picker functionality for precise location selection and address management.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides map-based location selection essential for accurate business address management and dock service placement.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-4.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessLocationComposable.kt`
+**Target Function:** `@Composable fun BusinessLocationComposable`
+
+#### **HLR-7.1.5: Comprehensive Dock Service Management** ⚠️ **CRITICAL**
+**Requirement:** The function `BusinessDockComposable` SHALL implement comprehensive dock service management including business information, location services, and form validation beyond basic toggle functionality.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides complete dock service configuration including name, address, description, and location integration missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-4.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDockComposable.kt`
+**Target Function:** `@Composable fun BusinessDockComposable`
+
+---
+
+### **2.5 Business Hours Management Requirements**
+
+#### **HLR-8.1.4: Advanced Business Hours Editor** ⚠️ **CRITICAL**
+**Requirement:** The function `AdvancedHoursEditorComposable` SHALL implement advanced business hours editing with modal interactions, dropdown time selection, drag gestures, and real-time editing capabilities.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides precise business hours control with intuitive editing interface supporting individual day configuration and predefined time slots missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-5.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/AdvancedHoursEditorComposable.kt`
+**Target Function:** `@Composable fun AdvancedHoursEditorComposable`
+
+---
+
+### **2.6 Error Handling Requirements**
 
 #### **HLR-5.1.1: Basic Error Handling Implementation** 🔄 **SIMPLIFIED**
 **Requirement:** The function `BusinessDashboardViewModel` SHALL implement basic error handling with retry mechanisms for all network operations.
@@ -348,7 +425,55 @@ The BusinessDashboard Refactoring System encompasses:
 
 ---
 
-### **2.6 Performance Requirements**
+### **2.7 Integration and Display Requirements**
+
+#### **HLR-9.1.4: Business Logo Display System** ⚠️ **CRITICAL**
+**Requirement:** The function `BusinessProfileComposable` SHALL implement business logo display functionality with backend integration, image loading optimization, and comprehensive fallback handling.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides essential business branding elements requiring proper display management and integration with profile information missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-6.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessProfileComposable.kt`
+**Target Function:** `@Composable fun BusinessProfileComposable`
+
+#### **HLR-9.1.5: Real Backend Data Integration** ⚠️ **CRITICAL**
+**Requirement:** The function `BusinessDashboardViewModel` SHALL integrate with real business data APIs replacing all mock/sample implementations with actual backend services and authentic data models.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Production system requires genuine backend integration rather than sample data for data integrity, functionality, and user trust missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-6.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/viewmodel/BusinessDashboardViewModel.kt`
+**Target Function:** `class BusinessDashboardViewModel`
+
+#### **HLR-9.1.6: Navigation Menu Integration** ⚠️ **CRITICAL**
+**Requirement:** The function `BusinessDashboardComposable` SHALL implement navigation menu integration providing access to business management options and navigation functionality.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Users require access to business menu options and comprehensive business management features beyond dashboard functionality missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-6.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboardComposable.kt`
+**Target Function:** `@Composable fun BusinessDashboardComposable`
+
+---
+
+### **2.8 Enhanced Session Management Requirements**
+
+#### **HLR-4.1.4: Comprehensive Session Management Integration** ⚠️ **CRITICAL**
+**Requirement:** The function `BusinessDashboardComposable` SHALL implement comprehensive session management integration including session expiration detection, logout handling, and SessionDialog integration for secure operation.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides robust session management ensuring secure operation and preventing unauthorized access with proper user notification and automatic logout functionality missing from current implementation.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-6.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboardComposable.kt`
+**Target Function:** `@Composable fun BusinessDashboardComposable`
+
+---
+
+### **2.9 Performance Requirements**
 
 #### **HLR-9.1.1: Component Size Limits** 🔄 **SIMPLIFIED**
 **Requirement:** The function `BusinessDashboardComposable` SHALL limit individual composable components to maximum 300 lines of code.
@@ -412,17 +537,26 @@ The BusinessDashboard Refactoring System encompasses:
 | HLR-1.1.5 | HLR-1.1.1 | Functional |
 | HLR-1.1.6 | HLR-1.1.1 | Functional |
 | HLR-1.1.7 | HLR-1.1.1 | Functional |
+| HLR-1.1.8 | HLR-1.1.1 | Functional |
+| HLR-1.1.9 | HLR-1.1.1 | Functional |
 | HLR-2.1.1 | HLR-1.1.1 | Functional |
 | HLR-2.1.2 | HLR-2.1.1 | Functional |
 | HLR-2.1.3 | HLR-2.1.1 | Functional |
 | HLR-3.1.1 | HLR-1.1.1 | Functional |
 | HLR-4.1.1 | HLR-1.1.1 | Functional |
 | HLR-4.1.3 | HLR-4.1.1 | Functional |
+| HLR-4.1.4 | HLR-4.1.1 | Functional |
 | HLR-5.1.1 | HLR-2.1.1 | Functional |
 | HLR-5.1.2 | HLR-5.1.1 | Functional |
+| HLR-7.1.4 | HLR-1.1.1 | Functional |
+| HLR-7.1.5 | HLR-7.1.4 | Functional |
+| HLR-8.1.4 | HLR-1.1.1 | Functional |
 | HLR-9.1.1 | HLR-1.1.1 | Performance |
 | HLR-9.1.2 | HLR-9.1.1 | Performance |
 | HLR-9.1.3 | HLR-9.1.1 | Performance |
+| HLR-9.1.4 | HLR-9.1.5 | Functional |
+| HLR-9.1.5 | HLR-1.1.1 | Functional |
+| HLR-9.1.6 | HLR-1.1.1 | Functional |
 | HLR-4.1.2 | HLR-4.1.1 | Quality |
 
 ---
@@ -444,20 +578,30 @@ The BusinessDashboard Refactoring System encompasses:
 10. **HLR-1.1.6**: BusinessDockComposable Implementation
 11. **HLR-1.1.7**: BusinessActionsComposable Implementation
 
-### **Phase 3: Business Logic & Services (Essential)**
-12. **HLR-3.1.1**: BusinessValidationService Implementation
+### **Phase 3: Critical Missing Features Implementation** ⚠️ **CRITICAL PRIORITY**
+12. **HLR-9.1.5**: Real Backend Data Integration ⚠️ **CRITICAL**
+13. **HLR-4.1.4**: Comprehensive Session Management Integration ⚠️ **CRITICAL**
+14. **HLR-1.1.8**: ImageManagementComposable Implementation ⚠️ **CRITICAL**
+15. **HLR-8.1.4**: Advanced Business Hours Editor ⚠️ **CRITICAL**
+16. **HLR-7.1.4**: Map Picker Integration ⚠️ **CRITICAL**
+17. **HLR-7.1.5**: Comprehensive Dock Service Management ⚠️ **CRITICAL**
+18. **HLR-9.1.4**: Business Logo Display System ⚠️ **CRITICAL**
+19. **HLR-9.1.6**: Navigation Menu Integration ⚠️ **CRITICAL**
 
-### **Phase 4: Session Management & Error Handling (Essential)**
-13. **HLR-4.1.1**: Session Integration Implementation
-14. **HLR-4.1.3**: Authentication Integration
-15. **HLR-5.1.1**: Basic Error Handling Implementation
-16. **HLR-5.1.2**: Loading State Management
+### **Phase 4: Business Logic & Services (Essential)**
+20. **HLR-3.1.1**: BusinessValidationService Implementation
 
-### **Phase 5: Performance & Quality (Essential)**
-17. **HLR-9.1.1**: Component Size Limits
-18. **HLR-9.1.2**: State Update Performance
-19. **HLR-9.1.3**: Efficient Memory Usage
-20. **HLR-4.1.2**: Session Integration Implementation
+### **Phase 5: Session Management & Error Handling (Essential)**
+21. **HLR-4.1.1**: Session Integration Implementation
+22. **HLR-4.1.3**: Authentication Integration
+23. **HLR-5.1.1**: Basic Error Handling Implementation
+24. **HLR-5.1.2**: Loading State Management
+
+### **Phase 6: Performance & Quality (Essential)**
+25. **HLR-9.1.1**: Component Size Limits
+26. **HLR-9.1.2**: State Update Performance
+27. **HLR-9.1.3**: Efficient Memory Usage
+28. **HLR-4.1.2**: Session Integration Implementation
 
 ---
 
@@ -465,11 +609,14 @@ The BusinessDashboard Refactoring System encompasses:
 
 - **Phase 1 (Core Architecture)**: 1 week
 - **Phase 2 (Component Decomposition)**: 1-2 weeks
-- **Phase 3 (Business Logic & Services)**: 1 week
-- **Phase 4 (Session Management & Error Handling)**: 1 week
-- **Phase 5 (Performance & Quality)**: 1 week
+- **Phase 3 (Critical Missing Features)**: 3-4 weeks ⚠️ **HIGH EFFORT**
+- **Phase 4 (Business Logic & Services)**: 1 week
+- **Phase 5 (Session Management & Error Handling)**: 1 week
+- **Phase 6 (Performance & Quality)**: 1 week
 
-**Total estimated effort: 5-6 weeks** (reduced from original 10+ weeks due to culling)
+**Total estimated effort: 8-10 weeks** (increased due to critical missing features discovery)
+
+**⚠️ CRITICAL FEATURES IMPACT**: The discovery of missing critical features significantly increases implementation effort, as these represent approximately 60-70% of the original functionality that was not captured in initial requirements analysis. Phase 3 requires substantial development work to achieve feature parity.
 
 ---
 

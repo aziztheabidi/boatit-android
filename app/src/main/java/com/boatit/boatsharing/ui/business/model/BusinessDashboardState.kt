@@ -4,6 +4,8 @@ package com.boatit.boatsharing.ui.business.model
  * BusinessDashboardState - Main state container for BusinessDashboard
  * 
  * FULFILLS: LLR-0.1.1 - BusinessDashboardState Field Layout
+ * FULFILLS: LLR-2.6.1 - Docks Data Loading Integration (dropdown options)
+ * FULFILLS: LLR-2.6.2 - Voyages Data Loading Integration (business data)
  * 
  * This data class represents the complete state of the BusinessDashboard screen,
  * including loading states, error states, business data, and user selections.
@@ -18,6 +20,11 @@ package com.boatit.boatsharing.ui.business.model
  * @property isButtonEnabled Boolean indicating if the save button should be enabled
  * @property imageList List<String> containing URLs of business images
  * @property dockEnabled Boolean indicating if dock services are enabled
+ * @property locationData LocationData containing business location information
+ * @property businessHours List<BusinessHour> containing business operating hours
+ * @property zones List<com.boatit.boatsharing.ui.business.model.DockDropdownItem> containing zone options
+ * @property shores List<com.boatit.boatsharing.ui.business.model.DockDropdownItem> containing shore options
+ * @property islands List<com.boatit.boatsharing.ui.business.model.DockDropdownItem> containing island options
  */
 data class BusinessDashboardState(
     val isLoading: Boolean = false,
@@ -29,5 +36,11 @@ data class BusinessDashboardState(
     val selectedIsland: String? = null,
     val isButtonEnabled: Boolean = false,
     val imageList: List<String> = emptyList(),
-    val dockEnabled: Boolean = false
+    val dockEnabled: Boolean = false,
+    val dockData: DockData? = null,
+    val locationData: LocationData? = null,
+    val businessHours: List<BusinessHour> = emptyList(),
+    val zones: List<com.boatit.boatsharing.ui.business.model.DockDropdownItem> = emptyList(),
+    val shores: List<com.boatit.boatsharing.ui.business.model.DockDropdownItem> = emptyList(),
+    val islands: List<com.boatit.boatsharing.ui.business.model.DockDropdownItem> = emptyList()
 )

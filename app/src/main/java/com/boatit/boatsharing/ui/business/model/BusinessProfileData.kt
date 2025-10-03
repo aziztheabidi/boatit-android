@@ -29,5 +29,6 @@ data class BusinessProfileInfo(
     val website: String = "",
     val licenseNumber: String = "",
     val taxId: String = "",
+    val logoPath: String = "",
     val isActive: Boolean = true
 )
