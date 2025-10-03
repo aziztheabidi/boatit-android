@@ -247,34 +247,34 @@ This document follows the Easy Approach to Requirements Syntax (EARS) methodolog
 ### **2.1 Session Lifecycle Management**
 
 #### **HLR-1.1.1: Session Initialization Trigger**
-**Requirement:** When the user logs in successfully, the function `handleLogin(userId: String?, userRole: String?)` SHALL initialize a new session.
+**Requirement:** When the user logs in successfully, the function `initializeSession()` SHALL initialize a new session.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Establishes secure session foundation upon user authentication.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-1.1.1
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
-**Function:** `handleLogin(userId: String?, userRole: String?)`
+**Function:** `initializeSession()`
 
 #### **HLR-1.1.2: Session Data Population**
-**Requirement:** When initializing a session, the function `handleLogin(userId: String?, userRole: String?)` SHALL populate session data with user ID, username, user role, and authentication tokens.
+**Requirement:** When initializing a session, the function `initializeSession()` SHALL populate session data with user ID, username, user role, and authentication tokens.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Ensures session contains all necessary user context for application functionality.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-1.1.1
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
-**Function:** `handleLogin(userId: String?, userRole: String?)` - populates `_sessionState.value`
+**Function:** `initializeSession()`
 
 #### **HLR-1.1.3: Session State Initialization**
-**Requirement:** When initializing a session, the function `handleLogin(userId: String?, userRole: String?)` SHALL set session state to active and record initialization timestamp.
+**Requirement:** When initializing a session, the function `initializeSession()` SHALL set session state to active and record initialization timestamp.
 **EARS Template:** Event-Driven Requirement
 **Rationale:** Establishes baseline session state for monitoring and timeout management.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** SR-1.1.1
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
-**Function:** `handleLogin(userId: String?, userRole: String?)` - sets `isLoggedIn = true` and `lastActivityTime`
+**Function:** `initializeSession()`
 
 #### **HLR-1.2.1: Session State Persistence During Activity**
 **Requirement:** While the user is active, the function `updateLastActivity()` SHALL persist session state to secure storage.

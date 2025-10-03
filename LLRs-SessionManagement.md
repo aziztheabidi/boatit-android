@@ -502,19 +502,49 @@ The new implementation uses Ktor's native plugins:
 **Function:** `initializeSession()`
 
 #### **LLR-1.3.2: Session Data Population Implementation**
-**Requirement:** The function `initializeSession()` SHALL populate session data with user information from login response.
+**Requirement:** The function `initializeSession()` SHALL populate session data by loading authentication tokens from TokenProvider and user ID, username, and user role from AppConstants.
 **EARS Template:** Ubiquitous Requirement
-**Rationale:** Ensures session contains all necessary user data for proper operation.
+**Rationale:** Ensures session contains all necessary user data loaded from secure storage and app constants.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** HLR-1.1.2
 **Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
 **Function:** `initializeSession()`
 
-#### **LLR-1.3.3: Session State Initialization Implementation**
-**Requirement:** The function `initializeSession()` SHALL initialize session state with proper default values and authentication status.
+#### **LLR-1.3.4: Token Loading Implementation**
+**Requirement:** The function `initializeSession()` SHALL load access and refresh tokens from TokenProvider using `tokenProvider.getAccessToken()` and `tokenProvider.getRefreshToken()`.
 **EARS Template:** Ubiquitous Requirement
-**Rationale:** Provides consistent initial state for session management operations.
+**Rationale:** Retrieves stored authentication tokens from secure storage for session initialization.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-1.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
+**Function:** `initializeSession()`
+
+#### **LLR-1.3.5: User Data Loading Implementation**
+**Requirement:** The function `initializeSession()` SHALL load user data from AppConstants using `AppConstants.USER_ID`, `AppConstants.USER_NAME`, and `AppConstants.USER_ROLE`.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Retrieves user identification data from app constants for session initialization.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-1.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
+**Function:** `initializeSession()`
+
+#### **LLR-1.3.6: Authentication Status Determination Implementation**
+**Requirement:** The function `initializeSession()` SHALL determine authentication status by checking if both access and refresh tokens are not null or blank.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Establishes authentication status based on token availability for session state initialization.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-1.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/utils/session/SessionManager.kt`
+**Function:** `initializeSession()`
+
+#### **LLR-1.3.7: SessionState Object Creation Implementation**
+**Requirement:** The function `initializeSession()` SHALL create a SessionState object with all loaded data, authentication status, and current timestamp.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Creates the session state object with all necessary data for session management.
 **Safety Classification:** DAL D
 **Verification Method:** Analysis, Testing
 **Traces to:** HLR-1.1.3
