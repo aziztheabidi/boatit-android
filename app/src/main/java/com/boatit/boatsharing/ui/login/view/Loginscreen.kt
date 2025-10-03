@@ -52,7 +52,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.di.ApiConstants
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN

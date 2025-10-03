@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.network.networkreposne
+package com.boatit.boatsharing.network.networkresponse
 
 sealed class NetworkResponse<T>
     (val data: T? = null, val message: String? = null) {

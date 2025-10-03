@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.business.model.BusinessData

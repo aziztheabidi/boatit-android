@@ -2,7 +2,7 @@ package com.boatit.boatsharing.ui.signup.general.repository
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.login.model.UserData
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
 import com.boatit.boatsharing.ui.signup.general.model.VoyagerProfileRequest

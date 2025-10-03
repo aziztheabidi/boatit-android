@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.abanapps.socailqrscanner.data_layer.model.ChatMessage
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.chat.model.ComplainRequest
 import com.boatit.boatsharing.ui.chat.viewmodel.ChatViewModel

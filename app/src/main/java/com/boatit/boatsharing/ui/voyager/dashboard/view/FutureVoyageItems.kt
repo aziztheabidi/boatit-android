@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.voyager.dashboard.model.BookedVoyage
 import com.boatit.boatsharing.ui.voyager.dashboard.model.CancelBookedVoyages
 import com.boatit.boatsharing.ui.voyager.dashboard.model.ConfirmBookedVoyages

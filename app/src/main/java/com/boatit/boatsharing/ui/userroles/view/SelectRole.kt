@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN

@@ -58,7 +58,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.captain.dashboard.model.DeclineRequest
 import com.boatit.boatsharing.ui.voyager.dashboard.model.PaymentConfirmationRequest
 import com.boatit.boatsharing.ui.voyager.dashboard.model.SponsorVoyagePaymentRequest

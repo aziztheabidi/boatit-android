@@ -57,7 +57,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.VOYAGER_FEEDBACK_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack

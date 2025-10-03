@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.network.networkreposne
+package com.boatit.boatsharing.network.networkresponse
 import kotlinx.serialization.Serializable
 
 @Serializable

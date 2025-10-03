@@ -62,7 +62,7 @@ import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel

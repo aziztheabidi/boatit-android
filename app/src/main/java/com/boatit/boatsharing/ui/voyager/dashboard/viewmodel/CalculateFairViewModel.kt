@@ -4,7 +4,7 @@ import android.text.format.DateFormat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.voyager.dashboard.model.CalculateFair
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.CalculateFairRepository
 import com.boatit.boatsharing.utils.AppConstants
