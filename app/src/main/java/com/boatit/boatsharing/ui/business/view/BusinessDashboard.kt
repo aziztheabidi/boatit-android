@@ -56,6 +56,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -246,7 +247,7 @@ fun BusinessDashboard(
                 Button(
                     onClick = { useNewDashboard = !useNewDashboard },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (useNewDashboard) Color.Blue else Color.Green
+                        containerColor = if (useNewDashboard) colorResource(R.color.button_normal) else Color.Green
                     )
                 ) {
                     Text(
@@ -857,7 +858,8 @@ private fun BusinessLocationSection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Address"
+                            contentDescription = "Edit Address",
+                            tint = colorResource(R.color.button_normal)
                         )
                     }
                 }
@@ -947,7 +949,10 @@ private fun BusinessHoursSection(
             // Edit Hours Button
             Button(
                 onClick = onShowTimePicker,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.button_normal)
+                )
             ) {
                 Text("Edit Hours")
             }
@@ -996,7 +1001,14 @@ private fun BusinessDockSection(
                     checked = state.dockEnabled,
                     onCheckedChange = { enabled ->
                         viewModel.updateDockEnabled(enabled)
-                    }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = colorResource(R.color.button_normal),
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Color(0xFFD9D9D9),
+                        uncheckedBorderColor = Color.Transparent
+                    )
                 )
             }
             
@@ -1234,7 +1246,10 @@ private fun BusinessActionsSection(
                     viewModel.saveBusinessProfile()
                 },
                 enabled = state.isButtonEnabled && !state.isLoading,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.button_normal)
+                )
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
@@ -1509,7 +1524,10 @@ private fun AdvancedBusinessHoursModal(
                 
                 Button(
                     onClick = { onSave(editableHours) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.button_normal)
+                    )
                 ) {
                     Text("Save Hours")
                 }
