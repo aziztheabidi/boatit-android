@@ -26,7 +26,7 @@ import android.net.Uri
  * This ViewModel manages the state and business logic for the BusinessDashboard screen,
  * including data loading, form validation, state updates, and network operations.
  */
-class BusinessDashboardViewModel : ViewModel(), KoinComponent {
+class BusinessDashboardViewModel : ViewModel(), KoinComponent, IBusinessDashboardViewModel {
     
     // Dependency injection
     private val sessionManager: SessionManager by inject()
@@ -36,15 +36,15 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     
     // FULFILLS: LLR-1.1.4 - ViewModel StateFlow Initialization
     private val _dashboardState = MutableStateFlow(BusinessDashboardState())
-    val dashboardState: StateFlow<BusinessDashboardState> = _dashboardState.asStateFlow()
+    override val dashboardState: StateFlow<BusinessDashboardState> = _dashboardState.asStateFlow()
     
     // FULFILLS: LLR-1.1.5 - Loading State Update Function
-    fun updateLoadingState(isLoading: Boolean) {
+    override fun updateLoadingState(isLoading: Boolean) {
         _dashboardState.value = _dashboardState.value.copy(isLoading = isLoading)
     }
     
     // FULFILLS: LLR-1.1.6 - Error State Update Function
-    fun updateErrorState(isError: Boolean, errorMessage: String?) {
+    override fun updateErrorState(isError: Boolean, errorMessage: String?) {
         _dashboardState.value = _dashboardState.value.copy(
             isError = isError,
             errorMessage = errorMessage
@@ -52,32 +52,32 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-1.1.7 - Business Data Update Function
-    fun updateBusinessData(businessData: BusinessProfileInfo?) {
+    override fun updateBusinessData(businessData: BusinessProfileInfo?) {
         _dashboardState.value = _dashboardState.value.copy(businessData = businessData)
     }
     
     // FULFILLS: LLR-1.1.8 - Zone Selection Update Function
-    fun updateSelectedZone(zone: String?) {
+    override fun updateSelectedZone(zone: String?) {
         _dashboardState.value = _dashboardState.value.copy(selectedZone = zone)
     }
     
     // FULFILLS: LLR-1.1.9 - Shore Selection Update Function
-    fun updateSelectedShore(shore: String?) {
+    override fun updateSelectedShore(shore: String?) {
         _dashboardState.value = _dashboardState.value.copy(selectedShore = shore)
     }
     
     // FULFILLS: LLR-1.1.10 - Island Selection Update Function
-    fun updateSelectedIsland(island: String?) {
+    override fun updateSelectedIsland(island: String?) {
         _dashboardState.value = _dashboardState.value.copy(selectedIsland = island)
     }
     
     // FULFILLS: LLR-1.1.11 - Image List Update Function
-    fun updateImageList(imageList: List<String>) {
+    override fun updateImageList(imageList: List<String>) {
         _dashboardState.value = _dashboardState.value.copy(imageList = imageList)
     }
     
     // Business Description Update Function
-    fun updateBusinessDescription(description: String) {
+    override fun updateBusinessDescription(description: String) {
         val currentBusinessData = _dashboardState.value.businessData
         val updatedBusinessData = currentBusinessData?.copy(businessDescription = description) 
             ?: BusinessProfileInfo(businessDescription = description)
@@ -85,17 +85,17 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // Location Data Update Function
-    fun updateLocationData(locationData: LocationData?) {
+    override fun updateLocationData(locationData: LocationData?) {
         _dashboardState.value = _dashboardState.value.copy(locationData = locationData)
     }
     
     // Business Hours Update Function
-    fun updateBusinessHours(businessHours: List<BusinessHour>) {
+    override fun updateBusinessHours(businessHours: List<BusinessHour>) {
         _dashboardState.value = _dashboardState.value.copy(businessHours = businessHours)
     }
     
     // Default business hours creation
-    fun createDefaultBusinessHours(): List<BusinessHour> {
+    override fun createDefaultBusinessHours(): List<BusinessHour> {
         return listOf(
             BusinessHour("Monday", "09:00", "17:00"),
             BusinessHour("Tuesday", "09:00", "17:00"),
@@ -112,14 +112,14 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
      * FULFILLS: LLR-2.8.3 - Session Event Access Implementation
      * Provides access to session events for UI consumption
      */
-    fun getSessionEvents() = sessionManager.sessionEvents
+    override fun getSessionEvents() = sessionManager.sessionEvents
     
-    fun saveBusinessHours(hours: List<BusinessHour>) {
+    override fun saveBusinessHours(hours: List<BusinessHour>) {
         updateBusinessHours(hours)
     }
     
     // FULFILLS: LLR-2.6.1 - Docks Data Loading Integration
-    fun loadDropdownData() {
+    override fun loadDropdownData() {
         viewModelScope.launch {
             try {
                 updateLoadingState(true)
@@ -160,7 +160,7 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-2.6.2 - Voyages Data Loading Integration  
-    fun loadBusinessData() {
+    override fun loadBusinessData() {
         viewModelScope.launch {
             try {
                 updateLoadingState(true)
@@ -273,7 +273,7 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     
     // Initialize backend data loading on startup
     // FULFILLS: LLR-2.6.1 and LLR-2.6.2 - Comprehensive Backend Integration
-    fun initializeDashboardData() {
+    override fun initializeDashboardData() {
         viewModelScope.launch {
             // Load both dropdown data and business data concurrently
             loadDropdownData()
@@ -282,7 +282,7 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-2.1.3 - Backend Image Upload Integration
-    fun uploadImagesToBackend(selectedUris: List<Uri>, context: android.content.Context) {
+    override fun uploadImagesToBackend(selectedUris: List<Uri>, context: android.content.Context) {
         viewModelScope.launch {
             try {
                 updateLoadingState(true)
@@ -328,15 +328,15 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-1.1.14 - Form State Management
-    fun enableSaveButton() {
+    override fun enableSaveButton() {
         _dashboardState.value = _dashboardState.value.copy(isButtonEnabled = true)
     }
     
-    fun disableSaveButton() {
+    override fun disableSaveButton() {
         _dashboardState.value = _dashboardState.value.copy(isButtonEnabled = false)
     }
     
-    fun updateDockEnabled(enabled: Boolean) {
+    override fun updateDockEnabled(enabled: Boolean) {
         _dashboardState.value = _dashboardState.value.copy(dockEnabled = enabled)
     }
     
@@ -359,7 +359,7 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-1.1.16 - Form Validation Function
-    fun validateForm(): Boolean {
+    override fun validateForm(): Boolean {
         val state = _dashboardState.value
         var isValid = true
         
@@ -393,7 +393,7 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-1.1.2 - Save Business Profile
-    fun saveBusinessProfile() {
+    override fun saveBusinessProfile() {
         viewModelScope.launch {
             if (!validateForm()) {
                 val errorResponse = NetworkResponse.Error<Any>("Please fill in all required fields")
@@ -507,7 +507,7 @@ class BusinessDashboardViewModel : ViewModel(), KoinComponent {
     }
     
     // FULFILLS: LLR-2.1.1 - Session Management
-    fun checkAuthentication(): Boolean {
+    override fun checkAuthentication(): Boolean {
         return sessionManager.sessionState.value.isAuthenticated
     }
 }

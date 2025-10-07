@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -84,6 +85,10 @@ import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.business.model.BusinessHour
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashboardViewModel
+import com.boatit.boatsharing.ui.business.viewmodel.IBusinessDashboardViewModel
+import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
+import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
+import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
 import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.permissions.PermissionsToAccessCamera
@@ -102,10 +107,20 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BusinessDashboard(
-    navController: NavController
+    navController: NavController,
+    useMockData: Boolean = true  // Set to true to use mock data for testing
 ) {
     val context = LocalContext.current
-    val viewModel: BusinessDashboardViewModel = koinViewModel()
+    val viewModel: IBusinessDashboardViewModel = if (useMockData) {
+        remember { com.boatit.boatsharing.mocks.MockBusinessDashboardViewModel() }
+    } else {
+        koinViewModel<BusinessDashboardViewModel>()
+    }
+    
+    // Old Business Dashboard ViewModels - needed for switching
+    val viewModelUpdate = koinViewModel<BusinessDashViewModel>()
+    val viewModelGallery = koinViewModel<BusinessLogoViewModel>()
+    val oldViewModel = koinViewModel<GetBusinessViewModel>()
     val state by viewModel.dashboardState.collectAsState()
     val sessionEvents by viewModel.getSessionEvents().collectAsState(initial = null)
     
@@ -128,6 +143,9 @@ fun BusinessDashboard(
     var showLogoPicker by remember { mutableStateOf(false) }
     var useLogoGallery by remember { mutableStateOf(false) }
     var useLogoCamera by remember { mutableStateOf(false) }
+    
+    // Toggle state for switching between dashboards
+    var useNewDashboard by remember { mutableStateOf(true) }
     
     // Check authentication on launch and initialize backend data
     // FULFILLS: LLR-2.6.1 and LLR-2.6.2 - Backend Integration Initialization
@@ -210,8 +228,41 @@ fun BusinessDashboard(
             .padding(horizontal = 16.dp, vertical = 0.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // FULFILLS: LLR-1.2.1, LLR-1.2.2 - Business Profile Section
-        BusinessProfileSection(state, viewModel) { showLogoPicker = true }
+        // Dashboard Toggle Button
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Dashboard Compare Mode",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Button(
+                    onClick = { useNewDashboard = !useNewDashboard },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (useNewDashboard) Color.Blue else Color.Green
+                    )
+                ) {
+                    Text(
+                        text = if (useNewDashboard) "Switch to Old" else "Switch to New",
+                        color = Color.White
+                    )
+                }
+            }
+        }
+        
+        // Conditional Dashboard Content
+        if (useNewDashboard) {
+            // NEW DASHBOARD CONTENT
+            // FULFILLS: LLR-1.2.1, LLR-1.2.2 - Business Profile Section
+            BusinessProfileSection(state, viewModel) { showLogoPicker = true }
         
         // FULFILLS: LLR-1.3.1, LLR-1.3.2, LLR-1.3.3 - Business Gallery Section
         // FULFILLS: LLR-2.1.1 - Multiple Image Selection
@@ -240,8 +291,17 @@ fun BusinessDashboard(
         // FULFILLS: LLR-1.6.1, LLR-1.6.2 - Business Dock Section
         BusinessDockSection(state, viewModel, navController)
         
-        // FULFILLS: LLR-1.7.1, LLR-1.7.2 - Business Actions Section
-        BusinessActionsSection(state, viewModel)
+            // FULFILLS: LLR-1.7.1, LLR-1.7.2 - Business Actions Section
+            BusinessActionsSection(state, viewModel)
+        } else {
+            // OLD DASHBOARD CONTENT - Render actual OldBusinessDashboard
+            OldBusinessDashboard(
+                navController = navController,
+                viewModelUpdate = viewModelUpdate,
+                viewModelGallery = viewModelGallery,
+                viewModel = oldViewModel
+            )
+        }
     }
     
     // Advanced Business Hours Editor - FULFILLS: LLR-2.2.1 - Modal Bottom Sheet Implementation
@@ -428,12 +488,13 @@ fun BusinessDashboard(
 @Composable
 private fun BusinessProfileSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel,
+    viewModel: IBusinessDashboardViewModel,
     onShowLogoPicker: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -462,8 +523,8 @@ private fun BusinessProfileSection(
             // Business Logo Display - FULFILLS: LLR-2.5.1 - Business Logo Display Implementation
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier.padding(12.dp),
@@ -587,13 +648,14 @@ private fun BusinessProfileSection(
 @Composable
 private fun BusinessGallerySection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel,
+    viewModel: IBusinessDashboardViewModel,
     onShowImagePicker: () -> Unit,
     context: android.content.Context
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -662,7 +724,7 @@ private fun BusinessGallerySection(
 @Composable
 private fun BusinessLocationSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel,
+    viewModel: IBusinessDashboardViewModel,
     navController: NavController,
     zoneDropdownExpanded: Boolean,
     shoreDropdownExpanded: Boolean,
@@ -676,7 +738,8 @@ private fun BusinessLocationSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -865,12 +928,13 @@ private fun BusinessLocationSection(
 @Composable
 private fun BusinessHoursSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel,
+    viewModel: IBusinessDashboardViewModel,
     onShowTimePicker: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -917,12 +981,13 @@ private fun BusinessHoursSection(
 @Composable
 private fun BusinessDockSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel,
+    viewModel: IBusinessDashboardViewModel,
     navController: NavController
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -1163,11 +1228,12 @@ private fun BusinessDockSection(
 @Composable
 private fun BusinessActionsSection(
     state: com.boatit.boatsharing.ui.business.model.BusinessDashboardState,
-    viewModel: BusinessDashboardViewModel
+    viewModel: IBusinessDashboardViewModel
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

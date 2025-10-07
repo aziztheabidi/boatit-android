@@ -53,12 +53,17 @@ fun SplashComposable(navController: NavController,
 
     val userData = viewModel.getUserData()
     val userStatus = viewModelS.getCaptainStatus()
-    AppConstants.USER_ID = userData?.userId
-    AppConstants.USER_NAME = userData?.username
+    // For testing: Use mock data
+    AppConstants.USER_ID = com.boatit.boatsharing.mocks.MockBusinessDataConfig.MockAppConstants.USER_ID
+    AppConstants.USER_NAME = "Test Business User"
     println("userid" + AppConstants.USER_ID)
 
     LaunchedEffect(Unit) {
-        delay(5000)
+        delay(1000) // Reduced delay for faster testing
+        // Skip authentication and go directly to Business Dashboard with mock data for testing
+        navController.navigate(NavigationManager.BUSINESS_SCREEN)
+        
+        /* Original authentication flow - commented out for testing
         if (userData != null) {
             if(userData.role.equals("Voyager")){
                 if(userData.missingStep == 0) {
@@ -90,6 +95,7 @@ fun SplashComposable(navController: NavController,
 
             navController.navigate(NavigationManager.ONBOARDING_SWIPE)
         }
+        */
     }
 }
 
