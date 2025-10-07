@@ -7,6 +7,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -78,6 +79,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
@@ -200,27 +202,6 @@ fun BusinessDashboard(
         }
     }
     
-    // Business Menu Navigation Button - FULFILLS: Missing Business Menu Integration
-    Box(
-        modifier = Modifier
-            .width(80.dp)
-            .height(100.dp)
-            .padding(start = 20.dp, top = 15.dp),
-        contentAlignment = Alignment.TopStart,
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.wheel_icon),
-            contentDescription = "Business Menu",
-            modifier = Modifier
-                .size(width = 80.dp, height = 80.dp)
-                .clickable(onClick = {
-                    navController.navigate(NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN)
-                })
-        )
-    }
-    
-    Spacer(modifier = Modifier.height(20.dp))
-    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -228,6 +209,24 @@ fun BusinessDashboard(
             .padding(horizontal = 16.dp, vertical = 0.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Business Menu Navigation Button - FULFILLS: Missing Business Menu Integration
+        Box(
+            modifier = Modifier
+                .width(80.dp)
+                .height(100.dp)
+                .padding(start = 4.dp, top = 15.dp), // Adjusted padding since we're inside the scrollable area
+            contentAlignment = Alignment.TopStart,
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.wheel_icon),
+                contentDescription = "Business Menu",
+                modifier = Modifier
+                    .size(width = 80.dp, height = 80.dp)
+                    .clickable(onClick = {
+                        navController.navigate(NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN)
+                    })
+            )
+        }
         // Dashboard Toggle Button
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -480,10 +479,12 @@ fun BusinessDashboard(
 }
 
 /**
- * Business Profile Section
+ * Business Profile Section - OLD DASHBOARD STYLE
  * 
  * FULFILLS: LLR-1.2.1 - Business Profile Display
  * FULFILLS: LLR-1.2.2 - Business Profile Editing
+ * 
+ * This section now matches the old dashboard's layout and styling
  */
 @Composable
 private fun BusinessProfileSection(
@@ -500,140 +501,122 @@ private fun BusinessProfileSection(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "Business Profile",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            
-            // Business Name
-            OutlinedTextField(
-                value = state.businessData?.businessName ?: "",
-                onValueChange = { name ->
-                    val updatedData = state.businessData?.copy(businessName = name)
-                        ?: com.boatit.boatsharing.ui.business.model.BusinessProfileInfo(businessName = name)
-                    viewModel.updateBusinessData(updatedData)
-                    viewModel.validateForm()
-                },
-                label = { Text("Business Name") },
+            // OLD DASHBOARD STYLE - Centered layout with logo at top
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            
-            // Business Logo Display - FULFILLS: LLR-2.5.1 - Business Logo Display Implementation
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
-                Column(
-                    modifier = Modifier.padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // Business Logo - OLD DASHBOARD STYLE (Clickable)
+                Card(
+                    shape = RoundedCornerShape(15.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    border = BorderStroke(1.dp, color = colorResource(R.color.black)),
+                    modifier = Modifier
+                        .width(110.dp)
+                        .height(110.dp)
+                        .clickable { onShowLogoPicker() }
                 ) {
-                    Text(
-                        text = "Business Logo",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Logo display area
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .background(
-                                androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.1f),
-                                RoundedCornerShape(8.dp)
-                            )
-                            .border(
-                                1.dp,
-                                androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.3f),
-                                RoundedCornerShape(8.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (state.businessData?.logoPath.isNullOrBlank()) {
+                    if (state.businessData?.logoPath.isNullOrBlank()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(androidx.compose.ui.graphics.Color.Gray.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Warning,
-                                    contentDescription = "No logo",
+                                    contentDescription = "No logo - Click to upload",
                                     modifier = Modifier.size(32.dp),
                                     tint = androidx.compose.ui.graphics.Color.Gray
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "No logo uploaded",
+                                    text = "Click to upload",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = androidx.compose.ui.graphics.Color.Gray,
                                     textAlign = TextAlign.Center
                                 )
                             }
-                        } else {
-                            AsyncImage(
-                                model = state.businessData?.logoPath,
-                                contentDescription = "Business Logo",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
                         }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Button(
-                        onClick = onShowLogoPicker,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Upload Logo")
+                    } else {
+                        AsyncImage(
+                            model = state.businessData?.logoPath,
+                            contentDescription = "Business Logo - Click to change",
+                            modifier = Modifier
+                                .height(110.dp)
+                                .width(110.dp)
+                                .clip(RoundedCornerShape(15.dp)),
+                            contentScale = ContentScale.Crop
+                        )
                     }
                 }
+
+                Spacer(Modifier.height(20.dp))
+
+                // Business Name - OLD DASHBOARD STYLE
+                Text(
+                    style = androidx.compose.ui.text.TextStyle(
+                        color = colorResource(id = R.color.button_normal),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = state.businessData?.businessName ?: "Loading..."
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                // Business Type - OLD DASHBOARD STYLE
+                Text(
+                    style = androidx.compose.ui.text.TextStyle(
+                        color = androidx.compose.ui.graphics.Color.Gray,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = state.businessData?.businessType ?: "Loading..."
+                )
+
+                Spacer(Modifier.height(20.dp))
+
+                // Year Established Button - OLD DASHBOARD STYLE
+                Button(
+                    onClick = {},
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(35.dp)
+                        .border(
+                            width = 1.dp,
+                            color = androidx.compose.ui.graphics.Color.Gray,
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {
+                    Text(
+                        text = "Established In : " + (state.businessData?.yearEstablished?.toString() ?: ""),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colorResource(id = R.color.black)
+                    )
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                // Business Description - OLD DASHBOARD STYLE
+                Text(
+                    style = androidx.compose.ui.text.TextStyle(
+                        color = androidx.compose.ui.graphics.Color.Gray,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = state.businessData?.businessDescription ?: "Loading..."
+                )
             }
-            
-            // Business Type
-            OutlinedTextField(
-                value = state.businessData?.businessType ?: "",
-                onValueChange = { type ->
-                    val updatedData = state.businessData?.copy(businessType = type)
-                        ?: com.boatit.boatsharing.ui.business.model.BusinessProfileInfo(businessType = type)
-                    viewModel.updateBusinessData(updatedData)
-                },
-                label = { Text("Business Type") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            
-            // Business Description
-            OutlinedTextField(
-                value = state.businessData?.businessDescription ?: "",
-                onValueChange = { description ->
-                    viewModel.updateBusinessDescription(description)
-                    viewModel.validateForm()
-                },
-                label = { Text("Business Description") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 5
-            )
-            
-            // Year Established
-            OutlinedTextField(
-                value = state.businessData?.yearEstablished?.toString() ?: "",
-                onValueChange = { year ->
-                    val yearInt = year.toIntOrNull() ?: 0
-                    val updatedData = state.businessData?.copy(yearEstablished = yearInt)
-                        ?: com.boatit.boatsharing.ui.business.model.BusinessProfileInfo(yearEstablished = yearInt)
-                    viewModel.updateBusinessData(updatedData)
-                },
-                label = { Text("Year Established") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
         }
     }
 }
