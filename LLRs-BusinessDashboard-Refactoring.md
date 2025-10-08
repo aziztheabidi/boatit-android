@@ -15,12 +15,18 @@ This document covers the implementation requirements for:
 - Critical UI component behavior
 - Session management integration
 - Error handling mechanisms
+- Design system implementation and integration
+- Design token definitions and usage
+- Magic number elimination through design system
 
 ### **1.3 Culling Summary**
 **Original LLRs**: 33 requirements
 **Culled LLRs**: 15 requirements (55% reduction)
+**Added Design System LLRs**: 21 requirements (design system implementation)
+**Total LLRs**: 36 requirements
 **Removed**: Vague, untestable, over-engineered requirements
 **Kept**: Data structures, essential functionality, specific behaviors
+**Added**: Comprehensive design system implementation and integration requirements
 
 ---
 
@@ -734,7 +740,296 @@ This document covers the implementation requirements for:
 
 ---
 
-## **4. IMPLEMENTATION PRIORITY**
+## **4. DESIGN SYSTEM IMPLEMENTATION REQUIREMENTS**
+
+### **4.1 DesignSystem Object Implementation**
+
+#### **LLR-10.1.1: DesignSystem Object Structure**
+**Requirement:** The object `DesignSystem` SHALL implement nested objects for each design token category with proper Kotlin object syntax and comprehensive documentation.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides centralized design token system with organized structure for easy maintenance and usage.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.1
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object DesignSystem`
+
+#### **LLR-10.1.2: Spacing Token Implementation**
+**Requirement:** The object `DesignSystem.Spacing` SHALL implement the following spacing tokens with specific Dp values and semantic naming.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent spacing values for padding, margins, and gaps throughout the application.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Spacing`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `none` | `0.dp` | No spacing |
+| `minimalSpacing` | `4.dp` | Small gaps, icon padding |
+| `smallSpacing` | `8.dp` | Spacing between elements in row/column |
+| `sectionSpacing` | `12.dp` | Spacing between major sections |
+| `cardPadding` | `16.dp` | Standard padding for cards and main content |
+| `elementSpacing` | `20.dp` | Larger spacing for distinct elements |
+| `largeSpacing` | `24.dp` | Extra large spacing |
+
+#### **LLR-10.1.3: Sizing Token Implementation**
+**Requirement:** The object `DesignSystem.Sizing` SHALL implement the following sizing tokens with specific Dp values for icons, buttons, text fields, and logos.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent sizing values for UI elements ensuring proper proportions and touch targets.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Sizing`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `iconSmall` | `16.dp` | Small icons (loading indicator) |
+| `iconMedium` | `24.dp` | Default icons |
+| `iconLarge` | `32.dp` | Larger icons (warning) |
+| `iconXLarge` | `48.dp` | Floating action buttons |
+| `logoSize` | `110.dp` | Business logo size |
+| `logoSmall` | `80.dp` | Smaller logo/wheel icon size |
+| `buttonHeight` | `35.dp` | Standard button height |
+| `textFieldHeight` | `100.dp` | Multi-line text field height |
+| `dropdownHeight` | `300.dp` | Max height for dropdown menus |
+
+#### **LLR-10.1.4: Typography Token Implementation**
+**Requirement:** The object `DesignSystem.Typography` SHALL implement the following typography tokens with specific TextUnit values for different text styles.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent typography values ensuring proper text hierarchy and readability.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Typography`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `businessName` | `22.sp` | Business name font size |
+| `businessType` | `16.sp` | Business type font size |
+| `businessDescription` | `14.sp` | Business description font size |
+| `buttonText` | `12.sp` | Button text font size |
+| `smallText` | `10.sp` | Small text, captions |
+| `largeText` | `18.sp` | Large text, headings |
+
+#### **LLR-10.1.5: Corner Radius Token Implementation**
+**Requirement:** The object `DesignSystem.CornerRadius` SHALL implement the following corner radius tokens with specific Dp values for different UI elements.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent corner radius values ensuring proper visual hierarchy and modern design aesthetics.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object CornerRadius`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `small` | `8.dp` | Small radius (text fields, small cards) |
+| `medium` | `10.dp` | Medium radius (buttons) |
+| `large` | `15.dp` | Large radius (logo card) |
+| `xlarge` | `20.dp` | Extra large radius (year established button) |
+| `modal` | `16.dp` | Modal bottom sheet top corners |
+
+#### **LLR-10.1.6: Elevation Token Implementation**
+**Requirement:** The object `DesignSystem.Elevation` SHALL implement the following elevation tokens with specific Dp values for different shadow depths.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent elevation values ensuring proper visual layering and depth perception.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Elevation`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `none` | `0.dp` | Flat surfaces |
+| `low` | `2.dp` | Subtle elevation (toggle button) |
+| `medium` | `4.dp` | Standard elevation |
+| `high` | `6.dp` | Prominent elevation (logo card) |
+| `modal` | `16.dp` | Modal bottom sheet elevation |
+
+#### **LLR-10.1.7: Border Token Implementation**
+**Requirement:** The object `DesignSystem.Border` SHALL implement the following border tokens with specific Dp values for different border widths.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent border values ensuring proper visual separation and emphasis.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Border`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `width` | `1.dp` | Standard border width |
+| `thick` | `2.dp` | Thicker border width |
+
+#### **LLR-10.1.8: Alpha Token Implementation**
+**Requirement:** The object `DesignSystem.Alpha` SHALL implement the following alpha tokens with specific Float values for different transparency levels.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent alpha values ensuring proper visual hierarchy and disabled state indication.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Alpha`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `disabled` | `0.6f` | For disabled UI elements |
+| `overlay` | `0.1f` | For subtle background overlays |
+| `transparent` | `0.0f` | Fully transparent |
+
+#### **LLR-10.1.9: Interaction Token Implementation**
+**Requirement:** The object `DesignSystem.Interaction` SHALL implement the following interaction tokens with specific Dp values for touch targets and gesture thresholds.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent interaction values ensuring proper touch targets and gesture recognition.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object Interaction`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `dragThreshold` | `20.dp` | Minimum drag amount to trigger action |
+| `tapPrecision` | `2.dp` | Tolerance for tap gestures |
+
+#### **LLR-10.1.10: Grid Layout Token Implementation**
+**Requirement:** The object `DesignSystem.GridLayouts` SHALL implement the following grid layout tokens with specific values for gallery and grid components.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides consistent grid layout values ensuring proper spacing and sizing for gallery components.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.2
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object GridLayouts`
+
+| Token Name | Value | Usage |
+|------------|-------|-------|
+| `galleryColumns` | `3` | Number of columns in image gallery |
+| `galleryItemSize` | `90.dp` | Size of each item in gallery |
+| `gallerySpacing` | `8.dp` | Spacing between items in gallery |
+
+### **4.2 Design System Integration Requirements**
+
+#### **LLR-10.2.1: BusinessProfileSection Design System Integration**
+**Requirement:** The composable `BusinessProfileSection` SHALL replace all hardcoded spacing, sizing, typography, corner radius, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in business profile section.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessProfileSection`
+
+#### **LLR-10.2.2: BusinessGallerySection Design System Integration**
+**Requirement:** The composable `BusinessGallerySection` SHALL replace all hardcoded spacing, sizing, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in business gallery section.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessGallerySection`
+
+#### **LLR-10.2.3: BusinessLocationSection Design System Integration**
+**Requirement:** The composable `BusinessLocationSection` SHALL replace all hardcoded spacing, sizing, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in business location section.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessLocationSection`
+
+#### **LLR-10.2.4: BusinessHoursSection Design System Integration**
+**Requirement:** The composable `BusinessHoursSection` SHALL replace all hardcoded spacing, sizing, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in business hours section.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessHoursSection`
+
+#### **LLR-10.2.5: BusinessDockSection Design System Integration**
+**Requirement:** The composable `BusinessDockSection` SHALL replace all hardcoded spacing, sizing, corner radius, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in business dock section.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessDockSection`
+
+#### **LLR-10.2.6: BusinessActionsSection Design System Integration**
+**Requirement:** The composable `BusinessActionsSection` SHALL replace all hardcoded spacing, sizing, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in business actions section.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessActionsSection`
+
+#### **LLR-10.2.7: AdvancedBusinessHoursModal Design System Integration**
+**Requirement:** The composable `AdvancedBusinessHoursModal` SHALL replace all hardcoded spacing, sizing, corner radius, elevation, and interaction values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in advanced business hours modal.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun AdvancedBusinessHoursModal`
+
+#### **LLR-10.2.8: Main BusinessDashboard Layout Design System Integration**
+**Requirement:** The main `BusinessDashboard` composable SHALL replace all hardcoded spacing, sizing, and elevation values with appropriate `DesignSystem` tokens.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling and eliminates magic numbers in main dashboard layout.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.3
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt`
+**Function:** `@Composable fun BusinessDashboard`
+
+### **4.3 Design System Documentation Requirements**
+
+#### **LLR-10.3.1: Design System README Implementation**
+**Requirement:** The file `README.md` SHALL implement comprehensive documentation explaining the design system purpose, structure, usage examples, and migration guidelines.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides clear guidance for developers on how to use the design system and ensures proper adoption.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/README.md`
+**Function:** Documentation file
+
+#### **LLR-10.3.2: Design System Usage Examples**
+**Requirement:** The documentation SHALL include specific usage examples showing how to replace hardcoded values with design tokens in common UI patterns.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides practical examples for developers to understand proper design system usage.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/README.md`
+**Function:** Documentation file
+
+#### **LLR-10.3.3: Design System Migration Guide**
+**Requirement:** The documentation SHALL include a migration guide explaining how to convert existing hardcoded values to design tokens with before/after examples.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides clear migration path for existing code to adopt the design system.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** HLR-10.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/README.md`
+**Function:** Documentation file
+
+---
+
+## **5. IMPLEMENTATION PRIORITY**
 
 ### **Phase 1: Data Structures (Essential)**
 1. **LLR-0.1.1**: BusinessDashboardState Field Layout
@@ -781,10 +1076,37 @@ This document covers the implementation requirements for:
 34. **LLR-1.7.1**: Save Button
 35. **LLR-1.7.2**: Loading State Display
 
-### **Phase 6: Quality Standards (Essential)**
-36. **LLR-4.1.1**: Composable Size Limit
+### **Phase 6: Design System Implementation (Essential)**
+36. **LLR-10.1.1**: DesignSystem Object Structure
+37. **LLR-10.1.2**: Spacing Token Implementation
+38. **LLR-10.1.3**: Sizing Token Implementation
+39. **LLR-10.1.4**: Typography Token Implementation
+40. **LLR-10.1.5**: Corner Radius Token Implementation
+41. **LLR-10.1.6**: Elevation Token Implementation
+42. **LLR-10.1.7**: Border Token Implementation
+43. **LLR-10.1.8**: Alpha Token Implementation
+44. **LLR-10.1.9**: Interaction Token Implementation
+45. **LLR-10.1.10**: Grid Layout Token Implementation
 
-### **Phase 7: Critical Missing Features Implementation** ⚠️ **CRITICAL PRIORITY**
+### **Phase 7: Design System Integration (Essential)**
+46. **LLR-10.2.1**: BusinessProfileSection Design System Integration
+47. **LLR-10.2.2**: BusinessGallerySection Design System Integration
+48. **LLR-10.2.3**: BusinessLocationSection Design System Integration
+49. **LLR-10.2.4**: BusinessHoursSection Design System Integration
+50. **LLR-10.2.5**: BusinessDockSection Design System Integration
+51. **LLR-10.2.6**: BusinessActionsSection Design System Integration
+52. **LLR-10.2.7**: AdvancedBusinessHoursModal Design System Integration
+53. **LLR-10.2.8**: Main BusinessDashboard Layout Design System Integration
+
+### **Phase 8: Design System Documentation (Essential)**
+54. **LLR-10.3.1**: Design System README Implementation
+55. **LLR-10.3.2**: Design System Usage Examples
+56. **LLR-10.3.3**: Design System Migration Guide
+
+### **Phase 9: Quality Standards (Essential)**
+57. **LLR-4.1.1**: Composable Size Limit
+
+### **Phase 10: Critical Missing Features Implementation** ⚠️ **CRITICAL PRIORITY**
 37. **LLR-2.1.1**: Multiple Image Selection Implementation ⚠️ **CRITICAL**
 38. **LLR-2.1.2**: Image Deletion Implementation ⚠️ **CRITICAL**
 39. **LLR-2.1.3**: Backend Image Upload Implementation ⚠️ **CRITICAL**
@@ -815,11 +1137,14 @@ This document covers the implementation requirements for:
 - **Phase 3 (Session Management)**: 1.0 days
 - **Phase 4 (Error Handling)**: 3.0 days
 - **Phase 5 (UI Composables)**: 27.0 days
-- **Phase 6 (Quality Standards)**: 1.0 days
-- **Phase 7 (Critical Missing Features)**: 42.0 days ⚠️ **HIGH EFFORT**
+- **Phase 6 (Design System Implementation)**: 3.0 days
+- **Phase 7 (Design System Integration)**: 8.0 days
+- **Phase 8 (Design System Documentation)**: 1.0 days
+- **Phase 9 (Quality Standards)**: 1.0 days
+- **Phase 10 (Critical Missing Features)**: 42.0 days ⚠️ **HIGH EFFORT**
 - **Integration & Testing**: 15.0 days
 
-**Total estimated effort: 60-65 days** (increased due to critical missing features)
+**Total estimated effort: 63-68 days** (increased due to critical missing features and design system implementation)
 
 **⚠️ CRITICAL FEATURES IMPACT**: The 20 new critical LLRs significantly increase implementation effort as they represent approximately 60-70% of the original functionality. Phase 7 requires substantial development time for full feature parity.
 

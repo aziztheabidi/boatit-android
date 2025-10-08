@@ -81,7 +81,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
@@ -91,9 +90,6 @@ import com.boatit.boatsharing.ui.business.model.BusinessHour
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashboardViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.IBusinessDashboardViewModel
 import com.boatit.boatsharing.ui.design.DesignSystem
-import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
-import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
-import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
 import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.permissions.PermissionsToAccessCamera
@@ -122,10 +118,6 @@ fun BusinessDashboard(
         koinViewModel<BusinessDashboardViewModel>()
     }
     
-    // Old Business Dashboard ViewModels - needed for switching
-    val viewModelUpdate = koinViewModel<BusinessDashViewModel>()
-    val viewModelGallery = koinViewModel<BusinessLogoViewModel>()
-    val oldViewModel = koinViewModel<GetBusinessViewModel>()
     val state by viewModel.dashboardState.collectAsState()
     val sessionEvents by viewModel.getSessionEvents().collectAsState(initial = null)
     
@@ -149,8 +141,6 @@ fun BusinessDashboard(
     var useLogoGallery by remember { mutableStateOf(false) }
     var useLogoCamera by remember { mutableStateOf(false) }
     
-    // Toggle state for switching between dashboards
-    var useNewDashboard by remember { mutableStateOf(true) }
     
     // Check authentication on launch and initialize backend data
     // FULFILLS: LLR-2.6.1 and LLR-2.6.2 - Backend Integration Initialization
@@ -230,42 +220,10 @@ fun BusinessDashboard(
                     })
             )
         }
-        // Dashboard Toggle Button
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.low),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Row(
-                modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Dashboard Compare Mode",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Button(
-                    onClick = { useNewDashboard = !useNewDashboard },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (useNewDashboard) colorResource(R.color.button_normal) else Color.Green
-                    )
-                ) {
-                    Text(
-                        text = if (useNewDashboard) "Switch to Old" else "Switch to New",
-                        color = Color.White
-                    )
-                }
-            }
-        }
-        
-        // Conditional Dashboard Content
-        if (useNewDashboard) {
-            // NEW DASHBOARD CONTENT
-            // FULFILLS: LLR-1.2.1, LLR-1.2.2 - Business Profile Section
-            BusinessProfileSection(state, viewModel) { showLogoPicker = true }
-        
+        // Business Dashboard Content
+        // FULFILLS: LLR-1.2.1, LLR-1.2.2 - Business Profile Section
+        BusinessProfileSection(state, viewModel) { showLogoPicker = true }
+    
         // FULFILLS: LLR-1.3.1, LLR-1.3.2, LLR-1.3.3 - Business Gallery Section
         // FULFILLS: LLR-2.1.1 - Multiple Image Selection
         BusinessGallerySection(state, viewModel, { showImagePicker = true }, context)
@@ -293,17 +251,8 @@ fun BusinessDashboard(
         // FULFILLS: LLR-1.6.1, LLR-1.6.2 - Business Dock Section
         BusinessDockSection(state, viewModel, navController)
         
-            // FULFILLS: LLR-1.7.1, LLR-1.7.2 - Business Actions Section
-            BusinessActionsSection(state, viewModel)
-        } else {
-            // OLD DASHBOARD CONTENT - Render actual OldBusinessDashboard
-            OldBusinessDashboard(
-                navController = navController,
-                viewModelUpdate = viewModelUpdate,
-                viewModelGallery = viewModelGallery,
-                viewModel = oldViewModel
-            )
-        }
+        // FULFILLS: LLR-1.7.1, LLR-1.7.2 - Business Actions Section
+        BusinessActionsSection(state, viewModel)
     }
     
     // Advanced Business Hours Editor - FULFILLS: LLR-2.2.1 - Modal Bottom Sheet Implementation

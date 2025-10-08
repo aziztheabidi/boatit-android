@@ -24,6 +24,9 @@ The BusinessDashboard Refactoring System encompasses:
 - **Essential**: Integration with centralized session management
 - **Essential**: Basic error handling and retry mechanisms
 - **Essential**: Performance optimization and maintainability improvements
+- **Essential**: Centralized design system implementation with design tokens
+- **Essential**: Elimination of magic numbers through design system integration
+- **Essential**: Consistent styling and layout patterns across all components
 - **CRITICAL**: Multiple image selection and upload functionality
 - **CRITICAL**: Advanced business hours editing with dropdown time selection
 - **CRITICAL**: Location management with map picker integration
@@ -473,7 +476,63 @@ The BusinessDashboard Refactoring System encompasses:
 
 ---
 
-### **2.9 Performance Requirements**
+### **2.10 Design System Requirements**
+
+#### **HLR-10.1.1: Centralized Design System Implementation** ✅ **ESSENTIAL**
+**Requirement:** The function `DesignSystem` SHALL implement a centralized design token system with comprehensive spacing, sizing, typography, colors, corner radius, elevation, borders, alpha values, interaction tokens, and grid layout specifications.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides single source of truth for all design values, eliminates magic numbers, ensures consistent styling across all UI components, and improves maintainability.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-7.1.4, SR-7.1.5
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object DesignSystem`
+
+#### **HLR-10.1.2: Design Token Categories Implementation** ✅ **ESSENTIAL**
+**Requirement:** The function `DesignSystem` SHALL implement the following design token categories with specific values and semantic naming.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides comprehensive design token coverage for all UI aspects including spacing, sizing, typography, colors, corner radius, elevation, borders, alpha values, interaction tokens, and grid layouts.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-7.1.4
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/DesignSystem.kt`
+**Function:** `object DesignSystem`
+
+| Category | Description | Key Tokens |
+|----------|-------------|------------|
+| **Spacing** | Padding, margins, gaps between elements | `cardPadding`, `sectionSpacing`, `smallSpacing`, `minimalSpacing` |
+| **Sizing** | Icons, buttons, text fields, logos | `iconSmall`, `iconMedium`, `iconLarge`, `logoSize`, `buttonHeight` |
+| **Typography** | Font sizes, weights, text styles | `businessName`, `businessType`, `businessDescription`, `buttonText` |
+| **Corner Radius** | Border radius for cards, buttons, text fields | `small`, `medium`, `large`, `xlarge`, `modal` |
+| **Elevation** | Shadow depths and layering | `none`, `low`, `medium`, `high`, `modal` |
+| **Border** | Border widths and styles | `width`, `thick` |
+| **Alpha** | Transparency values | `disabled`, `overlay`, `transparent` |
+| **Interaction** | Touch targets, drag thresholds | `dragThreshold`, `tapPrecision` |
+| **Grid Layouts** | Gallery columns, item sizes | `galleryColumns`, `galleryItemSize`, `gallerySpacing` |
+
+#### **HLR-10.1.3: Design System Integration Requirements** ✅ **ESSENTIAL**
+**Requirement:** All UI composables SHALL integrate with the centralized design system by replacing all hardcoded values with appropriate design tokens from `DesignSystem` object.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Ensures consistent styling across all components, eliminates magic numbers, improves maintainability, and provides centralized control over design values.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-7.1.5
+**Source File:** All composable files in `app/src/main/java/com/boatit/boatsharing/ui/business/view/`
+**Function:** All `@Composable` functions
+
+#### **HLR-10.1.4: Design System Documentation Requirements** ✅ **ESSENTIAL**
+**Requirement:** The function `DesignSystem` SHALL include comprehensive documentation explaining the purpose, usage, and benefits of the design system with examples and migration guidelines.
+**EARS Template:** Ubiquitous Requirement
+**Rationale:** Provides clear guidance for developers on how to use the design system, ensures proper adoption, and facilitates future maintenance and updates.
+**Safety Classification:** DAL D
+**Verification Method:** Analysis, Testing
+**Traces to:** SR-7.1.6
+**Source File:** `app/src/main/java/com/boatit/boatsharing/ui/design/README.md`
+**Function:** Documentation file
+
+---
+
+### **2.11 Performance Requirements**
 
 #### **HLR-9.1.1: Component Size Limits** 🔄 **SIMPLIFIED**
 **Requirement:** The function `BusinessDashboardComposable` SHALL limit individual composable components to maximum 300 lines of code.
@@ -597,11 +656,17 @@ The BusinessDashboard Refactoring System encompasses:
 23. **HLR-5.1.1**: Basic Error Handling Implementation
 24. **HLR-5.1.2**: Loading State Management
 
-### **Phase 6: Performance & Quality (Essential)**
-25. **HLR-9.1.1**: Component Size Limits
-26. **HLR-9.1.2**: State Update Performance
-27. **HLR-9.1.3**: Efficient Memory Usage
-28. **HLR-4.1.2**: Session Integration Implementation
+### **Phase 6: Design System Implementation (Essential)**
+25. **HLR-10.1.1**: Centralized Design System Implementation
+26. **HLR-10.1.2**: Design Token Categories Implementation
+27. **HLR-10.1.3**: Design System Integration Requirements
+28. **HLR-10.1.4**: Design System Documentation Requirements
+
+### **Phase 7: Performance & Quality (Essential)**
+29. **HLR-9.1.1**: Component Size Limits
+30. **HLR-9.1.2**: State Update Performance
+31. **HLR-9.1.3**: Efficient Memory Usage
+32. **HLR-4.1.2**: Session Integration Implementation
 
 ---
 
@@ -612,9 +677,10 @@ The BusinessDashboard Refactoring System encompasses:
 - **Phase 3 (Critical Missing Features)**: 3-4 weeks ⚠️ **HIGH EFFORT**
 - **Phase 4 (Business Logic & Services)**: 1 week
 - **Phase 5 (Session Management & Error Handling)**: 1 week
-- **Phase 6 (Performance & Quality)**: 1 week
+- **Phase 6 (Design System Implementation)**: 1 week
+- **Phase 7 (Performance & Quality)**: 1 week
 
-**Total estimated effort: 8-10 weeks** (increased due to critical missing features discovery)
+**Total estimated effort: 9-11 weeks** (increased due to critical missing features discovery and design system implementation)
 
 **⚠️ CRITICAL FEATURES IMPACT**: The discovery of missing critical features significantly increases implementation effort, as these represent approximately 60-70% of the original functionality that was not captured in initial requirements analysis. Phase 3 requires substantial development work to achieve feature parity.
 
