@@ -13,7 +13,7 @@ object AppConstants {
     var Voyage_ID: String? = null
     var JWT_TOKEN: String? = null
     var Cates: List<VoyageCategory> = emptyList()
-    val hourList = List(24) { hour -> String.format("%02d:00:00", hour) }
+    val hourList = List(24) { hour -> String.format("%02d:00", hour) }
     var Business: BusinessData? = null
     var Business_Status: Boolean? = false
     var BusinessDock:Boolean? = false
@@ -28,7 +28,7 @@ object AppConstants {
     var Estimated_Cost: Double? = 200.0
     var Total_Cost: Double? = 200.0
     var Event_Time: String?= ""
-    var Event_Time_End: String?= "15:00:00"
+    var Event_Time_End: String?= "15:00"
     var Event_Date: String? = ""
     var Pick_Up_Loc: Pair<Int, String>? = null
     var Drop_Off_Loc: Pair<Int, String>? = null
@@ -65,7 +65,7 @@ object AppConstants {
         Estimated_Cost = 200.0
         Total_Cost = 200.0
         Event_Time = ""
-        Event_Time_End = "15:00:00"
+        Event_Time_End = "15:00"
         Event_Date = ""
         Pick_Up_Loc = null
         Drop_Off_Loc = null

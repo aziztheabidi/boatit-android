@@ -54,6 +54,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -89,6 +90,7 @@ import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.business.model.BusinessHour
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashboardViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.IBusinessDashboardViewModel
+import com.boatit.boatsharing.ui.design.DesignSystem
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
@@ -207,22 +209,22 @@ fun BusinessDashboard(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 0.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = DesignSystem.Spacing.cardPadding, vertical = 0.dp),
+        verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.cardPadding)
     ) {
         // Business Menu Navigation Button - FULFILLS: Missing Business Menu Integration
         Box(
             modifier = Modifier
-                .width(80.dp)
-                .height(100.dp)
-                .padding(start = 4.dp, top = 15.dp), // Adjusted padding since we're inside the scrollable area
+                .width(DesignSystem.Sizing.logoSmall)
+                .height(DesignSystem.Sizing.logoSmall + DesignSystem.Spacing.elementSpacing)
+                .padding(start = DesignSystem.Spacing.minimalSpacing, top = DesignSystem.Spacing.elementSpacing),
             contentAlignment = Alignment.TopStart,
         ) {
             Image(
                 painter = painterResource(id = R.drawable.wheel_icon),
                 contentDescription = "Business Menu",
                 modifier = Modifier
-                    .size(width = 80.dp, height = 80.dp)
+                    .size(width = DesignSystem.Sizing.logoSmall, height = DesignSystem.Sizing.logoSmall)
                     .clickable(onClick = {
                         navController.navigate(NavigationManager.BUSINESS_MENU_OPTIONS_SCREEN)
                     })
@@ -231,11 +233,11 @@ fun BusinessDashboard(
         // Dashboard Toggle Button
         Card(
             modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.low),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -495,12 +497,12 @@ private fun BusinessProfileSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.none),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
         ) {
             // OLD DASHBOARD STYLE - Centered layout with logo at top
             Column(
@@ -510,12 +512,12 @@ private fun BusinessProfileSection(
             ) {
                 // Business Logo - OLD DASHBOARD STYLE (Clickable)
                 Card(
-                    shape = RoundedCornerShape(15.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                    border = BorderStroke(1.dp, color = colorResource(R.color.black)),
+                    shape = RoundedCornerShape(DesignSystem.CornerRadius.large),
+                    elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.high),
+                    border = BorderStroke(DesignSystem.Border.width, color = colorResource(R.color.black)),
                     modifier = Modifier
-                        .width(110.dp)
-                        .height(110.dp)
+                        .width(DesignSystem.Sizing.logoSize)
+                        .height(DesignSystem.Sizing.logoSize)
                         .clickable { onShowLogoPicker() }
                 ) {
                     if (state.businessData?.logoPath.isNullOrBlank()) {
@@ -529,13 +531,13 @@ private fun BusinessProfileSection(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = "No logo - Click to upload",
-                                    modifier = Modifier.size(32.dp),
-                                    tint = androidx.compose.ui.graphics.Color.Gray
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = "No logo - Click to upload",
+                                        modifier = Modifier.size(DesignSystem.Sizing.iconLarge),
+                                        tint = androidx.compose.ui.graphics.Color.Gray
+                                    )
+                                    Spacer(modifier = Modifier.height(DesignSystem.Spacing.minimalSpacing))
                                 Text(
                                     text = "Click to upload",
                                     style = MaterialTheme.typography.bodySmall,
@@ -545,77 +547,71 @@ private fun BusinessProfileSection(
                             }
                         }
                     } else {
-                        AsyncImage(
-                            model = state.businessData?.logoPath,
-                            contentDescription = "Business Logo - Click to change",
-                            modifier = Modifier
-                                .height(110.dp)
-                                .width(110.dp)
-                                .clip(RoundedCornerShape(15.dp)),
-                            contentScale = ContentScale.Crop
-                        )
+                            AsyncImage(
+                                model = state.businessData?.logoPath,
+                                contentDescription = "Business Logo - Click to change",
+                                modifier = Modifier
+                                    .height(DesignSystem.Sizing.logoSize)
+                                    .width(DesignSystem.Sizing.logoSize)
+                                    .clip(RoundedCornerShape(DesignSystem.CornerRadius.large)),
+                                contentScale = ContentScale.Crop
+                            )
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(DesignSystem.Spacing.elementSpacing))
 
                 // Business Name - OLD DASHBOARD STYLE
                 Text(
-                    style = androidx.compose.ui.text.TextStyle(
-                        color = colorResource(id = R.color.button_normal),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = state.businessData?.businessName ?: "Loading..."
+                    text = state.businessData?.businessName ?: "Loading...",
+                    color = colorResource(id = R.color.button_normal),
+                    fontSize = DesignSystem.Typography.businessName,
+                    fontWeight = FontWeight.Normal
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(DesignSystem.Spacing.smallSpacing))
 
                 // Business Type - OLD DASHBOARD STYLE
                 Text(
-                    style = androidx.compose.ui.text.TextStyle(
-                        color = androidx.compose.ui.graphics.Color.Gray,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = state.businessData?.businessType ?: "Loading..."
+                    text = state.businessData?.businessType ?: "Loading...",
+                    color = androidx.compose.ui.graphics.Color.Gray,
+                    fontSize = DesignSystem.Typography.businessType,
+                    fontWeight = FontWeight.Normal
                 )
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(DesignSystem.Spacing.elementSpacing))
 
                 // Year Established Button - OLD DASHBOARD STYLE
                 Button(
                     onClick = {},
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(DesignSystem.CornerRadius.medium),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(35.dp)
+                        .height(DesignSystem.Sizing.buttonHeight)
                         .border(
-                            width = 1.dp,
+                            width = DesignSystem.Border.width,
                             color = androidx.compose.ui.graphics.Color.Gray,
-                            shape = RoundedCornerShape(20.dp)
+                            shape = RoundedCornerShape(DesignSystem.CornerRadius.xlarge)
                         ),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
                     Text(
                         text = "Established In : " + (state.businessData?.yearEstablished?.toString() ?: ""),
-                        fontSize = 12.sp,
+                        fontSize = DesignSystem.Typography.buttonText,
                         fontWeight = FontWeight.Bold,
                         color = colorResource(id = R.color.black)
                     )
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(DesignSystem.Spacing.elementSpacing))
 
                 // Business Description - OLD DASHBOARD STYLE
                 Text(
-                    style = androidx.compose.ui.text.TextStyle(
-                        color = androidx.compose.ui.graphics.Color.Gray,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = state.businessData?.businessDescription ?: "Loading..."
+                    text = state.businessData?.businessDescription ?: "Loading...",
+                    color = androidx.compose.ui.graphics.Color.Gray,
+                    fontSize = DesignSystem.Typography.businessDescription,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Normal
                 )
             }
         }
@@ -638,12 +634,12 @@ private fun BusinessGallerySection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.none),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
         ) {
             Text(
                 text = "Business Gallery",
@@ -653,7 +649,7 @@ private fun BusinessGallerySection(
             
             // Image Gallery
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.smallSpacing)
             ) {
                 items(state.imageList) { imageUrl ->
                     Box {
@@ -661,8 +657,8 @@ private fun BusinessGallerySection(
                             model = imageUrl,
                             contentDescription = "Business Image",
                             modifier = Modifier
-                                .size(100.dp)
-                                .padding(4.dp),
+                                .size(DesignSystem.Sizing.galleryImageSize)
+                                .padding(DesignSystem.Spacing.minimalSpacing),
                             contentScale = ContentScale.Crop
                         )
                         IconButton(
@@ -687,7 +683,7 @@ private fun BusinessGallerySection(
             // Upload Button
             FloatingActionButton(
                 onClick = onShowImagePicker,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(DesignSystem.Sizing.iconXLarge)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -722,12 +718,12 @@ private fun BusinessLocationSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.none),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
         ) {
             Text(
                 text = "Business Location",
@@ -839,7 +835,7 @@ private fun BusinessLocationSection(
             
             // Address Display and Edit - FULFILLS: LLR-2.3.1 - Map Picker Integration Display
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.smallSpacing)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -918,12 +914,12 @@ private fun BusinessHoursSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.none),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
         ) {
             Text(
                 text = "Business Hours",
@@ -974,12 +970,12 @@ private fun BusinessDockSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.none),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
         ) {
             Text(
                 text = "Dock Services",
@@ -1103,7 +1099,7 @@ private fun BusinessDockSection(
                             fontWeight = FontWeight.Medium
                         )
                         
-                        Row(modifier = Modifier.padding(start = 4.dp)) {
+                        Row(modifier = Modifier.padding(start = DesignSystem.Spacing.minimalSpacing)) {
                             Text(
                                 text = buildString {
                                     if (dockData.hasPower) append("Power ") 
@@ -1140,7 +1136,7 @@ private fun BusinessDockSection(
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(DesignSystem.Spacing.smallSpacing))
                 
                 // Dock Details Form - FULFILLS: Missing Complete Dock Form
                 var dockName by remember { mutableStateOf(state.dockData?.dockName ?: state.businessData?.businessName ?: "") }
@@ -1159,8 +1155,12 @@ private fun BusinessDockSection(
                     placeholder = { Text("Enter dock name") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    singleLine = true
+                        .padding(vertical = DesignSystem.Spacing.minimalSpacing),
+                    singleLine = true,
+                    shape = RoundedCornerShape(DesignSystem.CornerRadius.small),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray
+                    )
                 )
                 
                 // Address Field with Edit Button
@@ -1188,8 +1188,12 @@ private fun BusinessDockSection(
                     placeholder = { Text("Enter dock address") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    singleLine = true
+                        .padding(vertical = DesignSystem.Spacing.minimalSpacing),
+                    singleLine = true,
+                    shape = RoundedCornerShape(DesignSystem.CornerRadius.small),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray
+                    )
                 )
                 
                 // Description Field
@@ -1204,10 +1208,14 @@ private fun BusinessDockSection(
                     placeholder = { Text("Enter dock details") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(100.dp)
-                        .padding(vertical = 4.dp),
+                        .height(DesignSystem.Sizing.textFieldHeight)
+                        .padding(vertical = DesignSystem.Spacing.minimalSpacing),
                     minLines = 3,
-                    maxLines = 5
+                    maxLines = 5,
+                    shape = RoundedCornerShape(DesignSystem.CornerRadius.small),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray
+                    )
                 )
             }
         }
@@ -1227,12 +1235,12 @@ private fun BusinessActionsSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignSystem.Elevation.none),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
         ) {
             Text(
                 text = "Actions",
@@ -1253,10 +1261,10 @@ private fun BusinessActionsSection(
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(DesignSystem.Sizing.iconSmall),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(DesignSystem.Spacing.smallSpacing))
                 }
                 Text(
                     text = if (state.isLoading) "Saving..." else "Save Changes"
@@ -1359,11 +1367,11 @@ private fun AdvancedBusinessHoursModal(
     var expandedEndIndex by remember { mutableStateOf<Int?>(null) }
     
     // Default days and editable business hours
-    val daysOfWeek = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     var editableHours by remember { 
         mutableStateOf(
             daysOfWeek.map { day ->
-                BusinessHour(Day = day, StartTime = "09:00:00", EndTimeTime = "17:00:00")
+                BusinessHour(Day = day, StartTime = "09:00", EndTimeTime = "17:00")
             }
         )
     }
@@ -1373,13 +1381,13 @@ private fun AdvancedBusinessHoursModal(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        shape = RoundedCornerShape(topStart = DesignSystem.CornerRadius.modal, topEnd = DesignSystem.CornerRadius.modal),
         containerColor = Color.White,
-        tonalElevation = 16.dp,
+        tonalElevation = DesignSystem.Elevation.modal,
         modifier = Modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures { _, dragAmount ->
-                    if (dragAmount > 20) {
+                    if (dragAmount > DesignSystem.Interaction.dragThreshold) {
                         coroutineScope.launch {
                             sheetState.partialExpand()
                         }
@@ -1390,8 +1398,8 @@ private fun AdvancedBusinessHoursModal(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(DesignSystem.Spacing.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.cardPadding)
         ) {
             // Header
             Text(
@@ -1402,7 +1410,7 @@ private fun AdvancedBusinessHoursModal(
             
             // Days editing section
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.sectionSpacing)
             ) {
                 items(editableHours.size) { index ->
                     val hour = editableHours[index]
@@ -1410,15 +1418,15 @@ private fun AdvancedBusinessHoursModal(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            .padding(DesignSystem.Spacing.smallSpacing),
+                        horizontalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.smallSpacing),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Day TextField
                         OutlinedTextField(
                             value = hour.Day.orEmpty(),
                             onValueChange = { },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(0.5f),
                             label = { Text("Day") },
                             readOnly = true
                         )
@@ -1431,6 +1439,7 @@ private fun AdvancedBusinessHoursModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 label = { Text("Open") },
                                 readOnly = true,
+                                textStyle = MaterialTheme.typography.bodySmall,
                                 suffix = { 
                                     IconButton(onClick = { expandedRowIndex = if (expandedRowIndex == index) null else index }) {
                                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -1443,7 +1452,7 @@ private fun AdvancedBusinessHoursModal(
                                 onDismissRequest = { expandedRowIndex = null },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(300.dp)
+                                    .height(DesignSystem.Sizing.dropdownHeight)
                                     .background(Color.White)
                             ) {
                                 AppConstants.hourList.forEach { time ->
@@ -1457,7 +1466,7 @@ private fun AdvancedBusinessHoursModal(
                                         text = {
                                             Text(
                                                 text = time,
-                                                modifier = Modifier.padding(vertical = 4.dp)
+                                                modifier = Modifier.padding(vertical = DesignSystem.Spacing.minimalSpacing)
                                             )
                                         }
                                     )
@@ -1473,6 +1482,7 @@ private fun AdvancedBusinessHoursModal(
                                 modifier = Modifier.fillMaxWidth(),
                                 label = { Text("Close") },
                                 readOnly = true,
+                                textStyle = MaterialTheme.typography.bodySmall,
                                 suffix = { 
                                     IconButton(onClick = { expandedEndIndex = if (expandedEndIndex == index) null else index }) {
                                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -1485,7 +1495,7 @@ private fun AdvancedBusinessHoursModal(
                                 onDismissRequest = { expandedEndIndex = null },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(300.dp)
+                                    .height(DesignSystem.Sizing.dropdownHeight)
                                     .background(Color.White)
                             ) {
                                 AppConstants.hourList.forEach { time ->
@@ -1499,7 +1509,7 @@ private fun AdvancedBusinessHoursModal(
                                         text = {
                                             Text(
                                                 text = time,
-                                                modifier = Modifier.padding(vertical = 4.dp)
+                                                modifier = Modifier.padding(vertical = DesignSystem.Spacing.minimalSpacing)
                                             )
                                         }
                                     )
@@ -1513,7 +1523,7 @@ private fun AdvancedBusinessHoursModal(
             // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(DesignSystem.Spacing.smallSpacing)
             ) {
                 OutlinedButton(
                     onClick = onDismiss,
