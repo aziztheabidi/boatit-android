@@ -33,12 +33,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        println("FCM")
         remoteMessage.data.isNotEmpty().let {
             Log.d("FCM", "Message Data Payload: ${remoteMessage.data}")
             val jsonData = Gson().toJson(remoteMessage.data)
             val voyageData = Gson().fromJson(jsonData, VoyageNotification::class.java)
-            println()
             if (isAppInForeground()) {
                 _notificationFlow.tryEmit(voyageData)
             } else {

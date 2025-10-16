@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.network.di
 
 import LocationViewModel
+import android.content.Context
 import com.boatit.boatsharing.ui.business.repository.BusinessDashboardRepository
 import com.boatit.boatsharing.ui.business.repository.GetBusinessDocksRepo
 import com.boatit.boatsharing.ui.business.repository.GetBusinessRepo
@@ -134,7 +135,6 @@ import org.koin.dsl.module
 import com.google.android.gms.location.LocationServices
 
 val Modules = module {
-
     single { FirebaseAuth.getInstance() }
     single { FirebaseDatabase.getInstance() }
     single { FirebaseMessaging.getInstance() }

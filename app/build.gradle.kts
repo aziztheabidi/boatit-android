@@ -20,6 +20,8 @@ android {
         versionName = "1.0"
 
         resValue("string", "mapAPiKey", "AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng")
+        resValue("string", "path", "https://testbyfarhan.squarecod.com/")
+        resValue("string", "baseUrl", "https://testbyfarhan.squarecod.com/api")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -119,7 +121,6 @@ dependencies {
     implementation(libs.flexible.bottomsheet.material)
     implementation(libs.compose.ratingbar)
     implementation(libs.accompanist.pager)
-
-
+    implementation(libs.androidx.security.crypto)
 
 }

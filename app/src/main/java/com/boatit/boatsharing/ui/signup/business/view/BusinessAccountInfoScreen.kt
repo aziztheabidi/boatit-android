@@ -353,7 +353,7 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable {
-                                println("Pick location from map clicked")
+                                
                                 navController.navigate("map_picker")
                             }
                         ) {
@@ -481,7 +481,7 @@ fun BusinessAccountInfoScreen(navController: NavController,
                             isButtonEnabled = true
                             isLoading = true
                             focusManager.clearFocus()
-                            println("perform network call")
+                            
                         }
                     )
                     Spacer(modifier = Modifier.height(10.dp))

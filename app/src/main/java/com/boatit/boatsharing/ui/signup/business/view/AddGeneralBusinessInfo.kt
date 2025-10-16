@@ -154,7 +154,7 @@ fun AddGeneralBusinessInfo(navController: NavController,
         containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 2/4", onImageClick = {
-                println("clicked...")
+                
                 navController.popBack()
             })
         },
@@ -317,7 +317,6 @@ fun AddGeneralBusinessInfo(navController: NavController,
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            println("Pick location from map clicked")
                             navController.navigate("map_picker")
                         }
                     ) {

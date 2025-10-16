@@ -81,10 +81,10 @@ fun VoyagersListScreen(navController: NavController,
 
     when (voyagesList) {
         is NetworkResponse.Loading -> {
-            println("Loading")
+            
         }
         is NetworkResponse.Error -> {
-            println(voyagesList.message)
+            
             viewModel.resetNearbyPlaces()
         }
         is NetworkResponse.Success -> {
@@ -105,7 +105,7 @@ fun VoyagersListScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = false
                 viewModelF.resetNearbyPlaces()
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                
         }
         else -> {}
     }
@@ -246,7 +246,6 @@ fun VoyagersListScreen(navController: NavController,
                             items(followed.size) { user ->
                                 UserItemFollow(followed.get(user)) { dat ->
                                     val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
-                                    println(chatId)
                                     navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
                                 }
                             }
@@ -259,7 +258,7 @@ fun VoyagersListScreen(navController: NavController,
                         items(allusers.size) { user ->
                             UserItem(allusers.get(user)) { dat ->
                                 val chatId = generateChatId(dat.UserId, AppConstants.USER_ID!!)
-                                println(chatId)
+                                
                                 navController.navigate(route = "$CHAT_SCREEN/${chatId}/${dat.UserId}/${dat.FirstName}/${AppConstants.USER_ID}")
                             }
                         }

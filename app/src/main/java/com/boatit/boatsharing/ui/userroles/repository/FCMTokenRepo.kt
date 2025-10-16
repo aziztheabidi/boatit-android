@@ -25,7 +25,6 @@ class FCMTokenRepository(private val client: HttpClient) {
             }
             if (response.status == HttpStatusCode.OK) {
                 val result = response.body<UpdateDeviceTokenResponse>()
-                println("token Updated")
                 Result.success(result)
             } else {
                 val result = response.body<UpdateDeviceTokenResponse>()

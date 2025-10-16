@@ -93,11 +93,9 @@ fun CaptainCurrentVoyages(navController: NavController,
 
     when (voyagesList) {
         is NetworkResponse.Loading -> {
-            println("Loading")
         }
 
         is NetworkResponse.Error -> {
-            println(voyagesList.message)
             viewModel.resetNearbyPlaces()
         }
 

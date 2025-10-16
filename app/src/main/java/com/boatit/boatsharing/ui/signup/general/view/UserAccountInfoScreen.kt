@@ -84,7 +84,6 @@ import java.util.Calendar
 fun UserAccountInfoScreen(navController: NavController,
                           value: String?, viewModel: VoyagerProfileViewModel = koinViewModel(), viewModelfeth: GetVoyagerProfileViewModel = koinViewModel()) {
 
-    println("comingFrom:$value")
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val firstNameFocusRequester = remember { FocusRequester() }
@@ -192,12 +191,12 @@ fun UserAccountInfoScreen(navController: NavController,
             }
             else if (value.toString() == "businessRole"){
                 CustomTopBar(text = stringResource(R.string.add_your_acc_info)+" 1/4", onImageClick = {
-                    println("clicked...")
+                    
                 })
             }
             else{
                 CustomTopBar(text = stringResource(R.string.add_your_acc_info), onImageClick = {
-                    println("clicked...")
+                    
                     navController.popBackStack()
                 })
             }
@@ -377,7 +376,7 @@ fun UserAccountInfoScreen(navController: NavController,
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            println("Pick location from map clicked")
+                            
                             navController.navigate("map_picker")
                         }
                     ) {
@@ -503,7 +502,7 @@ fun UserAccountInfoScreen(navController: NavController,
                         isButtonEnabled = true
                         isLoading = true
                         focusManager.clearFocus()
-                        println("perform network call")
+                        
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

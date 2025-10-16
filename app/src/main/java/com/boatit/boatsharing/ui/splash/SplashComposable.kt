@@ -55,7 +55,6 @@ fun SplashComposable(navController: NavController,
     val userStatus = viewModelS.getCaptainStatus()
     AppConstants.USER_ID = userData?.UserId
     AppConstants.USER_NAME = userData?.Username
-    println("userid" + AppConstants.USER_ID)
 
     LaunchedEffect(Unit) {
         delay(5000)

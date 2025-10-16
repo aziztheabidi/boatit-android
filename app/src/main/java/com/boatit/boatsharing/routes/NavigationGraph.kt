@@ -333,7 +333,6 @@ fun AppNavGraph(navController: NavHostController ) {
 
            composable(NavigationManager.FIND_LOCATION_SCREEN ) {
                FindDestinationLocationScreen(navController, onLocationSelected = { location ->
-                   println("Selected location: $location")
                })
            }
 

@@ -23,7 +23,6 @@ class VoyagerProfileRepository(private val httpClient: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(profile)
             }
-            println("helloooo" + response.status +  AppConstants.USER_ID)
             if (response.status == HttpStatusCode.OK) {
                 val result: VoyagerProfileResponse = response.body()
                 Result.success(result)

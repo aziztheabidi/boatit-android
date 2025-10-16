@@ -103,7 +103,6 @@ fun FutureVoyages(navController: NavController,
         }
         is NetworkResponse.Error -> {
             getingData = true
-            println("Message" + voyagesList.message)
             Toast.makeText(context, voyagesList.message, Toast.LENGTH_SHORT).show()
             viewModel.resetNearbyPlaces()
         }

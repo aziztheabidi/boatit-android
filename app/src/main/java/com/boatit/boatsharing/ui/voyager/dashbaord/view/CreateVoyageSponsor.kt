@@ -141,7 +141,6 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                 isLoading = false
                 isNetworkError = false
                 Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                println("Message" + AppConstants.Voyage_ID)
                 AppConstants.Voyage_ID = registrationState.data?.obj
                 performLogin()
             }
@@ -498,7 +497,7 @@ fun CreateVoyageSponsorScreen(navController: NavController,
                         isButtonEnabled = true
                         isLoading = true
                         focusManager.clearFocus()
-                        println("perform network call")
+                        
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

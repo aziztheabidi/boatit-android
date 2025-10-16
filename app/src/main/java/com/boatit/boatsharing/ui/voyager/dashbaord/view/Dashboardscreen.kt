@@ -5,7 +5,6 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.RestrictionsManager.RESULT_ERROR
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,15 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,11 +43,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.StripeSheetActivity
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -75,6 +66,7 @@ import com.boatit.boatsharing.uihelpers.CustomDialog
 import com.boatit.boatsharing.uihelpers.SessionDialog
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.permissions.PermissionsToAccessLocation
+import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -86,16 +78,13 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.skydoves.flexible.core.FlexibleSheetValue
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import java.util.Calendar
 
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun DashboardScreen(navController: NavController, value: String?,
                     viewModel: NearByVoyagesViewModel = koinViewModel(),
                     viewModelCancel: CancelBookedVoyageViewModel = koinViewModel(),
@@ -110,13 +99,8 @@ fun DashboardScreen(navController: NavController, value: String?,
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedLocation by rememberSaveable { mutableStateOf<List<String>?>(null) }
-    val defaultLatLng = LatLng(40.792240, -73.138260)
-    var currentLatLng by rememberSaveable { mutableStateOf(defaultLatLng) }
-
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(defaultLatLng, 17f)
-    }
-
+    var currentLatLng by rememberSaveable { mutableStateOf(LatLng(40.792240, -73.138260)) }
+    val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(currentLatLng, 17f) }
     var paymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
     var publishableKey by remember { mutableStateOf<String?>(null) }
     var id by remember { mutableStateOf<String?>(null) }
@@ -130,22 +114,13 @@ fun DashboardScreen(navController: NavController, value: String?,
     var showVoyageDetails by remember { mutableStateOf(false) }
     var pickupLocation by rememberSaveable { mutableStateOf("") }
     var dropOffLocation by rememberSaveable { mutableStateOf("") }
-    var totalPassengers by rememberSaveable { mutableStateOf("") }
-    var date by rememberSaveable { mutableStateOf("Open date picker dialog") }
-    var isError by rememberSaveable { mutableStateOf(false) }
-    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
     var showWaitingResponsePrompt by rememberSaveable { mutableStateOf(false) }
     var waitingResponsePromptValue by rememberSaveable { mutableStateOf("") }
-    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val markerState = remember { MarkerState(position = defaultLatLng) }
+    val markerState = remember { MarkerState(position = currentLatLng) }
     val logoutEvent by viewModel.logoutEvent.collectAsState()
-    var currentSheetTarget by remember {
-        mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded)
-    }
-
+    val sharedPrefManager = remember { SharedPrefManager(context) }
     if (navController.currentBackStackEntry?.savedStateHandle?.contains("result_key") == true) {
         val keyData = navController.currentBackStackEntry!!.savedStateHandle.get<String>("result_key") ?: ""
         selectedLocation = keyData.split(":")
@@ -160,8 +135,6 @@ fun DashboardScreen(navController: NavController, value: String?,
         navController.currentBackStackEntry?.savedStateHandle?.remove<String>("result_key")
     }
 
-
-
     PermissionsToAccessLocation(
         fusedLocationProviderClient = fusedLocationProviderClient,
         onPermissionGranted = { userLatLng ->
@@ -171,11 +144,9 @@ fun DashboardScreen(navController: NavController, value: String?,
         },
         onPermissionDenied = {},
         content = {
-            // Composable to show once permission is granted
             Text("Permission Granted")
         }
     )
-
 
     val nearbyPlacesState by viewModel.nearbyPlaces.collectAsState()
     val currentState by viewModelCurrent.loginState.collectAsState()
@@ -197,20 +168,7 @@ fun DashboardScreen(navController: NavController, value: String?,
             ))
         }else if(result.resultCode == RESULT_CANCELED){
         }else if(result.resultCode == RESULT_ERROR){
-        }else{
-        }
-    }
-
-    when (CancelState) {
-        is NetworkResponse.Success -> {
-            Toast.makeText(context, CancelState.message.toString(), Toast.LENGTH_SHORT).show()
-            viewModelCancel.resetNearbyPlaces()
-        }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, CancelState.message, Toast.LENGTH_SHORT).show()
-            viewModelCancel.resetNearbyPlaces()
-        }
-        else -> {}
+        }else{}
     }
 
     when (paymentState) {
@@ -232,14 +190,12 @@ fun DashboardScreen(navController: NavController, value: String?,
                 showWaitingResponsePrompt = false
                 showFindBoat = false
                 viewModelFind.resetNearbyPlaces()
-                Toast.makeText(context, "Finding the Boat", Toast.LENGTH_SHORT).show()
             }
         }
         is NetworkResponse.Error -> {
             if (showWaitingResponsePrompt) {
                 showWaitingResponsePrompt = false
                 showFindBoat = false
-                Toast.makeText(context, findState.message, Toast.LENGTH_SHORT).show()
             }
         }
         else -> {}
@@ -267,14 +223,12 @@ fun DashboardScreen(navController: NavController, value: String?,
         is NetworkResponse.Error -> {
                 showWaitingResponsePrompt = false
                 showConfirmBooking = false
-                Toast.makeText(context, findState.message, Toast.LENGTH_SHORT).show()
         }
         else -> {}
     }
 
     when (currentState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, currentState.data?.obj?.Status.toString(), Toast.LENGTH_SHORT).show()
             if(currentState.data?.obj?.Status?.equals("Started")!!){
                 showVoyageDetails = false
                 showConfirmBooking = false
@@ -297,7 +251,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                 showConfirmBooking = false
                 showFindBoat = true
                 voyageDetail = currentState.data?.obj
-                println("ID" + voyageDetail?.Id)
             }
 
             else if(currentState.data?.obj?.Status?.equals("Completed")!!){
@@ -313,15 +266,12 @@ fun DashboardScreen(navController: NavController, value: String?,
             viewModelCurrent.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {
-            println(currentState.message)
         }
         else -> {}
     }
 
     LaunchedEffect(notificationState) {
-        if(AppConstants.BusinessDock!!){
-            showFindBoat = true
-        }
+        if(AppConstants.BusinessDock!!){ showFindBoat = true }
         viewModel.fetchNearbyPlaces()
         viewModel.fetchCategories()
         viewModelCurrent.voyages()
@@ -355,7 +305,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                         is NetworkResponse.Success -> {
                             nearbyPlacesState.data?.forEach { place ->
                                 val position = LatLng(place.Latitude, place.Longitude)
-                                println(position)
                                 Marker(
                                     state = MarkerState(position = position),
                                     title = place.Name,
@@ -396,8 +345,7 @@ fun DashboardScreen(navController: NavController, value: String?,
         Box(modifier = Modifier
             .align(Alignment.BottomCenter)
             .width(130.dp)
-            .height(130.dp)
-            ,contentAlignment = Alignment.BottomCenter) {
+            .height(130.dp),contentAlignment = Alignment.BottomCenter) {
 
             Column {
                 Image(
@@ -469,7 +417,6 @@ fun DashboardScreen(navController: NavController, value: String?,
                             showFindBoat = false
                             selectedLocation = null
                             isMenuIconVisible = true
-                            println(totalPassengers)
                         },
                         onFindBoatClick = {
                             navController.navigate(NavigationManager.CREATE_VOYAGE_SCREEN)
@@ -498,64 +445,11 @@ fun DashboardScreen(navController: NavController, value: String?,
                 text = "Session expired, please login Again",
                 onCancel = {},
                 onPressOk = {
+                    sharedPrefManager.clearUserData()
                     navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
                 },
                 showCancelButton = false
             )
         }
-    }
-
-}
-
-@Preview
-@Composable
-fun PreviewDashboardScreen() {
-    DashboardScreen(
-        navController = rememberNavController(),
-        value = null)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
-) {
-    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
-        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-            return utcTimeMillis <= System.currentTimeMillis()
-        }
-    })
-
-    val selectedDateMillis = datePickerState.selectedDateMillis
-    val selectedDate = selectedDateMillis?.let {
-        val calendar = Calendar.getInstance().apply { timeInMillis = it }
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-based, so add 1
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        String.format("%04d-%02d-%02d", year, day, month)
-    } ?: ""
-
-    DatePickerDialog(
-        onDismissRequest = { onDismiss() },
-        confirmButton = {
-            Button(onClick = {
-                onDateSelected(selectedDate.toString())
-                onDismiss()
-            }
-
-            ) {
-                Text(text = "OK")
-            }
-        },
-        dismissButton = {
-            Button(onClick = {
-                onDismiss()
-            }) {
-                Text(text = "Cancel")
-            }
-        }
-    ) {
-        DatePicker(
-            state = datePickerState
-        )
     }
 }

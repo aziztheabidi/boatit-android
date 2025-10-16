@@ -93,7 +93,6 @@ fun ChatScreen(navController: NavController,
     }
 
     LaunchedEffect(chatId) {
-        println(chatId)
         viewModel.listenForMessages(chatId, currentUserId)
         viewModel.markMessagesAsRead(chatId, senderId)
     }

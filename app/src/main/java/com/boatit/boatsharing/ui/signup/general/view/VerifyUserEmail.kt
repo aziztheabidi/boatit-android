@@ -103,9 +103,7 @@ fun VerifyUserEmail(
         containerColor = White,
         topBar = {
             CustomTopBar(text = "${stringResource(R.string.add_your_info)} 2/3") {
-                println("Back pressed")
-
-                navController.popBackStack()
+               navController.popBackStack()
             }
         },
         bottomBar = {

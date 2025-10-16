@@ -98,14 +98,10 @@ fun BusinessDetail(navController: NavController, viewModel: VoyagerFollowBusines
         is NetworkResponse.Error -> {
             if (isLoading) {
                 isLoading = false
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                
             }
         }
         else -> {}
-    }
-
-    LaunchedEffect(Unit) {
-        println(AppConstants.Business)
     }
 
     Scaffold(

@@ -106,7 +106,6 @@ fun CaptainOnboarding(navController: NavController, pagerState: PagerState?, sco
 
         OnboardingScreenBottomLayout(
             onIconClick = {
-                println("move to next screen")
                // navController.navigate(NavigationManager.BUSINESS_ONBOARDING_SCREEN)
                 scope?.launch{
                     pagerState?.animateScrollToPage(2)
@@ -114,11 +113,7 @@ fun CaptainOnboarding(navController: NavController, pagerState: PagerState?, sco
 
             },
             onSkipClick = {
-                println("skip")
                navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN,clearStack = true)
-
-
-
             },
 
             R.drawable.onboarding_step_two,

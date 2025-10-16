@@ -1,5 +1,8 @@
 package com.boatit.boatsharing.ui.voyager.dashbaord.repository
 
+import com.boatit.boatsharing.R
+import com.boatit.boatsharing.application.MainApplication
+import com.boatit.boatsharing.utils.AppConstants
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,7 +14,7 @@ class GoogleDirectionsApi {
         val url = "https://maps.googleapis.com/maps/api/directions/json?" +
                 "origin=${origin.latitude},${origin.longitude}" +
                 "&destination=${destination.latitude},${destination.longitude}" +
-                "&key=AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng"
+                "&key=${MainApplication.appContext.getString(R.string.mapAPiKey)}"
 
         return withContext(Dispatchers.IO) {
             try {

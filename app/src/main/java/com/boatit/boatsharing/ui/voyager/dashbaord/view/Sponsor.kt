@@ -66,6 +66,7 @@ import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
+import com.boatit.boatsharing.uihelpers.MyDatePickerDialog
 import com.boatit.boatsharing.utils.AppConstants
 import org.koin.androidx.compose.koinViewModel
 
@@ -117,10 +118,9 @@ fun SponsorScreen(navController: NavController,
 
     when (registrationState) {
         is NetworkResponse.Loading -> {
-            println("Loading")
+            
         }
         is NetworkResponse.Error -> {
-            println(registrationState.message)
             viewModel.resetNearbyPlaces()
         }
         is NetworkResponse.Success -> {

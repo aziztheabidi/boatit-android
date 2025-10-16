@@ -135,7 +135,7 @@ fun AddBusinessDescriptions(navController: NavController,
         containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 3/4", onImageClick = {
-                println("clicked...")
+                
                 navController.popBack()
             })
         },

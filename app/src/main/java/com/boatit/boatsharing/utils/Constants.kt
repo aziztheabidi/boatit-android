@@ -1,12 +1,18 @@
 package com.boatit.boatsharing.utils
 
+import android.content.Context
+import androidx.core.content.ContextCompat.getString
+import com.boatit.boatsharing.R
+import com.boatit.boatsharing.application.MainApplication
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.BusinessData
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.Place
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.Sponser
 import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageCategory
 
 object AppConstants {
-    var IMG_PATH: String? = "https://testbyfarhan.squarecod.com/"
+    val IMG_PATH: String by lazy {MainApplication.appContext.getString(R.string.path)}
+    val BASE_PATH: String by lazy {MainApplication.appContext.getString(R.string.baseUrl)}
+    val PRIVACY_PATH: String = "https://www.boatit.com/legal/privacy-policy"
     var USER_ID: String? = null
     var USER_NAME: String? = null
     var Voyage_ID: String? = null
@@ -44,7 +50,6 @@ object AppConstants {
     var Busines_Lont: Double?= 0.0
 
     fun resetDefaults() {
-        IMG_PATH = "https://testbyfarhan.squarecod.com/"
         Voyage_ID = null
         JWT_TOKEN = null
         Cates = emptyList()

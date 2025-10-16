@@ -75,7 +75,7 @@ fun CaptainFeedbackScreen(navController: NavController,notification : String,
         is NetworkResponse.Error -> {
             if (isLoading) {
                 isLoading = false
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                
             }
         }
         else -> {}

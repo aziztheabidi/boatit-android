@@ -26,7 +26,6 @@ class AcceptRequestRepository(private val httpClient: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(profile)
             }
-            println(response)
             if (response.status == HttpStatusCode.Created) {
                 val result: AcceptVoyageResponse = response.body()
                 Result.success(result)
@@ -45,7 +44,6 @@ class AcceptRequestRepository(private val httpClient: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(profile)
             }
-            println(response)
             if (response.status == HttpStatusCode.Created) {
                 val result: AcceptVoyageResponse = response.body()
                 Result.success(result)

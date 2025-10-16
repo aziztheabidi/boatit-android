@@ -53,7 +53,6 @@ fun CaptainVoyages(navController: NavController, viewModel: CaptainVoyagesViewMo
     Scaffold(
         topBar = {
             CustomTopBar(text = stringResource(R.string.voyages_past), onImageClick = {
-                println("clicked...")
                 navController.popBack()
             })
         },
@@ -75,12 +74,10 @@ fun CaptainVoyages(navController: NavController, viewModel: CaptainVoyagesViewMo
                     ) {
                         when (voyagesList) {
                             is NetworkResponse.Loading -> {
-                                println("Loading")
+                                
                             }
 
-                            is NetworkResponse.Error -> {
-                                println(voyagesList.message)
-                            }
+                            is NetworkResponse.Error -> {}
 
                             is NetworkResponse.Success -> {
                                 items(voyagesList.data!!.obj.size) { voyage ->

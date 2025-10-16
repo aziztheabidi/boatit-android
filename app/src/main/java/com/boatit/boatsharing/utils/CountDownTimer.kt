@@ -98,7 +98,7 @@ fun CountDownTimer(
                     onResendClick()
                     timeLeft = 30
                     showResendText = false
-                    println("click")
+                    
                 }
             ,
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),

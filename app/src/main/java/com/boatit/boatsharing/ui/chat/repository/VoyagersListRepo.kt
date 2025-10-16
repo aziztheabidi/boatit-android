@@ -35,7 +35,6 @@ class VoyagersRepository(private val httpClient: HttpClient) {
                     parameters.append("UserId", userId.toString())
                 }
             }
-            println(response.status)
             if (response.status == HttpStatusCode.OK) {
                 val result: ActiveVoyagersResponse = response.body()
                 Result.success(result)

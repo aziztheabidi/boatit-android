@@ -35,7 +35,6 @@ class PasswordRepository(private val httpClient: HttpClient) {
                 Result.failure(Exception("Registration failed:${registrationResponse.Message}"))
             }
         } catch (e: Exception) {
-            println("Parsing Error: ${e.message}")
             Result.failure(Exception("Parsing Error: ${e.message}", e))
         }
     }

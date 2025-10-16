@@ -18,7 +18,6 @@ class GetVoyagerProfileRepository(private val httpClient: HttpClient) {
                     parameters.append("UserId", userId.toString())
                 }
             }
-            println("helloooo" + response.status + userId)
             if (response.status == HttpStatusCode.OK) {
                 val result: GetVoyagerProfileResponse = response.body()
                 Result.success(result)

@@ -21,7 +21,7 @@ class FetchCategoryRepo(
                 val placesResponse: VoyageCategoryDropdownResponse = response.body()
                 Result.success(placesResponse)
             } else {
-                println("Failed to fetch places: HTTP ${response.status}")
+                
                 Result.failure(Exception("Failed to fetch places: HTTP ${response.status}"))
             }
         } catch (e: Exception) {

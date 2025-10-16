@@ -106,7 +106,7 @@ fun VoyagerOnboarding(navController: NavController, pagerState: PagerState?, sco
 
         OnboardingScreenBottomLayout(
             onIconClick = {
-                println("move to next screen")
+                
               //  navController.navigate(NavigationManager.CAPTAIN_ONBOARDING_SCREEN)
 
                 scope?.launch{
@@ -115,7 +115,7 @@ fun VoyagerOnboarding(navController: NavController, pagerState: PagerState?, sco
 
             },
             onSkipClick = {
-                println("skip")
+                
                 navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN,clearStack = true)
 
                 // navController.navigateWithClearStack(NavigationManager.SELECT_ROLE_SCREEN, clearStack = true)
