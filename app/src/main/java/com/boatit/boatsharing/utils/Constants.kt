@@ -1,6 +1,6 @@
 package com.boatit.boatsharing.utils
 
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.Place
+import com.boatit.boatsharing.ui.voyager.dashboard.model.Place
 
 object AppConstants {
     var USER_ID: String? = null

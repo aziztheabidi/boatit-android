@@ -13,7 +13,7 @@ import org.koin.core.context.startKoin
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        val apiKey = getString(R.string.mapAPiKey)
+        val apiKey = getString(R.string.maps_api_key)
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, apiKey)
         }

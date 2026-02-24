@@ -2,7 +2,7 @@ package com.boatit.boatsharing.ui.signup.business.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.signup.business.model.SaveBusinessLogoResponse
 import com.boatit.boatsharing.ui.signup.business.repository.BusinessLogoRepository
 import kotlinx.coroutines.flow.MutableStateFlow

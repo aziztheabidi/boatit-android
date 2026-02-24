@@ -2,8 +2,8 @@ package com.boatit.boatsharing.ui.signup.general.repository
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse.Loading
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse.Loading
 import com.boatit.boatsharing.ui.signup.general.model.VerifyEmailResponse
 import com.boatit.boatsharing.ui.signup.general.viewmodel.VerifyEmailRepository
 import kotlinx.coroutines.flow.MutableStateFlow

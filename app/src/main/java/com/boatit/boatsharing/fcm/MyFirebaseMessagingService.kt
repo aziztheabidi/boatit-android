@@ -14,7 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.application.MainActivity
 import com.boatit.boatsharing.ui.login.viewmodel.NotificationViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageNotification
+import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageNotification
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
