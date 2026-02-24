@@ -1,8 +1,8 @@
 package com.boatit.boatsharing.network.di
 
 import android.content.Context
-import com.boatit.boatsharing.network.networkreposne.RefreshRequest
-import com.boatit.boatsharing.network.networkreposne.TokenResponse
+import com.boatit.boatsharing.network.networkresponse.RefreshRequest
+import com.boatit.boatsharing.network.networkresponse.TokenResponse
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.prefmanager.TokenProvider
 import io.ktor.client.HttpClient

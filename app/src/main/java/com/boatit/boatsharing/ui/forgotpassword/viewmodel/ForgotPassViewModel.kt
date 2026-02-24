@@ -2,7 +2,7 @@ package com.boatit.boatsharing.ui.forgotpassword.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.forgotpassword.repository.ForgotPassRepository
 import com.boatit.boatsharing.ui.forgotpassword.view.ForgotPassResponse
 import com.boatit.boatsharing.ui.login.model.LoginResponse

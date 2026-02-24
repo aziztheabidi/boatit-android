@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel
+package com.boatit.boatsharing.ui.voyager.dashboard.viewmodel
 
 
 import com.boatit.boatsharing.network.di.ApiConstants

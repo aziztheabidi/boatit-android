@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.ui.captain.availablitystatus
+package com.boatit.boatsharing.ui.captain.availabilitystatus
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -34,15 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.navigateWithClearStack
-import com.boatit.boatsharing.ui.captain.availablitystatus.viewmodel.UpdateStatusViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageCompleteRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CompleteVoyageViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.StartVoyageViewModel
+import com.boatit.boatsharing.ui.captain.availabilitystatus.viewmodel.UpdateStatusViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageCompleteRequest
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageStartRequest
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CompleteVoyageViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.StartVoyageViewModel
 import com.boatit.boatsharing.ui.userroles.viewmodel.RoleViewModel
 import com.boatit.boatsharing.utils.AppConstants
 import kotlinx.coroutines.delay

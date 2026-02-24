@@ -1,10 +1,10 @@
-package com.boatit.boatsharing.ui.voyager.dashbaord.repository
+package com.boatit.boatsharing.ui.voyager.dashboard.repository
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
-import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.RegistrationRepository
+import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.RegistrationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
