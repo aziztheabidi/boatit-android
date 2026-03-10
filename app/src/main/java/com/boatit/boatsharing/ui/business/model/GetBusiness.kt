@@ -17,7 +17,8 @@ data class BusinessRequest(
     val ShoreLine: String,
     val Address: String,
     val Latitude: Double,
-    val Longitude: Double
+    val Longitude: Double,
+    val Description:String,
 )
 
 @Serializable

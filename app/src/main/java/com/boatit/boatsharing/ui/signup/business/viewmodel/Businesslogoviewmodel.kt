@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.signup.business.viewmodel
 
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
@@ -13,23 +14,31 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 
-class BusinessLogoViewModel(private val businessLogoRepository: BusinessLogoRepository,
-                            private val sharedPrefManager: SharedPrefManager
+class BusinessLogoViewModel(
+    private val businessLogoRepository: BusinessLogoRepository,
+    private val sharedPrefManager: SharedPrefManager
 ) : ViewModel() {
 
-    private val _registrationState = MutableStateFlow<NetworkResponse<SaveBusinessLogoResponse>>(NetworkResponse.Loading())
+    private val _registrationState =
+        MutableStateFlow<NetworkResponse<SaveBusinessLogoResponse>>(NetworkResponse.Loading())
     val registrationState: StateFlow<NetworkResponse<SaveBusinessLogoResponse>> = _registrationState
 
     private val _imageList = mutableStateListOf<Uri>()
-    var imageList: List<Uri> = _imageList
+    val imageList: SnapshotStateList<Uri> get() = _imageList
+
 
     fun addImages(uris: List<Uri>) {
-        _imageList.clear()
-        _imageList.addAll(uris)
+        val remaining = (6 - _imageList.size).coerceAtLeast(0)
+        _imageList.addAll(uris.take(remaining))
     }
 
     fun removeImage(uri: Uri) {
         _imageList.remove(uri)
+    }
+
+    fun setImages(list: List<Uri>) {
+        _imageList.clear()
+        _imageList.addAll(list)
     }
 
     fun clearImages() {
@@ -40,7 +49,7 @@ class BusinessLogoViewModel(private val businessLogoRepository: BusinessLogoRepo
         _registrationState.value = NetworkResponse.Loading()
     }
 
-    fun uploadBusinessLogo(userId: String, logoFile: File,logoFiles: List<File?>) {
+    fun uploadBusinessLogo(userId: String, logoFile: File, logoFiles: List<File?>) {
         viewModelScope.launch {
             _registrationState.value = NetworkResponse.Loading()
             val result = businessLogoRepository.saveBusinessLogo(userId, logoFile, logoFiles)
@@ -48,7 +57,8 @@ class BusinessLogoViewModel(private val businessLogoRepository: BusinessLogoRepo
                 _registrationState.value = NetworkResponse.Success(response)
                 saveLoginData(0)
             }.onFailure { error ->
-                _registrationState.value = NetworkResponse.Error(error.message ?: "Unknown error occurred")
+                _registrationState.value =
+                    NetworkResponse.Error(error.message ?: "Unknown error occurred")
             }
         }
     }
@@ -60,7 +70,8 @@ class BusinessLogoViewModel(private val businessLogoRepository: BusinessLogoRepo
             result.onSuccess { response ->
                 _registrationState.value = NetworkResponse.Success(response)
             }.onFailure { error ->
-                _registrationState.value = NetworkResponse.Error(error.message ?: "Unknown error occurred")
+                _registrationState.value =
+                    NetworkResponse.Error(error.message ?: "Unknown error occurred")
             }
         }
     }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,8 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -53,42 +50,36 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.business.model.BusinessProfileRequest
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessProfileViewModel
 import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessProfileViewModel
-import com.boatit.boatsharing.ui.signup.captain.model.CaptainProfileRequest
-import com.boatit.boatsharing.ui.signup.general.model.VoyagerProfileRequest
-import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileViewModel
-import com.boatit.boatsharing.ui.signup.general.repository.VoyagerProfileViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.utils.AppConstants
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun BusinessAccountInfoScreen(navController: NavController,
-  viewModel: BusinessProfileViewModel = koinViewModel(),
-  viewModelfeth: GetBusinessProfileViewModel = koinViewModel()) {
+fun BusinessAccountInfoScreen(
+    navController: NavController,
+    viewModel: BusinessProfileViewModel = koinViewModel(),
+    viewModelfeth: GetBusinessProfileViewModel = koinViewModel()
+) {
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -131,52 +122,65 @@ fun BusinessAccountInfoScreen(navController: NavController,
     val registrationState by viewModel.registrationState.collectAsState()
     val fetchState by viewModelfeth.registrationState.collectAsState()
 
-    fun performLogin(){
+    fun performLogin() {
         navController.navigate(NavigationManager.BUSINESS_GENERAL_INFO_SCREEN)
     }
+    LaunchedEffect(registrationState) {
+        when (registrationState) {
+            is NetworkResponse.Success -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = false
+                    Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT)
+                        .show()
+                    performLogin()
+                }
+            }
 
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                performLogin()
+            is NetworkResponse.Error -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = true
+                    errorMessage = "Network error, please try again."
+                    Toast.makeText(
+                        context,
+                        (registrationState as NetworkResponse.Error).message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+
+            else -> {}
         }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
     }
+    LaunchedEffect(fetchState) {
+        when (fetchState) {
+            is NetworkResponse.Success -> {
+                if (getingData) {
+                    phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
+                    firstName = fetchState.data?.obj?.FirstName.toString()
+                    lastName = fetchState.data?.obj?.LastName.toString()
+                    address = fetchState.data?.obj?.Address.toString()
+                    dob = fetchState.data?.obj?.DateOfBirth.toString()
+                    paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
+                    getingData = false
+                }
+            }
 
-    when (fetchState) {
-        is NetworkResponse.Success -> {
-            if(getingData) {
-                phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
-                firstName = fetchState.data?.obj?.FirstName.toString()
-                lastName = fetchState.data?.obj?.LastName.toString()
-                address = fetchState.data?.obj?.Address.toString()
-                dob = fetchState.data?.obj?.DateOfBirth.toString()
-                paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
+            is NetworkResponse.Error -> {
+                Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
                 getingData = false
             }
+
+            else -> {}
         }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
-            getingData = false
-        }
-        else -> {}
     }
 
-    LaunchedEffect(getingData) {
+    LaunchedEffect(Unit) {
         viewModelfeth.GetBusinessProfile()
     }
+
+
 
     Scaffold(
         containerColor = Color.White,
@@ -203,7 +207,7 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         CircularProgressIndicator()
                     }
                 }
-            }else {
+            } else {
                 Column(
                     modifier = Modifier
                         .padding(
@@ -252,8 +256,10 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         onTextChange = { firstName = it },
                         keyboardType = KeyboardType.Text,
                         maxChars = 100,
-                        errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
-                        isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                        errorMessage = if (firstName.isNotEmpty() && firstName.length <= 3) stringResource(
+                            R.string.firstname_validation_text
+                        ) else null,
+                        isError = firstName.isNotEmpty() && firstName.length <= 3,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(
@@ -280,8 +286,10 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         onTextChange = { lastName = it },
                         keyboardType = KeyboardType.Text,
                         maxChars = 100,
-                        errorMessage = if (lastName.isNotEmpty()&& lastName.length <= 3) stringResource(R.string.lastname_validation_text) else null,
-                        isError = lastName.isNotEmpty()&& lastName.length <= 3,
+                        errorMessage = if (lastName.isNotEmpty() && lastName.length <= 3) stringResource(
+                            R.string.lastname_validation_text
+                        ) else null,
+                        isError = lastName.isNotEmpty() && lastName.length <= 3,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(
@@ -312,7 +320,7 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         errorMessage = if (phoneNumber.isNotEmpty() && phoneNumber.length <= 3) stringResource(
                             R.string.phone_validation_text
                         ) else null,
-                        isError = phoneNumber.isNotEmpty()&& phoneNumber.length <= 3,
+                        isError = phoneNumber.isNotEmpty() && phoneNumber.length <= 3,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions = KeyboardActions(
@@ -353,8 +361,7 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable {
-                                
-                                navController.navigate("map_picker")
+                                  navController.navigate("map_picker")
                             }
                         ) {
                             Icon(
@@ -389,7 +396,9 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         singleLine = false,
                         maxLines = 3,
                         maxChars = 200,
-                        errorMessage = if (address.isNotEmpty() && address.length <= 3) stringResource(R.string.address_validation_text) else null,
+                        errorMessage = if (address.isNotEmpty() && address.length <= 3) stringResource(
+                            R.string.address_validation_text
+                        ) else null,
                         isError = address.isNotEmpty() && address.length <= 3,
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
@@ -449,7 +458,9 @@ fun BusinessAccountInfoScreen(navController: NavController,
                         onTextChange = { paypalEmail = it },
                         keyboardType = KeyboardType.Email,
                         maxChars = 100,
-                        errorMessage = if (!isEmailValid && paypalEmail.isNotEmpty()) stringResource(R.string.email_validation_text) else null,
+                        errorMessage = if (!isEmailValid && paypalEmail.isNotEmpty()) stringResource(
+                            R.string.email_validation_text
+                        ) else null,
                         isError = !isEmailValid && paypalEmail.isNotEmpty(),
                         onClearError = handleError,
                         imeAction = ImeAction.Done,
@@ -476,12 +487,13 @@ fun BusinessAccountInfoScreen(navController: NavController,
                                     LastName = lastName,
                                     Address = address,
                                     DateOfBirth = dob,
-                                    StripeEmail = paypalEmail)
+                                    StripeEmail = paypalEmail
+                                )
                             )
                             isButtonEnabled = true
                             isLoading = true
                             focusManager.clearFocus()
-                            
+
                         }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
@@ -494,7 +506,8 @@ fun BusinessAccountInfoScreen(navController: NavController,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyDatePickerDialog(onDateSelected: (String) -> Unit, onDismiss: () -> Unit
+fun MyDatePickerDialog(
+    onDateSelected: (String) -> Unit, onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
         override fun isSelectableDate(utcTimeMillis: Long): Boolean {

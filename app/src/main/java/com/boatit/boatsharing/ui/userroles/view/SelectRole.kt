@@ -39,10 +39,12 @@ import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
+import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.userroles.viewmodel.FCMTokenViewModel
 import com.boatit.boatsharing.ui.userroles.viewmodel.RoleViewModel
 import com.boatit.boatsharing.uihelpers.ClickTopBarIcon
 import com.boatit.boatsharing.utils.AppConstants
+import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import com.google.firebase.messaging.FirebaseMessaging
 import org.koin.androidx.compose.koinViewModel
 
@@ -58,24 +60,45 @@ fun SelectRole(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val roleState by viewModel.roleState.collectAsState()
 
+//    LaunchedEffect(roleState) {
+//        if (roleState is NetworkResponse.Success) {
+//            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    val token = task.result
+//                    viewModelFcm.fcm(AppConstants.USER_ID.toString(), token)
+//                }
+//            }
+//            when (selectedRole) {
+//                "Voyager" -> {
+//                    navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
+//                    viewModel.resetNearbyPlaces()
+//                }
+//                "Captain" -> {navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
+//                    viewModel.resetNearbyPlaces()}
+//                else -> {navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN)
+//                    viewModel.resetNearbyPlaces()}
+//            }
+//        }
+//    }
+
+
     LaunchedEffect(roleState) {
         if (roleState is NetworkResponse.Success) {
+            // Send FCM token
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val token = task.result
                     viewModelFcm.fcm(AppConstants.USER_ID.toString(), token)
                 }
             }
-            when (selectedRole) {
-                "Voyager" -> {
-                    navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
-                    viewModel.resetNearbyPlaces()
-                }
-                "Captain" -> {navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
-                    viewModel.resetNearbyPlaces()}
-                else -> {navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN)
-                    viewModel.resetNearbyPlaces()}
-            }
+
+            val sharedPrefManager = SharedPrefManager(context)
+            sharedPrefManager.clearUserData()
+
+            navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN, clearStack = true)
+
+            // Reset any state if needed
+            viewModel.resetNearbyPlaces()
         }
     }
 
@@ -197,15 +220,14 @@ fun SelectRole(
           //  Spacer(modifier = Modifier.weight(1f))
         }
 
-
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 
-    if (isLoading) {
-        CircularProgressIndicator(
-            modifier = Modifier.
-            padding(top = 100.dp)
-        )
-    }
+
 
     errorMessage?.let {
         Toast.makeText(context, it, Toast.LENGTH_SHORT).show()

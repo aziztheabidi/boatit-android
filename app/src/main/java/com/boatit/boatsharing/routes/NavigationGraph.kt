@@ -1,6 +1,5 @@
 package com.boatit.boatsharing.routes
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -50,12 +49,9 @@ import com.boatit.boatsharing.ui.signup.general.view.UserBasicInfoScreen
 import com.boatit.boatsharing.ui.signup.general.view.VerifyUserEmail
 import com.boatit.boatsharing.ui.userroles.SelectRole
 import com.boatit.boatsharing.ui.splash.SplashComposable
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.SponsorPayments
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.BusinessDetail
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.BusinessListScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmBooking
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmVoyageScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalc
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalcScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageScreen
 import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageSponsorScreen
@@ -241,17 +237,17 @@ fun AppNavGraph(navController: NavHostController ) {
                FutureVoyages(navController)
            }
 
-           composable("$CREATE_ACCOUNT_STEP_TWO_SCREEN/{value}") { backStackEntry ->
-               val comingFrom = backStackEntry.arguments?.getString("value")
-               if (comingFrom != null) {
-                   VerifyUserEmail(navController, comingFrom)
+           composable("$CREATE_ACCOUNT_STEP_TWO_SCREEN/{email}") { backStackEntry ->
+               val userEmail = backStackEntry.arguments?.getString("email")
+               if (userEmail != null) {
+                   VerifyUserEmail(navController, userEmail)
                }
            }
 
-           composable("$CREATE_ACCOUNT_STEP_THREE_SCREEN/{value}") { backStackEntry ->
-               val comingFrom = backStackEntry.arguments?.getString("value")
-               if (comingFrom != null) {
-                   CreatePassword(navController, comingFrom)
+           composable("$CREATE_ACCOUNT_STEP_THREE_SCREEN/{tokenValue}") { backStackEntry ->
+               val tokenValue = backStackEntry.arguments?.getString("tokenValue")
+               if (tokenValue != null) {
+                   CreatePassword(navController, tokenValue)
                }
 
            }

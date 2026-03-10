@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.ui.signup.general.model.RegistrationResponse
 import com.boatit.boatsharing.ui.voyager.dashbaord.viewmodel.RegistrationRepository
+import com.boatit.boatsharing.utils.prefmanager.TokenProvider
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class RegistrationViewModel(private val repository: RegistrationRepository) : ViewModel() {
+class RegistrationViewModel(
+    private val repository: RegistrationRepository,
+) : ViewModel() {
 
     // Form state
     var email by mutableStateOf("")

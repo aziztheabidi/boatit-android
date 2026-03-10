@@ -96,6 +96,7 @@ import com.boatit.boatsharing.network.networkreposne.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.business.model.BusinessData
+import com.boatit.boatsharing.ui.business.model.BusinessHour
 import com.boatit.boatsharing.ui.business.model.BusinessRequest
 import com.boatit.boatsharing.ui.business.model.DeleteRequest
 import com.boatit.boatsharing.ui.business.model.DockDropdownItem
@@ -150,8 +151,19 @@ fun BusinessDashboard(navController: NavController,
     var expandeds by remember { mutableStateOf(false) }
     var expandedi by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
-    val editableList = remember(BDetail?.BusinessHours) {
-        BDetail?.BusinessHours?.distinctBy { it.Day }?.map { it.copy() }?.toMutableStateList() ?: mutableStateListOf()
+    val editableList = remember { mutableStateListOf<BusinessHour>() }
+
+
+    var dockEnabled by remember { mutableStateOf(BDetail?.IsDock ?: false) }
+    var dockName by remember { mutableStateOf(BDetail?.Name.orEmpty()) }
+    var dockAddress by remember { mutableStateOf(BDetail?.Address.orEmpty()) }
+    var dockDescription by remember { mutableStateOf(BDetail?.Description.orEmpty()) }
+
+    LaunchedEffect(BDetail?.BusinessHours) {
+        if (editableList.isEmpty() && !BDetail?.BusinessHours.isNullOrEmpty()) {
+            editableList.clear()
+            editableList.addAll(BDetail!!.BusinessHours!!.distinctBy { it.Day }.map { it.copy() })
+        }
     }
 
     when (registrationState) {
@@ -184,6 +196,10 @@ fun BusinessDashboard(navController: NavController,
             islnd.value = Pair(BDetail?.IslandId!!, BDetail?.IslandName!!)
             AppConstants.Busines_DOCK = BDetail?.IsDock!!
             isLoading = false
+            dockEnabled = BDetail?.IsDock ?: false
+            dockName = BDetail?.Name.orEmpty()
+            dockAddress = BDetail?.Address.orEmpty()
+            dockDescription = BDetail?.Description.orEmpty()
             viewModel.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {
@@ -725,7 +741,17 @@ fun BusinessDashboard(navController: NavController,
 
                         Spacer(Modifier.height(10.dp))
 
-                        AddDockSection(navController,BDetail?.IsDock!!,BDetail?.Name!!, BDetail?.Address!!, BDetail?.Description!!)
+                        AddDockSection(
+                            navController = navController,
+                            isDock = dockEnabled,
+                            name = dockName,
+                            address = dockAddress,
+                            description = dockDescription,
+                            onDockToggle = { dockEnabled = it },
+                            onNameChange = { dockName = it },
+                            onAddressChange = { dockAddress = it },
+                            onDescriptionChange = { dockDescription = it }
+                        )
 
                         Spacer(modifier = Modifier.height(40.dp))
                         CustomButton(
@@ -733,23 +759,31 @@ fun BusinessDashboard(navController: NavController,
                             isValidate = true,
                             isLoading = isLoading,
                             onButtonClick = {
-                                viewModelUpdate.saveBusinessProfile( profile =
+                                val updatedHours = editableList.map {
+                                    BusinessHour(
+                                        Day = it.Day.orEmpty(),
+                                        StartTime = it.StartTime.orEmpty(),
+                                        EndTimeTime = it.EndTimeTime.orEmpty()
+                                    )
+                            }
+                                viewModelUpdate.saveBusinessProfile(
                                     BusinessRequest(
-                                        AppConstants.Busines_Location!!,
-                                        BusinessHours = BDetail?.BusinessHours!!,
-                                        IsDock = AppConstants.Busines_DOCK!!,
-                                        Name = BDetail?.Name!!,
-                                        ZoneId = zone.value?.first!!,
+                                        Location = AppConstants.Busines_Location!!,
+                                        BusinessHours = updatedHours,
+                                        IsDock = dockEnabled,
+                                        Name = dockName,
+                                        Address = dockAddress,
                                         ShoreId = shore.value?.first!!,
+                                        ZoneId = zone.value?.first!!,
                                         IslandId = islnd.value?.first!!,
                                         State = AppConstants.Busines_State!!,
                                         City = AppConstants.Busines_City!!,
                                         ZipCode = AppConstants.Busines_Zip!!,
                                         ShoreLine = shore.value?.second!!,
-                                        Address = BDetail?.Address!!,
                                         Latitude = AppConstants.Busines_Lat!!,
                                         Longitude = AppConstants.Busines_Lont!!,
-                                    ),
+                                        Description = dockDescription
+                                    )
                                 )
                                 isLoading = true
                             }
@@ -1010,15 +1044,20 @@ fun EditableLocationSection(
         }
     }
 }
-
 @Composable
-fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname: String, businessaddress: String, businessdescription: String) {
-    var isDockEnabled by remember { mutableStateOf(isDock) }
-    var name by remember { mutableStateOf(businessname) }
-    var address by remember { mutableStateOf(businessaddress) }
-    var description by remember { mutableStateOf(businessdescription) }
-
+fun AddDockSection(
+    navController: NavController,
+    isDock: Boolean,
+    name: String,
+    address: String,
+    description: String,
+    onDockToggle: (Boolean) -> Unit,
+    onNameChange: (String) -> Unit,
+    onAddressChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+) {
     Column(modifier = Modifier.padding(10.dp)) {
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -1026,14 +1065,12 @@ fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname
         ) {
             Text("Add Dock", fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
-
             Switch(
-                checked = isDockEnabled,
-                onCheckedChange = {
-                    isDockEnabled = it
-                    AppConstants.Busines_DOCK = isDockEnabled
+                checked = isDock,
+                onCheckedChange = { checked ->
+                    onDockToggle(checked)
+                    AppConstants.Busines_DOCK = checked
                 },
-
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = White,
                     checkedTrackColor = colorResource(id = R.color.button_normal),
@@ -1046,11 +1083,12 @@ fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (isDockEnabled!!) {
+        if (isDock) {
             Text("Name", fontWeight = FontWeight.Medium)
+
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = onNameChange,
                 placeholder = { Text("John") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1061,30 +1099,29 @@ fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname
                 )
             )
 
-            // Observe value from map_picker result
+
             val navBackStackEntry by navController.currentBackStackEntryAsState()
+
             val selectedAddress = navBackStackEntry
                 ?.savedStateHandle
                 ?.get<String>("selected_address")
 
             LaunchedEffect(selectedAddress) {
                 if (!selectedAddress.isNullOrBlank()) {
-                    address = selectedAddress
+                    onAddressChange(selectedAddress)
                     navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
                 }
             }
 
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Address", fontWeight = FontWeight.Medium)
 
-                IconButton(onClick = {
-                    navController.navigate("map_picker")
-                }) {
+                IconButton(onClick = { navController.navigate("map_picker") }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Edit",
@@ -1095,7 +1132,7 @@ fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname
 
             OutlinedTextField(
                 value = address,
-                onValueChange = { address = it },
+                onValueChange = onAddressChange,
                 placeholder = { Text("Street no 8......") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1106,10 +1143,12 @@ fun AddDockSection(  navController: NavController,isDock : Boolean ,businessname
                 )
             )
 
+
             Text("Description", fontWeight = FontWeight.Medium)
+
             OutlinedTextField(
                 value = description,
-                onValueChange = { description = it },
+                onValueChange = onDescriptionChange,
                 placeholder = { Text("Details ............") },
                 modifier = Modifier
                     .fillMaxWidth()

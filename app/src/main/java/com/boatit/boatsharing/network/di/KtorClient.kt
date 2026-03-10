@@ -1,6 +1,8 @@
 package com.boatit.boatsharing.network.di
 
 import android.content.Context
+import android.system.Os.access
+import android.util.Log
 import com.boatit.boatsharing.network.networkreposne.RefreshRequest
 import com.boatit.boatsharing.network.networkreposne.TokenResponse
 import com.boatit.boatsharing.ui.splash.SplashComposable
@@ -28,15 +30,30 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.request.header
 import java.io.IOException
 
 fun createKtorClient(tokenProvider: TokenProvider): HttpClient {
     return HttpClient(CIO) {
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    prettyPrint = true
+                }
+            )
         }
+
         install(Logging) {
-            level = LogLevel.BODY
+            logger = object : Logger {
+                override fun log(message: String) {
+                   Log.v("KTOR_HTTP", message)
+                }
+            }
+
+            level = LogLevel.ALL
         }
 
         install(HttpRequestRetry) {
@@ -59,14 +76,17 @@ fun createKtorClient(tokenProvider: TokenProvider): HttpClient {
 
 
         install(Auth) {
+
             bearer {
+
                 loadTokens {
-                    val access = tokenProvider.getAccessToken() ?: AppConstants.JWT_TOKEN
+                    val access = tokenProvider.getAccessToken()
                     val refresh = tokenProvider.getRefreshToken()
-                    if (access != null) {
-                        BearerTokens(access, refresh.orEmpty())
-                    } else null
+
+                    println("load token Token Ktor --> $access")
+                    if (!access.isNullOrBlank()) BearerTokens(access, refresh.orEmpty()) else null
                 }
+
                 refreshTokens {
                     val accessToken = tokenProvider.getAccessToken()
                     val refreshToken = tokenProvider.getRefreshToken()
@@ -99,4 +119,10 @@ fun createKtorClient(tokenProvider: TokenProvider): HttpClient {
             url(ApiConstants.BASE_URL)
         }
     }
+}
+
+fun HttpClient.invalidateTokens() {
+    val auth = this.plugin(Auth)
+    val bearerProvider = auth.providers.filterIsInstance<BearerAuthProvider>().firstOrNull()
+    bearerProvider?.clearToken()
 }

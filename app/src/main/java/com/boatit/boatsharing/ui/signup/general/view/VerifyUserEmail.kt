@@ -2,6 +2,7 @@ package com.boatit.boatsharing.ui.signup.general.view
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -51,24 +51,20 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.di.ApiConstants
 import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN
-import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
-import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.general.repository.VerifyEmailViewModel
-import com.boatit.boatsharing.utils.CountDownTimer
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.uihelpers.TermsAndPrivacyView
-import kotlinx.coroutines.delay
+import com.boatit.boatsharing.utils.CountDownTimer
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun VerifyUserEmail(
     navController: NavController,
-    value: String,
+    userEmail: String,
     viewModel: VerifyEmailViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -81,14 +77,18 @@ fun VerifyUserEmail(
     var isTimerEnabled by remember { mutableStateOf(false) }
     val isValidate = enteredValues.all { it.isNotEmpty() }
     fun navigateToNextStep(token: String?) {
+        Log.e("tokenValue",token.toString())
         navController.navigate("$CREATE_ACCOUNT_STEP_THREE_SCREEN/$token")
     }
 
     when (registrationState) {
         is NetworkResponse.Success -> {
             Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT).show()
-            navigateToNextStep(registrationState.data?.obj)
-            viewModel.resetNearbyPlaces()
+                val token = registrationState.data?.obj
+            if (!token.isNullOrBlank()) {
+                navigateToNextStep(registrationState.data?.obj)
+                viewModel.resetNearbyPlaces()
+            }
         }
 
         is NetworkResponse.Error -> {
@@ -136,7 +136,7 @@ fun VerifyUserEmail(
 
             Spacer(Modifier.height(30.dp))
 
-            val message = stringResource(R.string.email_verification_text, value)
+            val message = stringResource(R.string.email_verification_text, userEmail)
 
             Text(
                 text = message,
@@ -209,7 +209,7 @@ fun VerifyUserEmail(
                     if (isValidate) {
                         focusManager.clearFocus()
                         val otp = enteredValues.joinToString("")
-                        viewModel.verifyEmail(value, otp)
+                        viewModel.verifyEmail(userEmail, otp)
                         isTimerEnabled = true
                     }
                 }
@@ -257,8 +257,8 @@ fun VerifyUserEmail(
                         .padding(horizontal = 16.dp)
                         .clickable {
                             navController.popBackStack()
-                          //  navController.navigate(CREATE_ACCOUNT_STEP_THREE_SCREEN)
-                                   },
+                            //  navController.navigate(CREATE_ACCOUNT_STEP_THREE_SCREEN)
+                        },
                     textAlign = TextAlign.Center
                 )
             }
@@ -273,6 +273,6 @@ fun VerifyUserEmail(
 fun PreviewRegistrationStepTwo() {
     VerifyUserEmail(
         navController = rememberNavController(),
-        value = "",
+        userEmail = "",
     )
 }

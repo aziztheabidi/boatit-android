@@ -78,9 +78,9 @@ class UpdateStatusViewModel(
                 _isOnline.value = newStatus
                 _isLoading.value = false
                 _toastMessage.emit(response.Message ?: "Status updated")
-                if (newStatus) {
+              //  if (newStatus) {
                     _navigateToDashboard.emit(Unit)
-                }
+              //  }
             }.onFailure { error ->
                 _loginState.value = NetworkResponse.Error(error.message ?: "Status update failed")
                 _errorMessage.value = error.message ?: "Network error, please try again."

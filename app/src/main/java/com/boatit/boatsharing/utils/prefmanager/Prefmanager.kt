@@ -24,7 +24,7 @@ class SharedPrefManager(context: Context) {
     private val legacyPrefs: SharedPreferences =
         context.getSharedPreferences("BoatUserPrefs", Context.MODE_PRIVATE)
 
-    var appContext: Context = context
+    private var appContext: Context = context.applicationContext
 
     companion object {
         private const val KEY_EMAIL = "email"
@@ -61,16 +61,39 @@ class SharedPrefManager(context: Context) {
                 putBoolean(KEY__MIGRATED__, true)
                 apply()
             }
-            // Wipe legacy after successful copy
             legacyPrefs.edit().clear().apply()
         } else {
             securePrefs.edit().putBoolean(KEY__MIGRATED__, true).apply()
         }
     }
 
+
+
+    fun getAccessToken(): String? = securePrefs.getString(KEY_ACCESS_TOKEN, null)
+    fun getRefreshToken(): String? = securePrefs.getString(KEY_REFRESH_TOKEN, null)
+
+    fun saveTokens(accessToken: String, refreshToken: String) {
+        securePrefs.edit().apply {
+            if (accessToken.isNotBlank()) putString(KEY_ACCESS_TOKEN, accessToken)
+            // refresh token can be blank in your current backend, still store it
+            putString(KEY_REFRESH_TOKEN, refreshToken)
+            apply()
+        }
+    }
+
+    fun clearTokens() {
+        securePrefs.edit().apply {
+            remove(KEY_ACCESS_TOKEN)
+            remove(KEY_REFRESH_TOKEN)
+            apply()
+        }
+    }
+
+
     fun saveLoginData(userData: UserData) {
         AppConstants.USER_ID = userData.UserId
         AppConstants.USER_NAME = userData.Username
+
         securePrefs.edit().apply {
             putString(KEY_EMAIL, userData.Email)
             putString(KEY_USER_ID, userData.UserId)
@@ -83,14 +106,15 @@ class SharedPrefManager(context: Context) {
         }
     }
 
-    fun saveMissingStep(userData: Int) {
+    fun saveMissingStep(step: Int) {
         securePrefs.edit().apply {
-            putInt(KEY_STEP, userData)
+            putInt(KEY_STEP, step)
             apply()
         }
     }
 
     fun getUserId(): String? = securePrefs.getString(KEY_USER_ID, null)
+
 
     fun getUserData(): UserData? {
         val email = securePrefs.getString(KEY_EMAIL, null) ?: return null
@@ -98,8 +122,9 @@ class SharedPrefManager(context: Context) {
         val username = securePrefs.getString(KEY_USERNAME, null) ?: return null
         val userrole = securePrefs.getString(KEY_USERROLE, null) ?: return null
         val step = securePrefs.getInt(KEY_STEP, 0)
-        val accessToken = securePrefs.getString(KEY_ACCESS_TOKEN, null) ?: return null
-        val refreshToken = securePrefs.getString(KEY_REFRESH_TOKEN, null) ?: return null
+
+        val accessToken = securePrefs.getString(KEY_ACCESS_TOKEN, "") ?: ""
+        val refreshToken = securePrefs.getString(KEY_REFRESH_TOKEN, "") ?: ""
 
         return UserData(
             Email = email,
@@ -113,18 +138,18 @@ class SharedPrefManager(context: Context) {
         )
     }
 
+
+
     fun clearUserData() {
         securePrefs.edit().clear().commit()
         clearAppCache()
     }
 
-    fun clearAppCache() {
+    private fun clearAppCache() {
         try {
-            val cacheDir = appContext.cacheDir
-            cacheDir?.deleteRecursively()
+            appContext.cacheDir?.deleteRecursively()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 }
-

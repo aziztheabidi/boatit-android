@@ -20,8 +20,10 @@ android {
         versionName = "1.0"
 
         resValue("string", "mapAPiKey", "AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng")
-        resValue("string", "path", "https://testbyfarhan.squarecod.com/")
-        resValue("string", "baseUrl", "https://testbyfarhan.squarecod.com/api")
+      //  resValue("string", "path", "https://testbyfarhan.squarecod.com/")
+    //    resValue("string", "baseUrl", "https://testbyfarhan.squarecod.com/api")
+         resValue("string", "path", "https://boatitapi.com/")
+         resValue("string", "baseUrl", "https://boatitapi.com/api")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

@@ -137,47 +137,58 @@ fun UserAccountInfoScreen(navController: NavController,
         }else{ navController.popBack() }
 
     }
+    LaunchedEffect(registrationState) {
+        when (registrationState) {
+            is NetworkResponse.Success -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = false
+                    Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT)
+                        .show()
+                    performLogin()
+                }
+            }
 
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                performLogin()
+            is NetworkResponse.Error -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = true
+                    errorMessage = "Network error, please try again."
+                    Toast.makeText(
+                        context,
+                        (registrationState as NetworkResponse.Error).message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+
+            else -> {}
         }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
     }
 
-    when (fetchState) {
-        is NetworkResponse.Success -> {
-            if(getingData) {
-                phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
-                firstName = fetchState.data?.obj?.FirstName.toString()
-                lastName = fetchState.data?.obj?.LastName.toString()
-                address = fetchState.data?.obj?.Address.toString()
-                dob = fetchState.data?.obj?.DateOfBirth.toString()
-                paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
+
+    LaunchedEffect(fetchState) {
+        when (fetchState) {
+            is NetworkResponse.Success -> {
+                if(getingData) {
+                    phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
+                    firstName = fetchState.data?.obj?.FirstName.toString()
+                    lastName = fetchState.data?.obj?.LastName.toString()
+                    address = fetchState.data?.obj?.Address.toString()
+                    dob = fetchState.data?.obj?.DateOfBirth.toString()
+                    paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
+                    getingData = false
+                }
+            }
+            is NetworkResponse.Error -> {
+                Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
                 getingData = false
             }
+            else -> {}
         }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
-            getingData = false
-        }
-        else -> {}
     }
 
-    LaunchedEffect(getingData) {
+    LaunchedEffect(Unit) {
         viewModelfeth.GetVoyagerProfile()
     }
 

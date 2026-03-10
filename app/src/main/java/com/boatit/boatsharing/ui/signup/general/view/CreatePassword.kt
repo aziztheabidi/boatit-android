@@ -66,7 +66,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CreatePassword(
     navController: NavController,
-    value: String,
+    token: String,
     viewModel: PasswordViewModel = koinViewModel()
 ) {
     val focusManager = LocalFocusManager.current
@@ -82,9 +82,7 @@ fun CreatePassword(
     LaunchedEffect(registrationState) {
         when (registrationState) {
             is NetworkResponse.Success -> {
-                Toast
-                    .makeText(context, registrationState.data?.Message ?: "Success", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, registrationState.data?.Message ?: "Success", Toast.LENGTH_SHORT).show()
                 viewModel.resetState()
                 navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
             }
@@ -164,7 +162,7 @@ fun CreatePassword(
                     isValidate = isValidate,
                     isLoading = isLoading.value,
                     onButtonClick = {
-                        viewModel.passwordReg(password, value)
+                        viewModel.passwordReg(password, token)
                         focusManager.clearFocus()
                     }
                 )
@@ -188,7 +186,7 @@ fun CreatePassword(
 fun PreviewRegistrationStepThree() {
     CreatePassword(
         navController = rememberNavController(),
-        value = ""
+        token = ""
     )
 }
 
