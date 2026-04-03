@@ -100,7 +100,7 @@ fun FindBoat(navController: NavController,
     LaunchedEffect(Unit) {
         if(AppConstants.BusinessDock!!){
             AppConstants.Busines_DOCK = false;
-            if(AppConstants.BusinessDockTYpe.equals("Pick")){
+            if(AppConstants.BusinessDockType.equals("Pick")){
                 pLocation = AppConstants.Pick_Up_Loc?.second!!
             }else{
                 dLocation = AppConstants.Drop_Off_Loc?.second!!

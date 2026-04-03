@@ -100,7 +100,7 @@ fun ConfirmVoyageScreen(navController: NavController, viewModel: VoyagerProfileV
 
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
 
 
@@ -146,23 +146,23 @@ fun ConfirmVoyageScreen(navController: NavController, viewModel: VoyagerProfileV
 
     when (fetchState) {
         is NetworkResponse.Success -> {
-            if(getingData) {
+            if(gettingData) {
                 phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
                 firstName = fetchState.data?.obj?.FirstName.toString()
                 lastName = fetchState.data?.obj?.LastName.toString()
                 address = fetchState.data?.obj?.Address.toString()
                 dob = fetchState.data?.obj?.DateOfBirth.toString()
                 paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
-                getingData = false
+                gettingData = false
             }
         }
         is NetworkResponse.Error -> {
-            getingData = false
+            gettingData = false
         }
         else -> {}
     }
 
-    LaunchedEffect(getingData) {
+    LaunchedEffect(gettingData) {
         viewModelfeth.GetVoyagerProfile()
     }
 
@@ -174,7 +174,7 @@ fun ConfirmVoyageScreen(navController: NavController, viewModel: VoyagerProfileV
 
         },
         content = { innerPadding ->
-            if (getingData) {
+            if (gettingData) {
                 Dialog(
                     onDismissRequest = {},
                     DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)

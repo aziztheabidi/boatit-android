@@ -433,14 +433,14 @@ fun BusinessDetail(navController: NavController, viewModel: VoyagerFollowBusines
                         BusinessAddToVoyage(
                             onPickupSelected = {
                                 AppConstants.BusinessDock = true
-                                AppConstants.BusinessDockTYpe = "Pick"
+                                AppConstants.BusinessDockType = "Pick"
                                 AppConstants.Pick_Up_Loc = Pair(AppConstants.Business?.Id!!, AppConstants.Business?.Name!!)
                                 showDialog = false
                                 navController.navigate(route = "$DASHBOARD_SCREEN/null")
                                },
                             onDestinationSelected = {
                                 AppConstants.BusinessDock = true
-                                AppConstants.BusinessDockTYpe = "Drop"
+                                AppConstants.BusinessDockType = "Drop"
                                 AppConstants.Drop_Off_Loc = Pair(AppConstants.Business?.Id!!, AppConstants.Business?.Name!!)
                                 showDialog = false
                                 navController.navigate(route = "$DASHBOARD_SCREEN/null")
