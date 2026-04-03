@@ -2,7 +2,7 @@ package com.boatit.boatsharing.ui.business.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.business.model.BusinessRequest
 import com.boatit.boatsharing.ui.business.model.DeleteRequest
 import com.boatit.boatsharing.ui.business.repository.BusinessDashboardRepository

@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.ui.voyager.dashbaord.model
+package com.boatit.boatsharing.ui.voyager.dashboard.model
 
 
 import android.os.Parcel

@@ -1,8 +1,5 @@
 package com.boatit.boatsharing.ui.signup.general.view
 
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -30,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -49,223 +46,261 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.di.ApiConstants
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
+import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN
+import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
+import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.general.repository.VerifyEmailViewModel
+import com.boatit.boatsharing.utils.CountDownTimer
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.uihelpers.TermsAndPrivacyView
-import com.boatit.boatsharing.utils.CountDownTimer
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun VerifyUserEmail(
-    navController: NavController,
-    userEmail: String,
-    viewModel: VerifyEmailViewModel = koinViewModel()
-) {
-    val context = LocalContext.current
+fun VerifyUserEmail(navController: NavController, value: String, viewModel : VerifyEmailViewModel = koinViewModel()) {
+
     val focusManager = LocalFocusManager.current
-    val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val registrationState by viewModel.registrationState.collectAsState()
-    val enteredValues = remember { mutableStateListOf("", "", "", "", "") }
+    val context = LocalContext.current
+    val enteredValues = remember { mutableStateListOf("", "", "","","") }
     val focusRequesters = remember { List(5) { FocusRequester() } }
     var isTimerEnabled by remember { mutableStateOf(false) }
-    val isValidate = enteredValues.all { it.isNotEmpty() }
-    fun navigateToNextStep(token: String?) {
-        Log.e("tokenValue",token.toString())
-        navController.navigate("$CREATE_ACCOUNT_STEP_THREE_SCREEN/$token")
+
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    var isButtonEnabled by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var isNetworkError by remember { mutableStateOf(false) }
+
+    var isValidate = if (enteredValues.all { it.isNotEmpty() }) {
+        true
+    } else {
+          println("Please enter all digits.")
+        false
+    }
+
+    val registrationState by viewModel.registrationState.collectAsState()
+
+    fun performLogin(token: String?){
+        navController.navigate(route = "$CREATE_ACCOUNT_STEP_THREE_SCREEN/$token")
     }
 
     when (registrationState) {
         is NetworkResponse.Success -> {
-            Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT).show()
-                val token = registrationState.data?.obj
-            if (!token.isNullOrBlank()) {
-                navigateToNextStep(registrationState.data?.obj)
-                viewModel.resetNearbyPlaces()
+            if(isLoading){
+                isLoading = false
+                isNetworkError = false
+                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                performLogin(registrationState.data?.obj)
             }
         }
-
         is NetworkResponse.Error -> {
+            isLoading = false
+            isNetworkError = true
+            errorMessage = "Network error, please try again."
             Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            viewModel.resetNearbyPlaces()
         }
-
-        else -> Unit
+        else -> {}
     }
+
+
+    LaunchedEffect(isButtonEnabled) {}
 
     Scaffold(
-        containerColor = White,
         topBar = {
-            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 2/3") {
-               navController.popBackStack()
-            }
-        },
-        bottomBar = {
-            TermsAndPrivacyView(onClick = {
-                val url = ApiConstants.PRIVACY_POLICY
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                context.startActivity(intent)
+            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 2/3", onImageClick = {
+                println("clicked...")
             })
-        }
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier
-                .padding(
-                    top = innerPadding.calculateTopPadding() + 15.dp,
-                    start = 20.dp,
-                    end = 20.dp,
-                    bottom = 25.dp
-                )
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-
-            FormStepsViews(
-                numberOfViews = 3,
-                activeColor = colorResource(id = R.color.button_normal),
-                inactiveColor = Color.Gray,
-                activeViewsCount = 2
-            )
-
-            Spacer(Modifier.height(30.dp))
-
-            val message = stringResource(R.string.email_verification_text, userEmail)
-
-            Text(
-                text = message,
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            Text(
-                text = stringResource(R.string.code_text),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            )
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                enteredValues.forEachIndexed { index, text ->
-                    Box(modifier = Modifier.weight(1f)) {
-                        CustomTextField(
-                            textValue = text,
-                            placeholderText = "",
-                            onTextChange = { input ->
-                                if (input.length <= 1 && input.all { it.isDigit() }) {
-                                    enteredValues[index] = input
-                                    if (input.isNotEmpty() && index < enteredValues.lastIndex) {
-                                        focusRequesters[index + 1].requestFocus()
-                                    }
-                                }
-                            },
-                            keyboardType = KeyboardType.Number,
-                            maxChars = 1,
-                            errorMessage = null,
-                            isError = false,
-                            onClearError = {},
-                            imeAction = if (index == 4) ImeAction.Done else ImeAction.Next,
-                            keyboardActions = KeyboardActions(
-                                onNext = {
-                                    if (index < 4) focusRequesters[index + 1].requestFocus()
-                                },
-                                onDone = { focusManager.clearFocus() }
-                            ),
-                            showTrailingIcon = false,
-                            focusRequester = focusRequesters[index],
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(40.dp))
-
-            CustomButton(
-                text = stringResource(R.string.verify_email),
-                isValidate = isValidate,
-                isLoading = isLoading,
-                onButtonClick = {
-                    if (isValidate) {
-                        focusManager.clearFocus()
-                        val otp = enteredValues.joinToString("")
-                        viewModel.verifyEmail(userEmail, otp)
-                        isTimerEnabled = true
-                    }
-                }
-            )
-
-            if (isTimerEnabled) {
-                CountDownTimer(
-                    onResendClick = { navController.popBackStack() },
-                    text = "Resend Code",
-                    onStartTimer = { isTimerEnabled = false }
-                )
-            }
-
-            Spacer(Modifier.height(15.dp))
-
-            Box(
+        },
+        content = { innerPadding ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
-                contentAlignment = Alignment.TopCenter
+                    .padding(
+                        top = innerPadding.calculateTopPadding() + 15.dp,
+                        start = 20.dp,
+                        end = 20.dp,
+                        bottom = innerPadding.calculateTopPadding() + 25.dp,
+                    )
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                val annotatedText = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(color = Color.Black, fontSize = 14.sp)
-                    ) {
-                        append(stringResource(R.string.wrong_email_text) + " ")
-                    }
 
-                    pushStringAnnotation(tag = "differentEmail", annotation = "differentEmail")
-                    withStyle(
-                        style = SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-                    ) {
-                        append(stringResource(R.string.another_email_text))
-                    }
-                    pop()
-                }
+                FormStepsViews(numberOfViews = 3,
+                    activeColor = colorResource(id = R.color.button_normal),
+                    inactiveColor = Color.Gray,
+                    activeViewsCount = 2)
+
+                Spacer(Modifier.height(30.dp))
+
+
 
                 Text(
-                    text = annotatedText,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clickable {
-                            navController.popBackStack()
-                            //  navController.navigate(CREATE_ACCOUNT_STEP_THREE_SCREEN)
-                        },
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
+                    modifier = Modifier.fillMaxWidth(),
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    ),
 
+                    text = stringResource(R.string.email_verification_text)
+                )
+
+                Spacer(Modifier.height(20.dp))
+
+                Text(
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    text = stringResource(R.string.code_text)
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        enteredValues.forEachIndexed { index, value ->
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = 0.dp)
+                            ) {
+                                CustomTextField(
+                                    textValue = value,
+                                    placeholderText = "",
+
+                                    onTextChange = { input ->
+                                        if (input.length <= 1 && input.all { it.isDigit() }) {
+                                            enteredValues[index] = input
+                                            if (input.isNotEmpty() && index < enteredValues.lastIndex) {
+                                                focusRequesters[index + 1].requestFocus()
+                                            }
+                                        }
+                                    },
+                                    keyboardType = KeyboardType.Number,
+                                    maxChars = 1,
+                                    errorMessage = null,
+                                    isError = false,
+                                    onClearError = {},
+                                    imeAction = if (index == enteredValues.lastIndex) ImeAction.Done else ImeAction.Next,
+                                    keyboardActions = KeyboardActions(
+                                        onNext = {
+                                            if (index < enteredValues.lastIndex) {
+                                                focusRequesters[index + 1].requestFocus()
+                                            }
+                                        },
+                                        onDone = {
+                                            println("value: ${enteredValues.joinToString("")}")
+                                            focusManager.clearFocus()
+                                        }
+                                    ),
+                                    showTrailingIcon = false,
+                                    focusRequester = focusRequesters[index],
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+
+
+                    }
+                    }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                CustomButton(
+                    text = "Verify Email",
+                    isValidate = isValidate,
+                    isLoading = isLoading,
+                    onButtonClick = {
+                        if (!isValidate) {
+                            errorMessage = ""
+                        }
+                        else {
+                            val otp = enteredValues.get(0) + enteredValues.get(1) + enteredValues.get(2) + enteredValues.get(3) + enteredValues.get(4)
+                            viewModel.VerifyEmail(value,  otp)
+                            isTimerEnabled=true
+                            isButtonEnabled = true
+                            isLoading = true
+                            focusManager.clearFocus()
+                            println("perform network call")
+                        }
+                    }
+                )
+                 if (isTimerEnabled){
+                     CountDownTimer(
+                         onResendClick = {  navController.popBack() },
+                         text ="Resend Code",
+                         onStartTimer = { isValidate = false },
+                     )
+                 }
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth().
+                        height(40.dp), contentAlignment = Alignment.TopCenter
+                ) {
+
+
+                    val annotatedText = buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.Black,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp)
+                        ) {
+                            append(stringResource(R.string.wrong_email_text) +" ")
+                        }
+
+                        pushStringAnnotation(tag = "differentEmail", annotation = "differentEmail")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold,fontSize = 16.sp,
+                            color = Color.Black)
+                        ) {
+                            append(stringResource(R.string.another_email_text))
+                        }
+                        pop()
+                    }
+
+                    Text(
+                        text = annotatedText,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp)
+                            .clickable
+                            {
+                                navController.navigate(CREATE_ACCOUNT_STEP_THREE_SCREEN)
+                                println("click")
+                            },
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        textAlign = TextAlign.Center
+                    )
+
+
+                }
+
+            }
+        },
+
+        bottomBar = {
+            TermsAndPrivacyView(
+                onClick = {
+
+                }
+            )
+
+        }
+    )
+
+}
 
 
 @Preview
@@ -273,6 +308,6 @@ fun VerifyUserEmail(
 fun PreviewRegistrationStepTwo() {
     VerifyUserEmail(
         navController = rememberNavController(),
-        userEmail = "",
+        value = "",
     )
 }

@@ -1,7 +1,5 @@
 package com.boatit.boatsharing.ui.signup.general.view
 
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,8 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.di.ApiConstants
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.signup.general.repository.PasswordViewModel
@@ -64,56 +61,60 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun CreatePassword(
-    navController: NavController,
-    token: String,
-    viewModel: PasswordViewModel = koinViewModel()
-) {
-    val focusManager = LocalFocusManager.current
-    val passwordFocusRequester = remember { FocusRequester() }
-    val context = LocalContext.current
+fun CreatePassword(navController: NavController, value: String,viewModel : PasswordViewModel = koinViewModel()) {
 
-    val password by viewModel.password.collectAsState()
-    val registrationState by viewModel.registrationState.collectAsState()
+    val focusManager = LocalFocusManager.current
+    val passwordFocusRequester =  remember { FocusRequester() }
+    var password by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var isButtonEnabled by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var isNetworkError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val isValidate = password.isNotEmpty()
-    val isLoading = viewModel.isLoading.collectAsState()
 
-    LaunchedEffect(registrationState) {
-        when (registrationState) {
-            is NetworkResponse.Success -> {
-                Toast.makeText(context, registrationState.data?.Message ?: "Success", Toast.LENGTH_SHORT).show()
-                viewModel.resetState()
-                navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
-            }
+    val registrationState by viewModel.registrationState.collectAsState()
 
-            is NetworkResponse.Error -> {
-                Toast
-                    .makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.resetState()
-            }
-
-            else -> Unit
-        }
+    fun performLogin(){
+        navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
     }
 
+    when (registrationState) {
+        is NetworkResponse.Success -> {
+            if(isLoading){
+                isLoading = false
+                isNetworkError = false
+                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                performLogin()
+            }
+        }
+        is NetworkResponse.Error -> {
+            isLoading = false
+            isNetworkError = true
+            errorMessage = "Network error, please try again."
+            Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+        }
+        else -> {}
+    }
+
+    LaunchedEffect(isButtonEnabled) {}
+
     Scaffold(
-        containerColor = Color.White,
         topBar = {
-            CustomTopBar(
-                text = "${stringResource(R.string.add_your_info)} 3/3",
-                onImageClick = { navController.popBackStack() }
-            )
+            CustomTopBar(text = "${stringResource(R.string.add_your_info)} 3/3", onImageClick = {
+                println("clicked...")
+            })
         },
         content = { innerPadding ->
+
             Column(
                 modifier = Modifier
                     .padding(
                         top = innerPadding.calculateTopPadding() + 15.dp,
                         start = 20.dp,
                         end = 20.dp,
-                        bottom = innerPadding.calculateBottomPadding() + 25.dp,
+                        bottom = innerPadding.calculateTopPadding() + 25.dp,
                     )
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -141,7 +142,7 @@ fun CreatePassword(
 
                 PasswordTextField(
                     value = password,
-                    onValueChange = { viewModel.onPasswordChange(it) },
+                    onValueChange = { password = it },
                     errorMessage = null,
                     isError = false,
                     onClearError = {},
@@ -154,41 +155,39 @@ fun CreatePassword(
                 )
 
                 PasswordStrengthIndicator(password = password)
-
                 Spacer(modifier = Modifier.height(40.dp))
 
                 CustomButton(
                     text = stringResource(R.string.continue_button_text),
                     isValidate = isValidate,
-                    isLoading = isLoading.value,
+                    isLoading = isLoading,
                     onButtonClick = {
-                        viewModel.passwordReg(password, token)
+                        viewModel.passwordReg(password,value)
+                        isButtonEnabled = true
+                        isLoading = true
                         focusManager.clearFocus()
+                        println("perform network call")
                     }
                 )
             }
         },
         bottomBar = {
             TermsAndPrivacyView(
-                onClick = {
-                    val url = ApiConstants.PRIVACY_POLICY
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    context.startActivity(intent)
-                }
+                onClick = {}
             )
         }
     )
 }
-
-
 @Preview
 @Composable
 fun PreviewRegistrationStepThree() {
     CreatePassword(
         navController = rememberNavController(),
-        token = ""
+        value = ""
     )
 }
+
+
 
 @Composable
 fun PasswordStrengthIndicator(password: String) {
