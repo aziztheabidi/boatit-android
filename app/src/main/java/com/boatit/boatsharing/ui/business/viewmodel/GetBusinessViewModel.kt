@@ -31,7 +31,7 @@ class GetBusinessViewModel(private val repository: GetBusinessRepo, private val 
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
             }.onFailure { exception ->
-                if (exception.message?.contains("401")!!) {
+                if (exception.message?.contains("401") == true) {
                     _logoutEvent.value = true
                 }
                 _loginState.value = NetworkResponse.Error(exception.message ?: "Login failed")
