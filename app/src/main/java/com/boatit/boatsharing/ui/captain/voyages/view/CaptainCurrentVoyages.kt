@@ -49,9 +49,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageDetails
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageDetails
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainActiveVoyagesViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
