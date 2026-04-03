@@ -9,7 +9,7 @@ class VoyagerVoyagesRepository(private val api: VoyageApi) {
     suspend fun voyages(): Result<VoyagerVoyagesResponse> {
         return try {
             val userId = AppConstants.USER_ID ?: return Result.failure(Exception("User id missing"))
-            RemoteMapper.toResult(api.getVoyagerVoyages(userId))
+            RemoteMapper.toResult(api.getVoyagerPastVoyages(userId))
         } catch (e: Exception) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
         }

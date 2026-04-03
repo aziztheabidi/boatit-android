@@ -42,6 +42,6 @@ interface VoyageApi {
     @GET("CaptainDashboard/GetVoyages")
     suspend fun getCaptainVoyages(@Query("CaptainUserId") captainUserId: String): Response<CaptainVoyagesResponse>
 
-    @GET("CaptainDashboard/GetVoyages")
-    suspend fun getVoyagerVoyages(@Query("UserId") userId: String): Response<VoyagerVoyagesResponse>
+    @GET("VoyagerDashboard/GetPastVoyages")
+    suspend fun getVoyagerPastVoyages(@Query("UserId") userId: String): Response<VoyagerVoyagesResponse>
 }
