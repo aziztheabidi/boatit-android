@@ -2,8 +2,8 @@ package com.boatit.boatsharing.application
 
 import android.app.Application
 import com.boatit.boatsharing.R
+import com.boatit.boatsharing.data.remote.networkModule
 import com.boatit.boatsharing.network.di.Modules
-import com.boatit.boatsharing.utils.AppConstants
 import com.google.android.libraries.places.api.Places
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
@@ -25,8 +25,8 @@ class MainApplication : Application() {
             }
         }
         startKoin {
-            modules(Modules)
             androidContext(this@MainApplication)
+            modules(networkModule, Modules)
         }
 
     }

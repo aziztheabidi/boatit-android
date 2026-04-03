@@ -1,34 +1,16 @@
 package com.boatit.boatsharing.ui.signup.captain.repository
 
-import com.boatit.boatsharing.network.di.ApiConstants
-
+import com.boatit.boatsharing.data.remote.api.UserProfileApi
+import com.boatit.boatsharing.data.remote.RemoteMapper
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
 import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatResponse
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 
-class CaptainBoatRepository(private val httpClient: HttpClient) {
+class CaptainBoatRepository(private val api: UserProfileApi) {
     suspend fun CaptainBoat(profile: SaveCaptainBoatRequest): Result<SaveCaptainBoatResponse> {
         return try {
-            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.SAVE_CAPTAIN_BOAT}") {
-                contentType(ContentType.Application.Json)
-                setBody(profile)
-            }
-            if (response.status == HttpStatusCode.OK) {
-                val result: SaveCaptainBoatResponse = response.body()
-                Result.success(result)
-            } else {
-                Result.failure(Exception("API Error: ${response.status}"))
-            }
+            RemoteMapper.toResult(api.saveCaptainBoat(profile))
         } catch (e: Exception) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
         }
     }
 }
-
