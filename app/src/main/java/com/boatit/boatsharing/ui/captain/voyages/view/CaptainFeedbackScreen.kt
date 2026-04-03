@@ -1,4 +1,4 @@
-package com.boatit.boatsharing.ui.captain.availablitystatus
+package com.boatit.boatsharing.ui.captain.availabilitystatus
 
 import VoyageData
 import android.widget.Toast
@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
-import com.boatit.boatsharing.ui.captain.dashbaord.model.CaptainFeedbackRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainFeedbackViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.model.CaptainFeedbackRequest
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainFeedbackViewModel
 import com.gowtham.ratingbar.RatingBar
 import org.koin.androidx.compose.koinViewModel
 

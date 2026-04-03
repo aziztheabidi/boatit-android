@@ -1,18 +1,13 @@
 package com.boatit.boatsharing.ui.chat.view
 
 
-import VoyageData
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,14 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -41,71 +35,47 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
-import com.boatit.boatsharing.routes.popBack
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.AcceptRequestViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.viewmodel.CaptainActiveVoyagesViewModel
-import com.boatit.boatsharing.ui.captain.voyages.view.AcceptedRequestTab
-import com.boatit.boatsharing.ui.captain.voyages.view.StartedRequestTab
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.CancelBookedVoyages
-import com.boatit.boatsharing.uihelpers.CustomTopBar
-import com.boatit.boatsharing.uihelpers.SessionDialog
-import com.boatit.boatsharing.utils.AppConstants
-import com.google.android.gms.maps.model.LatLng
-import io.ktor.client.call.body
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
+import com.boatit.boatsharing.ui.captain.dashboard.model.VoyageDetails
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainActiveVoyagesViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun CaptainCurrentVoyages(navController: NavController,
-                          viewModel: CaptainActiveVoyagesViewModel = koinViewModel(),
-                          viewModelR: AcceptRequestViewModel = koinViewModel(), ) {
+fun CaptainCurrentVoyages(navController: NavController, viewModel: CaptainActiveVoyagesViewModel = koinViewModel()) {
 
-    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
-    val tabTitles = listOf("Pending", "Accepted","Started")
+    var selectedTabIndex by remember { mutableStateOf(1) }
+    val tabTitles = listOf("Ongoing Requests", "InProcess Requests")
     val voyagesList by viewModel.loginState.collectAsState()
-
-    var pending by remember { mutableStateOf(listOf<VoyageData>()) }
-    var accepted by remember { mutableStateOf(listOf<VoyageData>()) }
-    var started by remember { mutableStateOf(listOf<VoyageData>()) }
-    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
+    var Ongoing by remember { mutableStateOf(listOf<VoyageDetails>()) }
+    var InProcess by remember { mutableStateOf(listOf<VoyageDetails>()) }
 
     when (voyagesList) {
         is NetworkResponse.Loading -> {
+            println("Loading")
         }
 
         is NetworkResponse.Error -> {
-            viewModel.resetNearbyPlaces()
+            println(voyagesList.message)
         }
 
         is NetworkResponse.Success -> {
-            Log.e("captain_voyages",voyagesList.data?.obj?.Pending.toString())
-
-            pending = voyagesList.data?.obj?.Pending!!
-            accepted = voyagesList.data?.obj?.Accepted!!
-            started = voyagesList.data?.obj?.Started!!
-            viewModel.resetNearbyPlaces()
+            InProcess = voyagesList.data?.obj?.Ongoing!!
+            Ongoing = voyagesList.data?.obj?.Ongoing!!
         }
     }
 
@@ -113,505 +83,319 @@ fun CaptainCurrentVoyages(navController: NavController,
         viewModel.voyages()
     }
 
-    Scaffold(
-        topBar = {
-            CustomTopBar(text = stringResource(R.string.voyage_text), onImageClick = {
-                navController.popBack()
-            })
-        },
-        containerColor = Color.White,
-        content = {  innerPadding ->  Column(modifier = Modifier.fillMaxSize()
-            .padding(
-                top = innerPadding.calculateTopPadding()+20.dp, start = 5.dp, end = 5.dp, bottom = 5.dp
-
-            )) {
-            Box(
-                modifier = Modifier
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .border(
-                        width = 0.5.dp,
-                        color = colorResource(R.color.button_normal),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White)
-                ) {
-                    tabTitles.forEachIndexed { index, title ->
-                        val isSelected = selectedTabIndex == index
-
-                        val shape = if (isSelected) {
-                            RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
-                        } else {
-                            RoundedCornerShape(0.dp)
-                        }
-                        val offsetModifier = if (isSelected) Modifier.offset(x = 0.dp, y = (-1).dp) else Modifier
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .then(offsetModifier)
-                                .clip(shape)
-                                .background(
-                                    if (isSelected) colorResource(R.color.button_normal) else Color.White
-                                )
-                                .clickable { selectedTabIndex = index },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = title,
-                                color = if (isSelected) Color.White else colorResource(R.color.button_normal),
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            contentColor = Color.White,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                    color = Color.White // Make indicator transparent
+                )
             }
-
-            when (selectedTabIndex) {
-                0 -> Tab1Content(pending)
-                1 -> Column(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)) {
-                    AcceptedRequestTab(navController,accepted)
-                }
-                2 -> Column(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)) {
-                    StartedRequestTab(navController,started)
-                }
+        ) {
+            tabTitles.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = {
+                        Text(
+                            text = title,
+                            color = if (selectedTabIndex == index) Color.White else colorResource(R.color.button_normal)
+                        )
+                    },
+                    modifier = Modifier.background(if (selectedTabIndex == index) colorResource(R.color.button_normal)else Color.White)
+                )
             }
         }
-        },
-    )
-
+        when (selectedTabIndex) {
+            0 -> Tab1Content(Ongoing)
+            1 -> Tab2Content(InProcess)
+        }
+    }
 }
 
 @Composable
-fun Tab1Content(notification : List<VoyageData>) {
+fun Tab1Content(notification : List<VoyageDetails>) {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.White)) {
-        PendingCardList(notification)
+        OnGoingCardList(notification)
     }
 }
 
+@Composable
+fun Tab2Content(notification : List<VoyageDetails>) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
+        InProcessList(notification)
+    }
+}
 
 @Composable
-fun PendingCardList(notification : List<VoyageData>) {
+fun OnGoingCardList(notification : List<VoyageDetails>) {
     LazyColumn {
         items(notification.size) { voyage ->
-            PendingCard(notification.get(voyage))
+            OnGoingCard(notification.get(voyage))
+        }
+    }
+}
+@Composable
+fun InProcessList(notification : List<VoyageDetails>) {
+    LazyColumn {
+        items(notification.size) { voyage ->
+            InProcessCard(notification.get(voyage))
         }
     }
 }
 
-
 @Composable
-fun PendingCard(notification : VoyageData?, viewModelR: AcceptRequestViewModel = koinViewModel(), viewModel: CaptainActiveVoyagesViewModel = koinViewModel(),) {
-
-    val defaultLatLng = LatLng(40.792240, -73.138260)
-    val context = LocalContext.current
-    val requestState by viewModelR.loginState.collectAsState()
-    var isLoading by remember { mutableStateOf(false) }
-
-    var showDialogForAccept by remember { mutableStateOf(false) }
-    var showDialogForCancel by remember { mutableStateOf(false) }
-
-
-
-    when (requestState) {
-        is NetworkResponse.Success -> {
-            if (isLoading) {
-                isLoading = false
-                Toast.makeText(context, "Voyage Accepted. Waiting For Payment", Toast.LENGTH_SHORT).show()
-                viewModel.voyages()
-                viewModelR.resetNearbyPlaces()
-            }
-        }
-        is NetworkResponse.Error -> {
-            if (isLoading) {
-                isLoading = false
-                Toast.makeText(context, requestState.message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
-    }
-
-    if (isLoading) {
-        Dialog(
-            onDismissRequest = {},
-            DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-        ){
-            Box(
-                contentAlignment=  Alignment.Center,
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(White, shape = RoundedCornerShape(8.dp))
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-    }
-
+fun OnGoingCard(notification : VoyageDetails?) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(Color.White)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(
-                    top = 15.dp,
-                    start = 15.dp, end = 15.dp, bottom = 15.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
 
-            // Boat Info Card
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column() {
-                    Spacer(Modifier.height(5.dp))
+        Box {
+            Icon(
+                imageVector = Icons.Default.Place,
+                contentDescription = "Map Pin",
+                modifier = Modifier
+                    .size(64.dp)
+                    .align(Alignment.Center)
+                    .offset(x = (-10).dp, y = (-10).dp)
+                    .alpha(0.3f),
+                tint = Color.LightGray
+            )
+            Column(modifier = Modifier.padding(16.dp)) {
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = notification?.VoyagerName.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(text = notification?.AmountToPay.toString(), fontSize = 18.sp)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(modifier = Modifier.height(4.dp)) // Reduced spacing
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.passengers),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = colorResource(R.color.button_normal)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = notification?.NoOfVoyager.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.location_icon),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = colorResource(R.color.button_normal)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = notification?.PickupDock.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.drop_off_loc_icon),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = notification?.DropOffDock.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Adds spacing between buttons
+                ) {
+                    Button(
+                        onClick = { },
+                        shape = RoundedCornerShape(10.dp), // Corner radius
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
+                            .border(
+                                width = 1.dp,
+                                color = colorResource(id = R.color.button_normal), // Border color
+                                shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                            ),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                     ) {
                         Text(
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal
-                            ),
-                            text = notification?.BookingDateTime!!
+                            text = "Details",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colorResource(id = R.color.button_normal) // Text color matches border
                         )
                     }
 
-                    Spacer(Modifier.height(7.dp))
-
-                    Text(
-                        style = TextStyle(
-                            color = Color(0xFF6A6969),
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.W500
-                        ),
-                        text = notification?.Name!!
-                    )
-                    Spacer(Modifier.height(7.dp))
-                    Text(
-                        style = TextStyle(
-                            color = Color(0xFF6A6969),
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.W500
-                        ),
-                        text = notification.BookingDateTime.split(",").get(0)
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    Text(
-                        style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 14.sp,
-
-                            ),
-                        text = "Voyagees Details"
-                    )
-                    Spacer(Modifier.height(10.dp))
-
-                    Box(
-                        Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        horizontalArrangement = Arrangement.End // Align icons to the end
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Card(
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .height(205.dp)
-                                    .weight(1f),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .padding(10.dp)
-                                        .fillMaxSize(),
-                                    verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
-                                ) {
-                                    // First row with icon and text
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.passengers),
-                                            contentDescription = "Status Icon",
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .padding(end = 10.dp),
-                                            tint = Color.Unspecified
-                                        )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 12.sp,
-
-                                                ),
-                                            text = notification?.NoOfVoyager!!.toString()
-                                        )
-                                    }
-
-                                    Divider(
-                                        color = Color(0xFFA0A0A0),
-                                        thickness = 1.dp
-                                    )
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.money_icon),
-                                            contentDescription = "Status Icon",
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .padding(end = 10.dp),
-                                            tint = Color.Unspecified
-                                        )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.Bold
-                                            ),
-                                            text = notification?.AmountToPay.toString()
-                                        )
-                                    }
-
-                                    Divider(
-                                        color = Color(0xFFA0A0A0),
-                                        thickness = 1.dp
-                                    )
-
-                                    // Third row with icon and text
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.clock),
-                                            contentDescription = "Status Icon",
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .padding(end = 10.dp),
-                                            tint = Color.Unspecified
-                                        )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 12.sp,
-                                            ),
-                                            text = notification.Duration.takeIf { it.isNotBlank() }
-                                                ?: "---"
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(Modifier.width(5.dp))
-
-                            Card(
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .height(205.dp)
-                                    .weight(1f),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .padding(10.dp)
-                                        .fillMaxSize(),
-                                    verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
-                                ) {
-                                    // First row with icon and text
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.location_icon),
-                                            contentDescription = "Status Icon",
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .padding(end = 10.dp),
-                                            tint = Color.Unspecified
-                                        )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 12.sp,
-                                            ),
-                                            text = notification?.PickupDock!!
-                                        )
-                                    }
-
-                                    Divider(
-                                        color = Color(0xFFA0A0A0),
-                                        thickness = 1.dp
-                                    )
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.drop_off_loc_icon),
-                                            contentDescription = "Status Icon",
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .padding(end = 10.dp),
-                                            tint = Color.Unspecified
-
-                                        )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 12.sp,
-
-                                                ),
-                                            text = notification?.DropOffDock!!
-                                        )
-                                    }
-
-                                    Divider(
-                                        color = Color(0xFFA0A0A0),
-                                        thickness = 1.dp
-                                    )
-
-                                    // Third row with icon and text
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.flag),
-                                            contentDescription = "Status Icon",
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .padding(end = 10.dp),
-                                            tint = Color.Unspecified
-                                        )
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 12.sp,
-
-                                                ),
-                                            text = notification?.WaterStay!!
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.call_icon),
+                            contentDescription = "Message",
+                            tint = Color.Unspecified, modifier = Modifier.size(50.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.message_icon),
+                            contentDescription = "Message",
+                            tint = Color.Unspecified, modifier = Modifier.size(50.dp)
+                        )
                     }
-
                 }
-
-            }
-
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-
-
-            // Action Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = {
-                        showDialogForCancel= true
-
-                    },
-                    shape = RoundedCornerShape(10.dp), // Corner radius
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-                        .border(
-                            width = 1.dp,
-                            color = colorResource(id = R.color.button_normal), // Border color
-                            shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
-                        ),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                ) {
-                    Text(
-                        text = "Decline",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colorResource(id = R.color.button_normal) // Text color matches border
-                    )
-                }
-
-                Button(
-                    onClick = {
-
-                        showDialogForAccept = true
-
-                    },
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 1.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
-                ) {
-                    Text(
-                        text = "Accept",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                }
-            }
-
-
-            if(showDialogForAccept){
-
-                SessionDialog(
-                    text = "Are you sure, you want to Accept voyage",
-                    onCancel = {
-                        showDialogForAccept = false
-                    },
-                    onPressOk = {
-                        showDialogForAccept = false
-                        viewModelR.accept(AcceptVoyageRequest(Id = notification?.Id!!, CaptainUserId =   AppConstants.USER_ID!!, CaptainBookingLatitude =  defaultLatLng.latitude, CaptainBookingLongitude = defaultLatLng.longitude))
-
-
-                    },
-                    showCancelButton = true
-                )
-            }
-
-
-
-            if(showDialogForCancel){
-
-                SessionDialog(
-                    text = "Are you sure, you want to decline voyage",
-                    onCancel = {
-                        showDialogForCancel = false
-                    },
-                    onPressOk = {
-                        showDialogForCancel = false
-                        viewModelR.decline(AcceptVoyageRequest(Id = notification?.Id!!, CaptainUserId =   AppConstants.USER_ID!!, CaptainBookingLatitude =  defaultLatLng.latitude, CaptainBookingLongitude = defaultLatLng.longitude))
-
-                    },
-                    showCancelButton = true
-                )
             }
         }
     }
 
 
+}
+
+@Composable
+fun InProcessCard(notification : VoyageDetails?) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(Color.White)
+    ) {
+
+        Box {
+            Icon(
+                imageVector = Icons.Default.Place,
+                contentDescription = "Map Pin",
+                modifier = Modifier
+                    .size(64.dp)
+                    .align(Alignment.Center)
+                    .offset(x = (-10).dp, y = (-10).dp)
+                    .alpha(0.3f),
+                tint = Color.LightGray
+            )
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = notification?.VoyagerName.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(text = notification?.AmountToPay.toString(), fontSize = 18.sp)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(modifier = Modifier.height(4.dp)) // Reduced spacing
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.passengers),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = colorResource(R.color.button_normal)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = notification?.NoOfVoyager.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.location_icon),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = colorResource(R.color.button_normal)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = notification?.PickupDock.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.drop_off_loc_icon),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = notification?.DropOffDock.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Adds spacing between buttons
+                ) {
+                    Button(
+                        onClick = { },
+                        shape = RoundedCornerShape(10.dp), // Corner radius
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
+                            .border(
+                                width = 1.dp,
+                                color = colorResource(id = R.color.button_normal), // Border color
+                                shape = RoundedCornerShape(10.dp) // Apply same corner radius to border
+                            ),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    ) {
+                        Text(
+                            text = "Details",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colorResource(id = R.color.button_normal) // Text color matches border
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.End // Align icons to the end
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.call_icon),
+                            contentDescription = "Message",
+                            tint = Color.Unspecified, modifier = Modifier.size(50.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.message_icon),
+                            contentDescription = "Message",
+                            tint = Color.Unspecified, modifier = Modifier.size(50.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+}
+
+@Preview
+@Composable
+fun PreviewCaptainRequests() {
+    CaptainCurrentVoyages(navController = rememberNavController())
 }

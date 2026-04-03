@@ -92,7 +92,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil3.compose.AsyncImage
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
 import com.boatit.boatsharing.ui.business.model.BusinessData
@@ -102,8 +102,8 @@ import com.boatit.boatsharing.ui.business.model.DeleteRequest
 import com.boatit.boatsharing.ui.business.model.DockDropdownItem
 import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.view.AcceptVoyagerRequest
+import com.boatit.boatsharing.ui.captain.dashboard.model.AcceptVoyageRequest
+import com.boatit.boatsharing.ui.captain.dashboard.view.AcceptVoyagerRequest
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessLogoViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField

@@ -54,7 +54,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.ui.captain.voyages.model.VoyageDetails
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageNotification
+import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageNotification
 
 @Composable
 fun PendingVoyages(navController: NavController, notification : VoyageDetails?, onDeclineClick: () -> Unit, onAcceptClick: () -> Unit) {

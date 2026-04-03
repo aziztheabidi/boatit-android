@@ -60,14 +60,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessInfoViewModel
 import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessInfoViewModel
 import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessProfileViewModel
 import com.boatit.boatsharing.ui.signup.captain.viewmodel.CaptainDocsViewModel
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.MyTimePickerDialog
+import com.boatit.boatsharing.ui.voyager.dashboard.view.MyTimePickerDialog
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDobField
 import com.boatit.boatsharing.uihelpers.CustomTextField

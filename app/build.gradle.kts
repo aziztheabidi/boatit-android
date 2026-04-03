@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.yaml.snakeyaml.scanner.Constant
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,11 +17,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        resValue("string", "mapAPiKey", "AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng")
-      //  resValue("string", "path", "https://testbyfarhan.squarecod.com/")
-    //    resValue("string", "baseUrl", "https://testbyfarhan.squarecod.com/api")
-         resValue("string", "path", "https://boatitapi.com/")
-         resValue("string", "baseUrl", "https://boatitapi.com/api")
+        // Prefer MAPS_API_KEY in local.properties for production; fallback for dev
+        resValue("string", "maps_api_key", (project.findProperty("MAPS_API_KEY") as String?) ?: "AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -87,7 +82,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
     implementation(libs.googleMapsCompose)
     implementation(libs.play.services.location)
 
@@ -96,14 +90,15 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.gson)
-
-    // Ktor Core
     implementation(libs.ktor.core)
-    implementation(libs.ktor.cio) // Use CIO as HTTP engine
-    implementation(libs.ktor.negotiation) // Content negotiation
-    implementation(libs.ktor.json) // JSON serialization
+    implementation(libs.ktor.cio)
+    implementation(libs.ktor.negotiation)
+    implementation(libs.ktor.json)
     implementation(libs.ktor.logging)
-    implementation(libs.ktor.auth)// Logging support
+    implementation(libs.ktor.auth)
+    implementation(libs.retrofit)
+    implementation(libs.retrofitGson)
+    implementation(libs.okhttpLogging)
 
     // Serialization
     implementation(libs.kotlinx.serialization)
@@ -121,8 +116,5 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.stripe.android)
     implementation(libs.flexible.bottomsheet.material)
-    implementation(libs.compose.ratingbar)
-    implementation(libs.accompanist.pager)
-    implementation(libs.androidx.security.crypto)
 
 }

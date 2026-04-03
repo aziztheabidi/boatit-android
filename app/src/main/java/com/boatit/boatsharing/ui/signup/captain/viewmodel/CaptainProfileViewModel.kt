@@ -2,7 +2,7 @@ package com.boatit.boatsharing.ui.signup.captain.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boatit.boatsharing.network.networkreposne.NetworkResponse
+import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.signup.captain.model.CaptainProfileRequest
 import com.boatit.boatsharing.ui.signup.captain.model.CaptainProfileResponse
 import com.boatit.boatsharing.ui.signup.captain.model.GetCaptainProfileResponse

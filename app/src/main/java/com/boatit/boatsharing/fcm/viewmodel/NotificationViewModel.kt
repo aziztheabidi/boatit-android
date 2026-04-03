@@ -3,7 +3,7 @@ package com.boatit.boatsharing.ui.login.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.fcm.MyFirebaseMessagingService
-import com.boatit.boatsharing.ui.voyager.dashbaord.model.VoyageNotification
+import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageNotification
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

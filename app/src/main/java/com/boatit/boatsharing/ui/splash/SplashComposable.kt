@@ -1,8 +1,6 @@
 package com.boatit.boatsharing.ui.splash
 
-import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -22,8 +20,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
-import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
-import com.boatit.boatsharing.ui.captain.availablitystatus.viewmodel.UpdateStatusViewModel
+import com.boatit.boatsharing.ui.captain.availabilitystatus.viewmodel.UpdateStatusViewModel
 import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.HandleSystemDefaultBars
@@ -41,7 +38,14 @@ fun SplashComposable(navController: NavController,
         navigationBarColor = colorResource(R.color.bars_colour),
     )
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.White)){
+    Box(modifier = Modifier.fillMaxSize()){
+        Image(
+            painter = painterResource(id = R.drawable.splash_bg),
+            contentDescription = "Splash Background",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
         Image(
             painter = painterResource(id = R.drawable.boatit_logo),
             contentDescription = "Logo of the app",
@@ -54,40 +58,21 @@ fun SplashComposable(navController: NavController,
     val userData = viewModel.getUserData()
     val userStatus = viewModelS.getCaptainStatus()
     AppConstants.USER_ID = userData?.UserId
-    AppConstants.USER_NAME = userData?.Username
-
+    println("userid" + AppConstants.USER_ID)
     LaunchedEffect(Unit) {
         delay(5000)
         if (userData != null) {
             if(userData.Role.equals("Voyager")){
-                if(userData.MissingStep == 0) {
-                    navController.navigate(route = "$DASHBOARD_SCREEN/null")
-                }else{
-                    navController.navigate(route = "$USER_ACCOUNT_INFO_SCREEN/voyagerRole")
-                }
+                navController.navigate(route = "$DASHBOARD_SCREEN/null")
+//                navController.navigate(NavigationManager.VOYAGER_CHAT_SCREEN)
             }else if(userData.Role.equals("Captain")){
-                Log.e("userStatus",userStatus.toString())
-                if(userData.MissingStep == 0) {
-                   if(userStatus)
-                    {navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)}
-                    else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
-                }else{
-                    navController.navigate(NavigationManager.CAPTAIN_INFO_SCREEN)
-                }
-
-            }else if(userData.Role.equals("Business")){
-                if(userData.MissingStep == 0) {
-                    navController.navigate(NavigationManager.BUSINESS_SCREEN)
-                }else{
-                    navController.navigate(NavigationManager.BUSINESS_ACCT_INFO_SCREEN)
-                }
+//                if(userStatus){navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)} else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
+                navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)
             }else{
                 navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
             }
         } else {
-         // navController.navigate(NavigationManager.VOYAGER_ONBOARDING_SCREEN)
-
-            navController.navigate(NavigationManager.ONBOARDING_SWIPE)
+            navController.navigate(NavigationManager.VOYAGER_ONBOARDING_SCREEN)
         }
     }
 }
