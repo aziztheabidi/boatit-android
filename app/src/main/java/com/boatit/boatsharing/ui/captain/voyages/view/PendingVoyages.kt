@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -53,185 +56,91 @@ import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.ui.captain.voyages.model.VoyageDetails
 import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageNotification
 
-
 @Composable
 fun PendingVoyages(navController: NavController, notification : VoyageDetails?, onDeclineClick: () -> Unit, onAcceptClick: () -> Unit) {
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    Box(
-        modifier = Modifier.height(screenHeight * 0.6f),
-        contentAlignment = Alignment.TopCenter
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(Color.White)
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(top = 40.dp),
-            shape = RoundedCornerShape(
-                topStart = 45.dp,
-                topEnd = 45.dp
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Column(
+
+        Box {
+            Icon(
+                imageVector = Icons.Default.Place,
+                contentDescription = "Map Pin",
                 modifier = Modifier
-                    .fillMaxSize().background(Color.White)
-                    .padding(top = 50.dp,
-                        start = 16.dp, end = 16.dp, bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                    .size(64.dp)
+                    .align(Alignment.Center)
+                    .offset(x = (-10).dp, y = (-10).dp)
+                    .alpha(0.3f),
+                tint = Color.LightGray
+            )
+            Column(modifier = Modifier.padding(16.dp)) {
 
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, color = colorResource(id = R.color.button_normal)),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.boatit_logo), // Replace with actual image
-                            contentDescription = "Boat Image",
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(10.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(notification?.Name.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text(notification?.PastVoyage .toString(), color = Color.Gray)
-                            Text(notification?.PhoneNumber.toString(), color = Color.Gray)
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("4.8", fontWeight = FontWeight.SemiBold)
-                                Icon(
-                                    painter = painterResource(id = R.drawable.location_icon_two),
-                                    contentDescription = "Rating Icon",
-                                    tint = Color.Unspecified
-                                )
-                            }
-
-                        }
-                    }
+                    Text(notification?.Name.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(notification?.TotalAmount.toString(), fontSize = 18.sp)
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // Pickup & Pricing Info
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.passengers),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(notification?.PastVoyage.toString(), fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.location_icon),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(notification?.PickupDock.toString(), fontSize = 16.sp)
+                }
+
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.drop_off_loc_icon),
+                        contentDescription = "Icon",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified
+
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(notification?.DropOffDock.toString(), fontSize = 16.sp)
+                }
+                Spacer(modifier = Modifier.height(15.dp))
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min), // Ensures both cards match the tallest one
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(
-                            1.dp,
-                            color = colorResource(id = R.color.button_normal)
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight() // Ensures card fills the available height
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.location_icon),
-                                    contentDescription = "Pickup",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    notification?.PickupDock.toString(),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) // Changed from HorizontalDivider to Divider
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.drop_off_loc_icon),
-                                    contentDescription = "Dropoff",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    notification?.DropOffDock.toString(),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                        }
-                    }
-
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(
-                            1.dp,
-                            color = colorResource(id = R.color.button_normal)
-                        ),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight() // Ensures card fills the available height
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.passengers),
-                                    contentDescription = "Passengers",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    notification?.NoOfVoyager .toString(),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.money_icon),
-                                    contentDescription = "money",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(notification?.TotalAmount .toString(), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Action Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Adds spacing between buttons
                 ) {
                     Button(
-                        onClick = { onDeclineClick() },
+                        onClick = {
+                            onDeclineClick()
+                        },
                         shape = RoundedCornerShape(10.dp), // Corner radius
                         modifier = Modifier
                             .weight(1f)
@@ -244,7 +153,7 @@ fun PendingVoyages(navController: NavController, notification : VoyageDetails?, 
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                     ) {
                         Text(
-                            text = stringResource(R.string.decline_text),
+                            text = "Decline",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = colorResource(id = R.color.button_normal) // Text color matches border
@@ -264,25 +173,18 @@ fun PendingVoyages(navController: NavController, notification : VoyageDetails?, 
                         colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.button_normal))
                     ) {
                         Text(
-                            text = stringResource(R.string.accept_text),
+                            text = "Accept",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                     }
+
                 }
             }
-        }
-        Image(
-            painter = painterResource(id = R.drawable.wheel_icon),
-            contentDescription = "Floating Icon",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .size(90.dp)
-                .clickable { navController.navigate(NavigationManager.MENU_OPTIONS_SCREEN) }
-        )
-    }
 
+        }
+    }
 
 
 }

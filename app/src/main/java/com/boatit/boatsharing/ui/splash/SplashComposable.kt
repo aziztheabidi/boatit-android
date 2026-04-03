@@ -20,6 +20,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
+import com.boatit.boatsharing.ui.captain.availabilitystatus.viewmodel.UpdateStatusViewModel
 import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.HandleSystemDefaultBars
@@ -28,7 +29,9 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun SplashComposable(navController: NavController, viewModel: LoginViewModel = koinViewModel()) {
+fun SplashComposable(navController: NavController,
+     viewModel: LoginViewModel = koinViewModel(),
+     viewModelS: UpdateStatusViewModel = koinViewModel()) {
 
     HandleSystemDefaultBars(
         statusBarColor = colorResource(R.color.bars_colour),
@@ -53,6 +56,7 @@ fun SplashComposable(navController: NavController, viewModel: LoginViewModel = k
     }
 
     val userData = viewModel.getUserData()
+    val userStatus = viewModelS.getCaptainStatus()
     AppConstants.USER_ID = userData?.UserId
     println("userid" + AppConstants.USER_ID)
     LaunchedEffect(Unit) {
@@ -60,9 +64,10 @@ fun SplashComposable(navController: NavController, viewModel: LoginViewModel = k
         if (userData != null) {
             if(userData.Role.equals("Voyager")){
                 navController.navigate(route = "$DASHBOARD_SCREEN/null")
+//                navController.navigate(NavigationManager.VOYAGER_CHAT_SCREEN)
             }else if(userData.Role.equals("Captain")){
-                navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)
-//                navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)
+//                if(userStatus){navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)} else{navController.navigate(NavigationManager.CAPTAIN_OFFLINE_SCREEN)}
+                navController.navigate(NavigationManager.CAPTAIN_VOYAGES_SCREEN)
             }else{
                 navController.navigate(NavigationManager.SELECT_ROLE_SCREEN)
             }

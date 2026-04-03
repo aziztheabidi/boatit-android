@@ -6,7 +6,13 @@ import kotlinx.serialization.Serializable
 data class NearbyPlacesResponse(
     val Status: Int,
     val Message: String,
-    val obj: List<Place>
+    val obj: DockListObj?
+)
+
+@Serializable
+data class DockListObj(
+    val All: List<Place>?,
+    val Business: List<Place>?
 )
 
 @Serializable
@@ -21,19 +27,21 @@ data class Place(
     val Latitude: Double,
     val Longitude: Double,
     val DockTypeId: Int,
-    val DockType: String,
-//    val Id: Int,
-//    val ValidFlag: Boolean,
-    val ChangedOn: String,
-    val ChangedBy: String
+    val DockType: String
 )
 
 @Serializable
 data class FindBoatRequest(
     val VoyagerUserId: String,
+    val Name: String,
+    val VoyageCategoryId: Int,
     val PickupDockId: Int,
     val DropOffDockId: Int,
-    val NoOfVoyagers: Int
+    val NoOfVoyagers: Int,
+    val EstimatedCost: Double,
+    val IsImmediately: Boolean,
+    val IsSplitPayment: Boolean,
+    val BookingDate: String,
 )
 
 @Serializable

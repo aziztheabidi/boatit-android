@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.boatit.boatsharing"
+        applicationId = "com.boatit.boat_it"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.places)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.firestore.ktx)
-    implementation(libs.cronet.embedded)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -91,6 +90,12 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.gson)
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.cio)
+    implementation(libs.ktor.negotiation)
+    implementation(libs.ktor.json)
+    implementation(libs.ktor.logging)
+    implementation(libs.ktor.auth)
     implementation(libs.retrofit)
     implementation(libs.retrofitGson)
     implementation(libs.okhttpLogging)
@@ -109,5 +114,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.messaging)
+    implementation(libs.stripe.android)
+    implementation(libs.flexible.bottomsheet.material)
 
 }

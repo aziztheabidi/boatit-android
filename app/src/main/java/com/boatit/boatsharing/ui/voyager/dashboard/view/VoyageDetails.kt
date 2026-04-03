@@ -1,5 +1,7 @@
 package com.boatit.boatsharing.ui.voyager.dashboard.view
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -32,15 +35,19 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
+import com.boatit.boatsharing.ui.voyager.dashboard.model.ActiveVoyageDetails
 import com.boatit.boatsharing.utils.AppConstants
 
 @Composable
 fun VoyageDetails(navController: NavController,
-      OTP: Int?,
-      CaptainName: String?,
-      BoatName: String?,
-      BoatModel: String?) {
+                  voyage: ActiveVoyageDetails,
+                  OTP: Int?,
+                  CaptainName: String?,
+                  BoatName: String?,
+                  BoatModel: String?) {
 
+
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Box(
@@ -77,21 +84,21 @@ fun VoyageDetails(navController: NavController,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .border(1.dp, Color(0xFF3366FF), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "12\nMinutes",
-                            color = Color(0xFF3366FF),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+//
+//                    Box(
+//                        modifier = Modifier
+//                            .border(1.dp, Color(0xFF3366FF), RoundedCornerShape(10.dp))
+//                            .padding(horizontal = 12.dp, vertical = 8.dp),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Text(
+//                            text = "12\nMinutes",
+//                            color = Color(0xFF3366FF),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 14.sp,
+//                            textAlign = TextAlign.Center
+//                        )
+//                    }
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
@@ -134,13 +141,23 @@ fun VoyageDetails(navController: NavController,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     // Captain Image
-                    Image(
-                        painter = painterResource(id = R.drawable.captain_img), // Replace with your drawable
-                        contentDescription = "Captain Image",
+                    Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .clip(CircleShape)
-                    )
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (CaptainName != null) {
+                            Text(
+                                text = CaptainName.firstOrNull()?.uppercase() ?: "-",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.width(12.dp))
 
@@ -165,7 +182,8 @@ fun VoyageDetails(navController: NavController,
                             color = Color.Gray
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "4.9", fontWeight = FontWeight.Bold)
+                            Text(text = voyage.Rating.toString(),
+                                fontWeight = FontWeight.Bold)
                             repeat(5) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.location_icon_two), // Anchor rating icon
@@ -203,11 +221,16 @@ fun VoyageDetails(navController: NavController,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 0.dp, vertical = 0.dp) // Padding for the row
+                        .clickable {
+                            navController.navigate(route = "$CHAT_SCREEN/${AppConstants.Voyage_ID}/${AppConstants.USER_ID}/${CaptainName}/${CaptainName}")
+                        }
+                        .padding(horizontal = 0.dp, vertical = 0.dp)
+
                 ) {
                     var pickupNotes by remember { mutableStateOf("") }
                     OutlinedTextField(
                         value = pickupNotes,
+                        enabled = false,
                         onValueChange = { pickupNotes = it },
                         placeholder = {
                             Text(
@@ -231,35 +254,10 @@ fun VoyageDetails(navController: NavController,
                             onDone = { keyboardController?.hide() }     // Hide keyboard on "Done"
                         ),// Rounded corners
                         modifier = Modifier
-                            .widthIn(min = 200.dp, max = 200.dp) // Set the width
+                            .fillMaxWidth() // Set the width
                             .padding(end = 8.dp)
                             .background(Color.White)
                     )
-                    IconButton(onClick = { /* Call Action */ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.call_icon),
-                            contentDescription = "Call",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(50.dp)
-                        )
-                    }
-                    IconButton(onClick = {
-                        navController.navigate(route = "$CHAT_SCREEN/${AppConstants.Voyage_ID}/${AppConstants.USER_ID}/${CaptainName}/${CaptainName}")
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message_icon),
-                            contentDescription = "Message",
-                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
-                        )
-                    }
-
-                    IconButton(onClick = { /* Share Action */ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.share_icon),
-                            contentDescription = "Share",
-                            tint = Color.Unspecified,  modifier = Modifier.size(50.dp)
-                        )
-                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -284,15 +282,4 @@ fun VoyageDetails(navController: NavController,
                 .clickable { navController.navigate(NavigationManager.MENU_OPTIONS_SCREEN) }
         )
     }
-}
-@Preview
-@Composable
-fun PreviewVoyageDetails() {
-    VoyageDetails(
-        navController = rememberNavController(),
-        OTP = 34455,
-        CaptainName = "Johnvsbsb Doebbh",
-        BoatName = "Sea Explorer",
-        BoatModel = "WaveRunner FX"
-    )
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,9 +29,14 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.navigateWithClearStack
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun CaptainOnboarding(navController: NavController) {
+fun CaptainOnboarding(navController: NavController, pagerState: PagerState?, scope: CoroutineScope?) {
 
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -100,15 +106,14 @@ fun CaptainOnboarding(navController: NavController) {
 
         OnboardingScreenBottomLayout(
             onIconClick = {
-                println("move to next screen")
-                navController.navigate(NavigationManager.BUSINESS_ONBOARDING_SCREEN)
-
+               // navController.navigate(NavigationManager.BUSINESS_ONBOARDING_SCREEN)
+                scope?.launch{
+                    pagerState?.animateScrollToPage(2)
+                }
 
             },
             onSkipClick = {
-                println("skip")
-                navController.navigateWithClearStack(NavigationManager.SELECT_ROLE_SCREEN, clearStack = true)
-
+               navController.navigateWithClearStack(NavigationManager.LOGIN_SCREEN,clearStack = true)
             },
 
             R.drawable.onboarding_step_two,
@@ -123,8 +128,3 @@ fun CaptainOnboarding(navController: NavController) {
 }
 
 
-@Preview
-@Composable
-fun PreviewCaptainOnboardingScreen() {
-    CaptainOnboarding(navController = rememberNavController())
-}

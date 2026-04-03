@@ -82,9 +82,7 @@ fun FindDestinationLocationScreen(navController: NavController, onLocationSelect
     var isDestinationLocationFocused by remember { mutableStateOf(false) }
     var activeTextField by remember { mutableStateOf("pickupLocation") }
 
-    val isDropDownExpanded = remember {
-        mutableStateOf(false)
-    }
+    val isDropDownExpanded = remember { mutableStateOf(false) }
 
     val itemPosition = remember {
         mutableStateOf(0)
@@ -382,27 +380,4 @@ AnimatedVisibility(modifier = Modifier.align(Alignment.BottomCenter),
         }
 }
 
-// Function to fetch place predictions
-private fun fetchPlacePredictions(
-    placesClient: PlacesClient,
-    query: String,
-    country: String? = "US",
-    onPredictionsFetched: (List<AutocompletePrediction>) -> Unit
-) {
-    val requestBuilder = FindAutocompletePredictionsRequest.builder()
-        .setQuery(query)
 
-    if (!country.isNullOrEmpty()) {
-        requestBuilder.setCountries(listOf(country))
-    }
-
-    val request = requestBuilder.build()
-
-    placesClient.findAutocompletePredictions(request)
-        .addOnSuccessListener { response ->
-            onPredictionsFetched(response.autocompletePredictions)
-        }
-        .addOnFailureListener { exception ->
-            exception.printStackTrace()
-        }
-}

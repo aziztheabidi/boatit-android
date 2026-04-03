@@ -6,25 +6,25 @@ class TokenProvider(context: Context) {
 
     private val sharedPrefManager = SharedPrefManager(context)
 
-    fun getAccessToken(): String? {
-        return sharedPrefManager.getUserData()?.Accesstoken
-    }
+    fun getAccessToken(): String? = sharedPrefManager.getAccessToken()
+    fun getRefreshToken(): String? = sharedPrefManager.getRefreshToken()
 
-    fun getRefreshToken(): String? {
-        return sharedPrefManager.getUserData()?.Refreshtoken
-    }
 
     fun saveTokens(accessToken: String?, refreshToken: String?) {
-        val userData = sharedPrefManager.getUserData()?.apply {
-            Accesstoken = accessToken!!
-            Refreshtoken = refreshToken!!
-        }
-        if (userData != null) {
-            sharedPrefManager.saveLoginData(userData)
-        }
+        val access = accessToken?.trim().orEmpty()
+        val refresh = refreshToken?.trim().orEmpty()
+
+        if (access.isBlank() && refresh.isBlank()) return
+
+        sharedPrefManager.saveTokens(access, refresh)
     }
 
     fun clearTokens() {
+        sharedPrefManager.clearTokens()
+    }
+
+
+    fun clearAll() {
         sharedPrefManager.clearUserData()
     }
 }

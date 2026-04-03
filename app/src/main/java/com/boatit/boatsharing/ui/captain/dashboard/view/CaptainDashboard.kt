@@ -4,12 +4,15 @@ package com.boatit.boatsharing.ui.captain.dashboard.view
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.LocationViewModel
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,11 +28,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -69,20 +75,13 @@ import org.koin.androidx.compose.koinViewModel
 fun CaptainDashboard(navController: NavController ,
      viewModel: LocationViewModel = koinViewModel(),
      viewModelN: NotificationViewModel = koinViewModel(),
-     viewModelR: AcceptRequestViewModel = koinViewModel(),
-     viewModelStart: StartVoyageViewModel = koinViewModel()) {
+     viewModelR: AcceptRequestViewModel = koinViewModel()) {
 
     val context = LocalContext.current
     val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     val defaultLatLng = LatLng(40.792240, -73.138260)
     var currentLatLng by remember { mutableStateOf(defaultLatLng) }
-    val seaRoute = listOf(
-        LatLng(40.65209, -73.13763), // Start
-        LatLng(40.70000, -73.10000), // Waypoint 1 (ocean path)
-        LatLng(40.73000, -73.05000), // Waypoint 2 (ocean path)
-        LatLng(40.75808, -73.01926)  // End
-    )
 
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
@@ -98,14 +97,11 @@ fun CaptainDashboard(navController: NavController ,
 
     val markerState = remember { MarkerState(position = defaultLatLng) }
     var notification by remember { mutableStateOf<VoyageNotification?>(null) }
-    var showVoyagerRequest by remember { mutableStateOf(false) }
-    var showVoyagerDetal by remember { mutableStateOf(false) }
-    var showFindBoat by rememberSaveable { mutableStateOf(false) }
+    var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
 
     val notificationState by viewModelN.notificationState.collectAsStateWithLifecycle()
     val userLocation by viewModel.userLocation.collectAsState()
     val requestState by viewModelR.loginState.collectAsState()
-    val startState by viewModelStart.loginState.collectAsState()
 
     when (requestState) {
         is NetworkResponse.Success -> {
@@ -114,29 +110,8 @@ fun CaptainDashboard(navController: NavController ,
                 isNetworkError = false
                 Toast.makeText(context, "Voyage Accepted. Waiting For Payment", Toast.LENGTH_SHORT).show()
                 showVoyagerRequest = false
-                showVoyagerDetal = true
                 AppConstants.Voyage_ID = notification?.Id
                 viewModelR.resetNearbyPlaces()
-            }
-        }
-        is NetworkResponse.Error -> {
-            if (isLoading) {
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, requestState.message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
-    }
-
-    when (startState) {
-        is NetworkResponse.Success -> {
-            if (isLoading) {
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, "Voyage Started.", Toast.LENGTH_SHORT).show()
-                showVoyagerDetal = false
-                navController.navigate(NavigationManager.VOYAGE_STARTED_SCREEN)
             }
         }
         is NetworkResponse.Error -> {
@@ -152,13 +127,6 @@ fun CaptainDashboard(navController: NavController ,
     LaunchedEffect(notificationState) {
         if (notificationState != null) {
             if(notificationState!!.Name != null){
-                val boundsBuilder = LatLngBounds.Builder()
-                seaRoute.forEach { boundsBuilder.include(it) }
-                val bounds = boundsBuilder.build()
-                cameraPositionState.move(
-                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-                )
-                showFindBoat = true
                 notification = notificationState
                 showVoyagerRequest = true
             }
@@ -172,7 +140,11 @@ fun CaptainDashboard(navController: NavController ,
             markerState.position = userLatLng
             cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLatLng, 17f))
         },
-        onPermissionDenied = {}
+        onPermissionDenied = {},
+        content = {
+            // Composable to show once permission is granted
+            Text("Permission Granted")
+        }
     )
 
     Box(
@@ -196,28 +168,6 @@ fun CaptainDashboard(navController: NavController ,
                         title = "Its me",
                         icon = BitmapDescriptorFactory.fromResource(R.drawable.current_marker)
                     )
-
-                    if(showFindBoat){
-
-                        Marker(
-                            state = MarkerState(position = seaRoute.first()),
-                            title = "Its me",
-                            icon = BitmapDescriptorFactory.fromResource(R.drawable.location_icon_two)
-                        )
-
-                        Marker(
-                            state = MarkerState(position = seaRoute.last()),
-                            title = "Its me",
-                            icon = BitmapDescriptorFactory.fromResource(R.drawable.location_icon_two)
-                        )
-
-                        Polyline(
-                            points = seaRoute,
-                            color = Color.Blue,
-                            width = 8f,
-                            geodesic = true // Smooths the polyline for curved sea paths
-                        )
-                    }
                 }
 
                 userLocation?.let { location ->
@@ -229,7 +179,28 @@ fun CaptainDashboard(navController: NavController ,
 
         }
 
-        CaptainStatus(stringResource(R.string.online_text))
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .width(80.dp)
+                .height(100.dp)
+                .padding(start = 20.dp, top = 40.dp),
+            contentAlignment = Alignment.TopStart,
+        )  {
+
+            Image(
+                painter = painterResource(id = R.drawable.wheel_icon),
+                contentDescription = "Icon Image",
+                modifier = Modifier
+                    .size(width = 80.dp, height = 80.dp)
+                    .clickable {
+                        navController.navigate(NavigationManager.CAPTAIN_MENU_OPTIONS_SCREEN)
+                    }
+            )
+
+        }
+
+        CaptainStatus( navController ,stringResource( R.string.online_text))
 
         if (showVoyagerRequest) {
             ModalBottomSheet(
@@ -267,61 +238,17 @@ fun CaptainDashboard(navController: NavController ,
                     navController, notification,
                     onDeclineClick = {
                         showVoyagerRequest = false
-                        showFindBoat = false
+                        isLoading = true
+                        isNetworkError = true
+                        viewModelR.decline(
+                            AcceptVoyageRequest(notification?.Id!!, AppConstants.USER_ID!!, defaultLatLng.latitude, defaultLatLng.longitude)
+                        )
                     },
                     onAcceptClick = {
                         isLoading = true
                         isNetworkError = true
                         viewModelR.accept(
                             AcceptVoyageRequest(notification?.Id!!, AppConstants.USER_ID!!, defaultLatLng.latitude, defaultLatLng.longitude)
-                        )
-                    }
-                )
-            }
-        }
-
-        if (showVoyagerDetal) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    coroutineScope.launch {
-                        sheetState.partialExpand()
-                    }
-                    showVoyagerRequest = false
-                },
-                sheetState = sheetState,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                containerColor = Color.Transparent,
-                tonalElevation = 16.dp,
-                dragHandle = {
-                    Box(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .width(50.dp)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(50))
-                    )
-                },
-                modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures { _, dragAmount ->
-                            if (dragAmount > 20) {
-                                coroutineScope.launch {
-                                    sheetState.partialExpand() // Lock to partially expanded
-                                }
-                            }
-                        }
-                    }
-            ) {
-                CaptainVoyageDetails(
-                    navController, notification?.Name!!,
-                    onDeclineClick = {
-                        showVoyagerRequest = false
-                    },
-                    onAcceptClick = { otp ->
-                        isLoading = true
-                        isNetworkError = true
-                        viewModelStart.startvoyage(
-                            VoyageStartRequest(notification?.Id!!, otp)
                         )
                     }
                 )

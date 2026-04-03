@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,50 +45,37 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun CustomStatusScreen(navController: NavController,  viewModel: UpdateStatusViewModel = koinViewModel()) {
-
-    var title by remember { mutableStateOf("Welcome!") }
-    var subtitle by remember { mutableStateOf("Tap the wheel to go online and start getting voyage requests") }
-    var image by remember { mutableIntStateOf(R.drawable.wheel_inactive) }
-    var isButtonEnabled by remember { mutableStateOf(false) }
+fun CustomStatusScreen(
+    navController: NavController,
+    viewModel: UpdateStatusViewModel = koinViewModel()
+) {
+    val title by viewModel.title.collectAsState()
+    val subtitle by viewModel.subtitle.collectAsState()
+    val image by viewModel.image.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
     val context = LocalContext.current
-    val loginState by viewModel.loginState.collectAsState()
-    var isLoading by remember { mutableStateOf(false) }
-    var isNetworkError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    fun performLogin(){
-        navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)
+    LaunchedEffect(Unit) {
+        viewModel.toastMessage.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
-    when (loginState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, loginState.data?.Message, Toast.LENGTH_SHORT).show()
-                performLogin()
-            }
+    LaunchedEffect(Unit) {
+        viewModel.navigateToDashboard.collect {
+            navController.navigate(NavigationManager.CAPTAIN_DASHBOARD_SCREEN)
         }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (loginState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
     }
 
-    Box(modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
         Image(
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f)
-
         )
         Column(
             modifier = Modifier
@@ -107,7 +95,6 @@ fun CustomStatusScreen(navController: NavController,  viewModel: UpdateStatusVie
 
             Spacer(modifier = Modifier.height(8.dp))
 
-
             Text(
                 text = subtitle,
                 fontSize = 16.sp,
@@ -124,17 +111,17 @@ fun CustomStatusScreen(navController: NavController,  viewModel: UpdateStatusVie
                 modifier = Modifier
                     .width(100.dp)
                     .height(100.dp)
-                    .clickable {
-                        title = "you are Online!"
-                        subtitle = "Start accepting  voyager and help voyagers reach there destinations."
-                        image = R.drawable.wheel_icon
-                        isButtonEnabled = true
-                        isLoading = true
-                        isNetworkError = true
-                        viewModel.status(AppConstants.USER_ID.toString(), true)
-                }
+                    .clickable(enabled = !isLoading) {
+                        viewModel._isOnline.value = true
+                        viewModel.toggleStatus(AppConstants.USER_ID.toString())
+                    }
             )
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(24.dp))
+                CircularProgressIndicator()
+            }
         }
     }
 }
+
 

@@ -43,6 +43,7 @@ fun CaptainVoyages(navController: NavController, viewModel: CaptainVoyagesViewMo
     var isLoading by remember { mutableStateOf(false) }
     val requestState by viewModelR.loginState.collectAsState()
     val defaultLatLng = LatLng(40.792240, -73.138260)
+
     LaunchedEffect(Unit) {
         viewModel.voyages()
     }
@@ -55,9 +56,8 @@ fun CaptainVoyages(navController: NavController, viewModel: CaptainVoyagesViewMo
         },
         content = { innerPadding ->
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                modifier = Modifier.fillMaxSize().
+                padding(innerPadding)
             ) {
                 Box(
                     modifier = Modifier
@@ -107,8 +107,6 @@ fun CaptainVoyages(navController: NavController, viewModel: CaptainVoyagesViewMo
         },
     )
 }
-
-
 
 
 @Preview

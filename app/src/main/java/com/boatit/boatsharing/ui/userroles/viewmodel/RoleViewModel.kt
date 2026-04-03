@@ -14,21 +14,46 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class RoleViewModel(private val repository: RoleRepository,private val roleProvider: RoleProvider, private val tokenProvider: TokenProvider) : ViewModel() {
+class RoleViewModel(
+    private val repository: RoleRepository,
+    private val roleProvider: RoleProvider,
+    private val tokenProvider: TokenProvider
+) : ViewModel() {
 
-    private val _loginState = MutableStateFlow<NetworkResponse<RoleResponse>>(NetworkResponse.Loading())
-    val loginState: StateFlow<NetworkResponse<RoleResponse>> = _loginState
-    fun role(userid: String, role: String) {
+    private val _roleState = MutableStateFlow<NetworkResponse<RoleResponse>>(NetworkResponse.Loading())
+    val roleState: StateFlow<NetworkResponse<RoleResponse>> = _roleState
+
+    private val _selectedRole = MutableStateFlow<String?>(null)
+    val selectedRole: StateFlow<String?> = _selectedRole
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun selectRole(userId: String, role: String ) {
+        _isLoading.value = true
+        _errorMessage.value = null
+        _selectedRole.value = role
+
         viewModelScope.launch {
-            _loginState.value = NetworkResponse.Loading()
-            val result = repository.login(userid, role)
+            val result = repository.login(userId, role , tokenProvider.getAccessToken())
             result.onSuccess { response ->
-                _loginState.value = NetworkResponse.Success(response)
+                _roleState.value = NetworkResponse.Success(response)
                 roleProvider.saveRole(role)
                 tokenProvider.saveTokens(response.obj?.Accesstoken, response.obj?.Refreshtoken)
+                _isLoading.value = false
             }.onFailure { error ->
-                _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
+                _roleState.value = NetworkResponse.Error(error.message ?: "Failed to assign role")
+                _isLoading.value = false
+                _errorMessage.value = error.message
             }
         }
     }
+
+    fun resetNearbyPlaces() {
+        _roleState.value = NetworkResponse.Loading()
+    }
 }
+

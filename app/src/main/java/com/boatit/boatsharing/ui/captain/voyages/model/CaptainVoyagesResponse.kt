@@ -25,5 +25,6 @@ data class VoyageDetails(
     val DropOffDock: String? = null,
     val NoOfVoyager: Int? = null,
     val TotalAmount: Double? = null,
-    val PastVoyage: Int? = null
+    val PastVoyage: Int? = null,
+
 )

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BoatSharingApp</string>
+    <string name="app_name">Boat IT</string>
 
     <string name="reset_password_h1">Reset Password</string>
     <string name="reset_password_h2">We will email you \n a link to reset password</string>
@@ -21,7 +21,8 @@
     <string name="business">Business</string>
     <string name="business_onboarding_text">Revolutionise the boating industry, connect boat owners\nand passengers with boat type  with our boat riding</string>
 
-    <string name="create_account">Create an Account</string>
+    <string name="create_account">Create New Account</string>
+    <string name="create_account_">Create New Account?</string>
     <string name="already_registered">Already have an account?</string>
 
     <string name="captain">Captain</string>
@@ -33,7 +34,8 @@
 
     <string name="add_your_info">Add Your Info</string>
     <string name="continue_button_text">Continue</string>
-    <string name="email_verification_text">We just send 5 digit code to\nexample@example.com, enter it below:</string>
+    <string name="email_verification_text">We just sent a 5-digit code to\n%s, enter it below:</string>
+
     <string name="code_text">Code</string>
     <string name="wrong_email_text">Wrong email? </string>
     <string name="another_email_text"> Send to different email</string>
@@ -144,7 +146,7 @@
 
     <string name="business_address_label">Business Address</string>
     <string name="business_address_placeholder">Enter Business Address</string>
-    <string name="business_address_validation_text">Business sddress required</string>
+    <string name="business_address_validation_text">Business address required</string>
 
     <string name="business_contact_no_label">Business Phone Number</string>
     <string name="business_contact_no_placeholder">Enter Business Phone Number</string>
@@ -168,6 +170,8 @@
 
     <string name="add_business_logo_label">Add Logo</string>
     <string name="add_business_logo_h2">Add your business logo</string>
+    <string name="add_business_images">Add business Images</string>
+
 
     <string name="find_destination_button_text">Find Destination</string>
     <string name="destination_location_h1">Destination Location</string>
@@ -198,9 +202,11 @@
     <string name="num_off_voyagers_text">add number of passengers</string>
     <string name="num_off_voyagers_lbl">No. of voyagers</string>
 
-    <string name="find_boat_button_text">Find Boat</string>
+    <string name="find_boat_button_text">Create Voyage</string>
     <string name="title_activity_rotating_wheel_view">RotatingWheelView</string>
-    <string name="booking_date">Booking Date:</string>
+    <string name="booking_date">Current Date:</string>
+    <string name="selected_booking_date">Booking Date:</string>
+
     <string name="pay_now_text">Pay Now</string>
     <string name="pick_up_notes">ANy pick up Notes?</string>
     <string name="voyage_start_text">"Meet at “Pickup Point” for your\n“destination point” in…</string>
@@ -210,7 +216,42 @@
     <string name="online_text">you are Online!</string>
     <string name="online_status_text">Start accepting  voyager and help voyagers reach there destinations</string>
     <string name="voyages_screen">Voyages Requests</string>
+    <string name="voyages_past">Past Voyages</string>
+    <string name="voyages_future">Upcoming Voyages</string>
+    <string name="voyages_sponcer">Sponsor Voyages</string>
+    <string name="voyagers_screen">Voyagers List</string>
     <string name="accept_text">Accept</string>
     <string name="start_text">Start</string>
-    <string name="decline_text">decline</string>
+    <string name="decline_text">Decline</string>
+    <string name="voyage_text">Voyages</string>
+    <string name="fb_submit_text">Submit</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="add_to_yoyage">Add to Yoyage</string>
+    <string name="followed">Followed</string>
+    <string name="travel_now">Travel Now</string>
+    <string name="categoy">Categoy</string>
+    <string name="shores">Shores</string>
+    <string name="zones">Zones</string>
+    <string name="island">Island</string>
+    <string name="follow">Follow</string>
+    <string name="add_dock">Add Dock</string>
+
+    <string name="add_to_voyage">Add to Voyage</string>
+
+
+    <string name="businesses">Businesses</string>
+    <string name="business_email">Business Email</string>
+    <string name="website">Website</string>
+    <string name="enter_website">Enter website</string>
+    <string name="un_follow">Unfollow</string>
+    <string name="complain_submitted">Complain Submitted</string>
+
+    <string name="settings_">Settings</string>
+    <string name="edit_profile">Edit Profile</string>
+
+    <string name="logout">Logout</string>
+
+    <string name="voyage_pending_text">"Please wait until not excepted by captain…</string>
+
+
 </resources>

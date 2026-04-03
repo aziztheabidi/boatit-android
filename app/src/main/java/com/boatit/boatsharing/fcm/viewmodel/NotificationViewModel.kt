@@ -3,20 +3,15 @@ package com.boatit.boatsharing.ui.login.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boatit.boatsharing.fcm.MyFirebaseMessagingService
-import com.boatit.boatsharing.network.networkresponse.NetworkResponse
-import com.boatit.boatsharing.ui.login.model.LoginResponse
-import com.boatit.boatsharing.ui.voyager.dashboard.model.Place
 import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageNotification
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NotificationViewModel : ViewModel() {
+
     private val _notificationState = MutableStateFlow<VoyageNotification?>(null)
     val notificationState = _notificationState.asStateFlow()
 

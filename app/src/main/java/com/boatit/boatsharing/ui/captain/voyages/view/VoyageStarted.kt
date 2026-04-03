@@ -71,7 +71,7 @@ fun VoyageStartedScreen(navController: NavController,
             if (isLoading) {
                 isLoading = false
                 isNetworkError = false
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                
             }
         }
         else -> {}
@@ -83,7 +83,7 @@ fun VoyageStartedScreen(navController: NavController,
             painter = painterResource(id = R.drawable.map_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.1f)
+            modifier = Modifier.fillMaxSize()
 
         )
         Column(

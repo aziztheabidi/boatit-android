@@ -4,16 +4,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RegistrationRequest(
-    val Username: String,
-    val PhoneNumber: String,
-    val Email: String
+    val Username: String? = null,
+    val PhoneNumber: String? = null,
+    val Email: String? = null
 )
 
 @Serializable
 data class RegistrationResponse(
     val Status: Int? = null,
     val Message: String? = null,
-    val obj: Int? = null
+    val obj: String? = null
 )
 
 @Serializable
@@ -60,15 +60,13 @@ data class GetVoyagerProfileResponse(
 
 @Serializable
 data class VoyagerProfileData(
-    val UserId: String?,
-    val PhoneNumber: String,
-    val FirstName: String,
-    val LastName: String,
-    val Address: String,
-    val DateOfBirth: String,
-    val StripeEmail: String,
-    val Id: Int,
-    val ValidFlag: Boolean,
-    val ChangedOn: String,
-    val ChangedBy: String
+    val UserId: String? = null,
+    val PhoneNumber: String? = null,
+    val FirstName: String? = null,
+    val LastName: String? = null,
+    val Address: String? = null,
+    val DateOfBirth: String? = null,
+    val StripeEmail: String? = null,
+    val ChangedOn: String? = null,
+    val ChangedBy: String? = null
 )

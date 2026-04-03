@@ -9,13 +9,15 @@ import com.boatit.boatsharing.ui.captain.availabilitystatus.repository.UpdateSta
 import com.boatit.boatsharing.ui.login.model.LoginResponse
 import com.boatit.boatsharing.ui.login.model.UserData
 import com.boatit.boatsharing.ui.login.repository.LoginRepository
+import com.boatit.boatsharing.utils.prefmanager.RoleProvider
 import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
+import com.boatit.boatsharing.utils.prefmanager.StatusProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class UpdateStatusViewModel(private val repository: UpdateStatusRepository) : ViewModel() {
+class UpdateStatusViewModel(private val repository: UpdateStatusRepository,private val statusProvider: StatusProvider) : ViewModel() {
 
     private val _loginState = MutableStateFlow<NetworkResponse<CaptainAvailabilityResponse>>(NetworkResponse.Loading())
     val loginState: StateFlow<NetworkResponse<CaptainAvailabilityResponse>> = _loginState
@@ -26,10 +28,15 @@ class UpdateStatusViewModel(private val repository: UpdateStatusRepository) : Vi
             val result = repository.status(CaptainAvailabilityRequest(userId, isAvailable))
             result.onSuccess { response ->
                 _loginState.value = NetworkResponse.Success(response)
+                statusProvider.setCaptainStatus(isAvailable)
             }.onFailure { error ->
                 _loginState.value = NetworkResponse.Error(error.message ?: "Login failed")
             }
         }
+    }
+
+    fun getCaptainStatus(): Boolean {
+        return statusProvider.isCaptainOnline()
     }
 }
 

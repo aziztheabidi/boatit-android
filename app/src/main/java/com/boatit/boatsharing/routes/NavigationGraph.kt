@@ -16,6 +16,7 @@ import com.boatit.boatsharing.ui.captain.availabilitystatus.VoyageStartedScreenV
 import com.boatit.boatsharing.ui.captain.dashboard.view.CaptainDashboard
 import com.boatit.boatsharing.ui.captain.voyages.view.CaptainVoyages
 import com.boatit.boatsharing.ui.chat.view.ChatScreen
+import com.boatit.boatsharing.ui.chat.view.VoyagersListScreen
 import com.boatit.boatsharing.ui.forgotpassword.view.ForgotPasswordScreen
 import com.boatit.boatsharing.ui.login.view.LoginScreen
 import com.boatit.boatsharing.ui.voyager.dashboard.view.DashboardScreen
@@ -37,7 +38,14 @@ import com.boatit.boatsharing.ui.signup.general.view.VerifyUserEmail
 import com.boatit.boatsharing.ui.userroles.SelectRole
 import com.boatit.boatsharing.ui.splash.SplashComposable
 import com.boatit.boatsharing.ui.voyager.dashboard.view.ConfirmBooking
-
+import com.boatit.boatsharing.ui.voyager.dashboard.view.ConfirmVoyageScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.CreateVoyageRateCalcScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.CreateVoyageScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.CreateVoyageSponsorScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.LiveTrackingMapScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.SponsorScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.VoyageBookedScreenVoyager
+import com.boatit.boatsharing.ui.voyager.dashboard.view.VoyagerVoyages
 
 
 object NavigationManager {
@@ -61,12 +69,22 @@ object NavigationManager {
     const val BUSINESS_LOGO_SCREEN = "businessLogoScreen"
     const val DASHBOARD_SCREEN = "dashboardScreen"
     const val CHAT_SCREEN = "chatScreen"
+    const val VOYAGER_CHAT_SCREEN = "VoyagerChatScreen"
     const val CAPTAIN_DASHBOARD_SCREEN = "captaindashboardScreen"
     const val CAPTAIN_OFFLINE_SCREEN = "captainofflineScreen"
     const val FIND_LOCATION_SCREEN = "FindLocationScreen"
     const val MENU_OPTIONS_SCREEN = "MenuOptionsScreen"
     const val VOYAGE_STARTED_SCREEN = "VoyageStartedScreen"
+    const val VOYAGE_PAST_SCREEN = "VoyagePastScreen"
     const val VOYAGE_STARTED_SCREEN_Voyager = "VoyageStartedScreenVoyager"
+    const val TRACKING_SCREEN = "LiveTrackingMapScreen"
+    const val CREATE_VOYAGE_SCREEN = "CreateVoyage"
+    const val CREATE_VOYAGE_RATE_CALC_SCREEN = "CreateVoyageRateCalc"
+    const val CREATE_VOYAGE_SPONSOR_SCREEN = "CreateVoyageSponsorScreen"
+    const val SPONSOR_SCREEN = "SponsorScreen"
+    const val CONFIRM_VOYAGE_SCREEN = "ConfirmVoyageScreen"
+    const val VOYAGE_BOOKED_SCREEN = "VoyageBookedScreen"
+
 
 }
 
@@ -89,6 +107,10 @@ fun AppNavGraph(navController: NavHostController ) {
                BusinessOnboarding(navController)
            }
 
+           composable(NavigationManager.VOYAGE_PAST_SCREEN) {
+               VoyagerVoyages(navController)
+           }
+
            //roles screen////
            composable(NavigationManager.SELECT_ROLE_SCREEN) {
                SelectRole(navController)
@@ -99,6 +121,11 @@ fun AppNavGraph(navController: NavHostController ) {
                LoginScreen(navController)
            }
 
+           // login screen///
+           composable(NavigationManager.TRACKING_SCREEN) {
+               LiveTrackingMapScreen()
+           }
+
            ///forgot password///
            composable(NavigationManager.FORGOT_PASSWORD_SCREEN) {
                ForgotPasswordScreen(navController)
@@ -107,6 +134,28 @@ fun AppNavGraph(navController: NavHostController ) {
            ////create account///
            composable(NavigationManager.CREATE_ACCOUNT_STEP_ONE_SCREEN) {
                UserBasicInfoScreen(navController)
+           }
+
+           ////create account///
+           composable(NavigationManager.CREATE_VOYAGE_SCREEN) {
+               CreateVoyageScreen(navController)
+           }
+
+           composable(NavigationManager.CREATE_VOYAGE_RATE_CALC_SCREEN) {
+               CreateVoyageRateCalcScreen(navController)
+           }
+           composable(NavigationManager.SPONSOR_SCREEN) {
+               SponsorScreen(navController)
+           }
+           composable(NavigationManager.CREATE_VOYAGE_SPONSOR_SCREEN) {
+               CreateVoyageSponsorScreen(navController)
+           }
+           composable(NavigationManager.CONFIRM_VOYAGE_SCREEN) {
+               ConfirmVoyageScreen(navController)
+           }
+
+           composable(NavigationManager.VOYAGE_BOOKED_SCREEN) {
+               VoyageBookedScreenVoyager(navController)
            }
 
            composable("$CREATE_ACCOUNT_STEP_TWO_SCREEN/{value}") { backStackEntry ->
@@ -127,6 +176,10 @@ fun AppNavGraph(navController: NavHostController ) {
            composable("$USER_ACCOUNT_INFO_SCREEN/{value}") { backStackEntry ->
                val comingFrom = backStackEntry.arguments?.getString("value")
                UserAccountInfoScreen(navController, comingFrom)
+           }
+
+           composable(NavigationManager.VOYAGER_CHAT_SCREEN) {
+               VoyagersListScreen(navController)
            }
 
            composable(NavigationManager.CAPTAIN_INFO_SCREEN) {

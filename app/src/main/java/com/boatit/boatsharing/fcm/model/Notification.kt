@@ -15,15 +15,16 @@ data class VoyageNotification(
     val DropOffDock: String?,
     val NoOfVoyager: String?,
     val TotalAmount: String?,
+    val Rating: String? = null,
     val PastVoyages: String?,
     val Title: String?,
     val Body: String?,
-    val CaptainUserId: String?
-) : Parcelable {
-    override fun describeContents(): Int {
-        TODO("Not yet implemented")
-    }
+    val CaptainUserId: String?,
+    val BookingDateTime: String?= null,
+    val WaterStay: String?= null,
+    val Duration: String? = null,
 
-    override fun writeToParcel(p0: Parcel, p1: Int) {
-    }
+) : Parcelable {
+    override fun describeContents(): Int { return 0 }
+    override fun writeToParcel(p0: Parcel, p1: Int) {}
 }
