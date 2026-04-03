@@ -98,7 +98,7 @@ fun AddGeneralBusinessInfo(navController: NavController,
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false)}
-    var getingData by remember { mutableStateOf(true) }
+    var gettingData by remember { mutableStateOf(true) }
      val fetchState by viewModelfetch.registrationState.collectAsState()
 
     val isValidate = viewModel.businessName.isNotEmpty()
@@ -139,14 +139,14 @@ fun AddGeneralBusinessInfo(navController: NavController,
          else -> {}
      }
 
-    LaunchedEffect(getingData) {
-     if (getingData) viewModelfetch.GetBusinessProfile()
+    LaunchedEffect(gettingData) {
+     if (gettingData) viewModelfetch.GetBusinessProfile()
     }
 
      LaunchedEffect(fetchState) {
-         if (fetchState is NetworkResponse.Success && getingData) {
+         if (fetchState is NetworkResponse.Success && gettingData) {
              viewModel.loadInitialData(fetchState.data)
-             getingData = false
+             gettingData = false
          }
      }
 
@@ -159,7 +159,7 @@ fun AddGeneralBusinessInfo(navController: NavController,
             })
         },
         content = { innerPadding ->
-            if (isLoading || getingData) {
+            if (isLoading || gettingData) {
                 Dialog(
                     onDismissRequest = {},
                     properties = DialogProperties(
