@@ -20,7 +20,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.NavigationManager.CHAT_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
-import com.boatit.boatsharing.ui.captain.availablitystatus.viewmodel.UpdateStatusViewModel
+import com.boatit.boatsharing.ui.captain.availabilitystatus.viewmodel.UpdateStatusViewModel
 import com.boatit.boatsharing.ui.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.utils.AppConstants
 import com.boatit.boatsharing.utils.HandleSystemDefaultBars

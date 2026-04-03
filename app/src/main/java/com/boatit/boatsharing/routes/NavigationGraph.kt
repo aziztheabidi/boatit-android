@@ -10,18 +10,17 @@ import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_THREE
 import com.boatit.boatsharing.routes.NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.DASHBOARD_SCREEN
 import com.boatit.boatsharing.routes.NavigationManager.USER_ACCOUNT_INFO_SCREEN
-import com.boatit.boatsharing.ui.captain.availablitystatus.CustomStatusScreen
-import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageBookedScreenVoyager
-import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageStartedScreen
-import com.boatit.boatsharing.ui.captain.availablitystatus.VoyageStartedScreenVoyager
-import com.boatit.boatsharing.ui.captain.dashbaord.view.CaptainDashboard
+import com.boatit.boatsharing.ui.captain.availabilitystatus.CustomStatusScreen
+import com.boatit.boatsharing.ui.captain.availabilitystatus.VoyageStartedScreen
+import com.boatit.boatsharing.ui.captain.availabilitystatus.VoyageStartedScreenVoyager
+import com.boatit.boatsharing.ui.captain.dashboard.view.CaptainDashboard
 import com.boatit.boatsharing.ui.captain.voyages.view.CaptainVoyages
 import com.boatit.boatsharing.ui.chat.view.ChatScreen
 import com.boatit.boatsharing.ui.chat.view.VoyagersListScreen
 import com.boatit.boatsharing.ui.forgotpassword.view.ForgotPasswordScreen
 import com.boatit.boatsharing.ui.login.view.LoginScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.DashboardScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.FindDestinationLocationScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.DashboardScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.FindDestinationLocationScreen
 import com.boatit.boatsharing.ui.menu.MenuOptions
 import com.boatit.boatsharing.ui.onboardingscreens.BusinessOnboarding
 import com.boatit.boatsharing.ui.onboardingscreens.CaptainOnboarding
@@ -38,15 +37,15 @@ import com.boatit.boatsharing.ui.signup.general.view.UserBasicInfoScreen
 import com.boatit.boatsharing.ui.signup.general.view.VerifyUserEmail
 import com.boatit.boatsharing.ui.userroles.SelectRole
 import com.boatit.boatsharing.ui.splash.SplashComposable
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmBooking
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.ConfirmVoyageScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalc
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageRateCalcScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.CreateVoyageSponsorScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.LiveTrackingMapScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.SponsorScreen
-import com.boatit.boatsharing.ui.voyager.dashbaord.view.VoyagerVoyages
+import com.boatit.boatsharing.ui.voyager.dashboard.view.ConfirmBooking
+import com.boatit.boatsharing.ui.voyager.dashboard.view.ConfirmVoyageScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.CreateVoyageRateCalcScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.CreateVoyageScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.CreateVoyageSponsorScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.LiveTrackingMapScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.SponsorScreen
+import com.boatit.boatsharing.ui.voyager.dashboard.view.VoyageBookedScreenVoyager
+import com.boatit.boatsharing.ui.voyager.dashboard.view.VoyagerVoyages
 
 
 object NavigationManager {

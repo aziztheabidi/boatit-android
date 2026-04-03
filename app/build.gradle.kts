@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.yaml.snakeyaml.scanner.Constant
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,7 +17,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        resValue("string", "mapAPiKey", "AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng")
+        // Prefer MAPS_API_KEY in local.properties for production; fallback for dev
+        resValue("string", "maps_api_key", (project.findProperty("MAPS_API_KEY") as String?) ?: "AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -91,14 +90,9 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.gson)
-
-    // Ktor Core
-    implementation(libs.ktor.core)
-    implementation(libs.ktor.cio) // Use CIO as HTTP engine
-    implementation(libs.ktor.negotiation) // Content negotiation
-    implementation(libs.ktor.json) // JSON serialization
-    implementation(libs.ktor.logging)
-    implementation(libs.ktor.auth)// Logging support
+    implementation(libs.retrofit)
+    implementation(libs.retrofitGson)
+    implementation(libs.okhttpLogging)
 
     // Serialization
     implementation(libs.kotlinx.serialization)

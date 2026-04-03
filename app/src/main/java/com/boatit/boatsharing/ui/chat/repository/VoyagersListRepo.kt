@@ -1,48 +1,15 @@
 package com.boatit.boatsharing.ui.chat.repository
 
-import com.boatit.boatsharing.network.di.ApiConstants
-import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityRequest
-import com.boatit.boatsharing.ui.captain.availablitystatus.model.CaptainAvailabilityResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.model.AcceptVoyageResponse
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartRequest
-import com.boatit.boatsharing.ui.captain.dashbaord.model.VoyageStartResponse
-import com.boatit.boatsharing.ui.captain.voyages.model.CaptainVoyages
-import com.boatit.boatsharing.ui.captain.voyages.model.CaptainVoyagesResponse
+import com.boatit.boatsharing.data.remote.RemoteMapper
+import com.boatit.boatsharing.data.remote.api.VoyageApi
 import com.boatit.boatsharing.ui.chat.model.ActiveVoyagersResponse
-import com.boatit.boatsharing.ui.login.model.LoginResponse
-import com.boatit.boatsharing.ui.login.model.LoginRequest
-import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatRequest
-import com.boatit.boatsharing.ui.signup.captain.model.SaveCaptainBoatResponse
 import com.boatit.boatsharing.utils.AppConstants
-import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 
-class VoyagersRepository(private val httpClient: HttpClient) {
+class VoyagersRepository(private val api: VoyageApi) {
     suspend fun voyages(): Result<ActiveVoyagersResponse> {
         return try {
-            val userId = AppConstants.USER_ID
-            val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.GET_VOYAGERS_LIST}") {
-                url {
-                    parameters.append("UserId", userId.toString())
-                }
-            }
-            println(response.status)
-            if (response.status == HttpStatusCode.OK) {
-                val result: ActiveVoyagersResponse = response.body()
-                Result.success(result)
-            } else {
-                val result: CaptainVoyagesResponse = response.body()
-                Result.failure(Exception("API Error: ${result.Message}"))
-            }
+            val userId = AppConstants.USER_ID ?: return Result.failure(Exception("User id missing"))
+            RemoteMapper.toResult(api.getActiveVoyagers(userId))
         } catch (e: Exception) {
             Result.failure(Exception("Network Error: ${e.localizedMessage}", e))
         }
