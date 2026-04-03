@@ -91,14 +91,9 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.gson)
-
-    // Ktor Core
-    implementation(libs.ktor.core)
-    implementation(libs.ktor.cio) // Use CIO as HTTP engine
-    implementation(libs.ktor.negotiation) // Content negotiation
-    implementation(libs.ktor.json) // JSON serialization
-    implementation(libs.ktor.logging)
-    implementation(libs.ktor.auth)// Logging support
+    implementation(libs.retrofit)
+    implementation(libs.retrofitGson)
+    implementation(libs.okhttpLogging)
 
     // Serialization
     implementation(libs.kotlinx.serialization)

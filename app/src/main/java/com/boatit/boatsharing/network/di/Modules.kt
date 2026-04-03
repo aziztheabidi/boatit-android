@@ -61,12 +61,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -85,9 +79,7 @@ val Modules = module {
     single { TokenProvider(androidContext()) }
     single { RoleProvider(androidContext()) }
 
-    single { createKtorClient(get()) }
-
-    single { FetchNearByVoyagesRepo(get(), androidContext()) }
+    single { FetchNearByVoyagesRepo(get()) }
     viewModelOf(::NearByVoyagesViewModel)
 
     single { SharedPrefManager(androidContext()) }
