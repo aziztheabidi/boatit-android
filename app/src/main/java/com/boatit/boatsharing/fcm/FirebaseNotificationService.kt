@@ -39,9 +39,7 @@ class FirebaseNotificationService(private val firestore: FirebaseFirestore) {
         val requestBody = jsonBody.toString()
 
         val request = object : StringRequest(Method.POST, fcmUrl, Response.Listener {
-            println("Notification" + "Notification sent successfully")
         }, Response.ErrorListener {
-            println("Notification" + "Failed to send notification")
         }) {
             override fun getBody(): ByteArray = requestBody.toByteArray()
 

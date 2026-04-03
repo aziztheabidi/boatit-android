@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,10 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,7 +42,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,16 +50,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.routes.NavigationManager
-import com.boatit.boatsharing.ui.voyager.dashboard.model.CancelBookedVoyages
 import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyageNotification
-import com.boatit.boatsharing.uihelpers.SessionDialog
 
 
 @Composable
 fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNotification?, onDeclineClick: () -> Unit, onAcceptClick: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    var showDialogForCancel by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier.height(screenHeight * 0.6f),
         contentAlignment = Alignment.TopCenter
@@ -96,39 +86,18 @@ fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNoti
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
-
-                    Spacer(Modifier.height(10.dp))
-                    notification?.BookingDateTime?.let {
-                        Text(
-                            style = TextStyle(
-                                color = Color(0xFF6A6969),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.W500
-                            ),
-                            text = it
-                        )
-                    }
-
                     Row(
                         modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
+                        Image(
+                            painter = painterResource(id = R.drawable.boatit_logo), // Replace with actual image
+                            contentDescription = "Boat Image",
                             modifier = Modifier
-                                .width(50.dp)
-                                .height(50.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFE0E0E0)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = notification?.Name.toString().firstOrNull()?.uppercase() ?: "-",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                        }
+                                .size(80.dp)
+                                .clip(RoundedCornerShape(10.dp)),
+                            contentScale = ContentScale.Crop
+                        )
 
                         Spacer(modifier = Modifier.width(10.dp))
 
@@ -142,7 +111,7 @@ fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNoti
                             horizontalAlignment = Alignment.End
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Rating : "+notification?.Rating.toString(), fontWeight = FontWeight.SemiBold)// Rating not in api
+                                Text("4.8", fontWeight = FontWeight.SemiBold)
                                 Icon(
                                     painter = painterResource(id = R.drawable.location_icon_two),
                                     contentDescription = "Rating Icon",
@@ -156,188 +125,102 @@ fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNoti
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-
-                Box(
-                    Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                // Pickup & Pricing Info
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min), // Ensures both cards match the tallest one
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(
+                            1.dp,
+                            color = colorResource(id = R.color.button_normal)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight() // Ensures card fills the available height
                     ) {
-                        Card(
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .height(205.dp)
-                                .width(175.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                        Column(
+                            modifier = Modifier.padding(12.dp)
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxSize(),
-                                verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.passengers),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(end = 10.dp),
-                                        tint = Color.Unspecified
-                                    )
-                                    Text(
-                                        style = TextStyle(
-                                            color = Color.Black,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.W500
-                                        ),
-                                        text = notification?.NoOfVoyager.toString()
-                                    )
-                                }
-                                Divider(
-                                    color = Color(0xFFA0A0A0),
-                                    thickness = 1.dp
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.location_icon),
+                                    contentDescription = "Pickup",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(18.dp)
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.money_icon),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(end = 10.dp),
-                                        tint = Color.Unspecified
-                                    )
-                                    Text(
-                                        style = TextStyle(
-                                            color = Color.Black,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.W500
-                                        ),
-                                        text = notification?.TotalAmount.toString()
-                                        // text = AppConstants.Estimated_Cost.toString()!!
-                                    )
-                                }
-
-                                Divider(
-                                    color = Color(0xFFA0A0A0),
-                                    thickness = 1.dp
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    notification?.PickupDock.toString(),
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
                                 )
-
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.clock),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(end = 10.dp),
-                                        tint = Color.Unspecified
-                                    )
-                                    Text(
-                                        style = TextStyle(
-                                            color = Color.Black,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.W500
-                                        ),
-                                        text =notification?.Duration.toString().takeIf { it.isNotBlank() }
-                                            ?: "---"
-                                    )
-                                }
+                            }
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) // Changed from HorizontalDivider to Divider
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.drop_off_loc_icon),
+                                    contentDescription = "Dropoff",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    notification?.DropOffDock.toString(),
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                )
                             }
                         }
+                    }
 
-                        Spacer(Modifier.width(5.dp))
-
-                        Card(
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .height(205.dp)
-                                .width(175.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(
+                            1.dp,
+                            color = colorResource(id = R.color.button_normal)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight() // Ensures card fills the available height
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxSize(),
-                                verticalArrangement = Arrangement.SpaceEvenly // Ensures space is even between the rows
-                            ) {
-                                // First row with icon and text
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.location_icon),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(end = 10.dp),
-                                        tint = Color.Unspecified
-                                    )
-                                    Text(
-                                        style = TextStyle(
-                                            color = Color.Black,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.W500
-                                        ),
-                                        text =  notification?.PickupDock.toString()
-                                    )
-                                }
-
-                                Divider(
-                                    color = Color(0xFFA0A0A0),
-                                    thickness = 1.dp
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.passengers),
+                                    contentDescription = "Passengers",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(18.dp)
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.drop_off_loc_icon),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(end = 10.dp),
-                                        tint = Color.Unspecified
-
-                                    )
-                                    Text(
-                                        style = TextStyle(
-                                            color = Color.Black,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.W500
-                                        ),
-                                        text =  notification?.DropOffDock.toString()
-                                    )
-                                }
-
-                                Divider(
-                                    color = Color(0xFFA0A0A0),
-                                    thickness = 1.dp
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    notification?.NoOfVoyager.toString(),
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
                                 )
-
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.flag),
-                                        contentDescription = "Status Icon",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(end = 10.dp),
-                                        tint = Color.Unspecified
-                                    )
-                                    notification?.WaterStay?.let {
-                                        Text(
-                                            style = TextStyle(
-                                                color = Color.Black,
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.W500
-                                            ),
-                                            text = it
-                                        )
-                                    }
-                                }
+                            }
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.money_icon),
+                                    contentDescription = "money",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(notification?.TotalAmount.toString(), fontWeight = FontWeight.Bold, fontSize = 20.sp)
                             }
                         }
                     }
                 }
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -347,12 +230,7 @@ fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNoti
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = {
-
-                            showDialogForCancel = true
-
-
-                                  },
+                        onClick = { onDeclineClick() },
                         shape = RoundedCornerShape(10.dp), // Corner radius
                         modifier = Modifier
                             .weight(1f)
@@ -391,24 +269,6 @@ fun AcceptVoyagerRequest(navController: NavController, notification : VoyageNoti
                             color = Color.White
                         )
                     }
-                }
-
-
-
-
-                if(showDialogForCancel){
-
-                    SessionDialog(
-                        text = "Are you sure, you want to decline voyage",
-                        onCancel = {
-                            showDialogForCancel = false
-                        },
-                        onPressOk = {
-                            showDialogForCancel = false
-                            onDeclineClick()
-                        },
-                        showCancelButton = true
-                    )
                 }
             }
         }

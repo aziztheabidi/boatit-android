@@ -1,35 +1,33 @@
+package com.boatit.boatsharing.ui.captain.dashboard.model
+
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CaptainActiveVoyagesResponse(
     val Status: Int,
     val Message: String,
-    val obj: CaptainActiveVoyagesObj
+    val obj: ActiveVoyages
 )
 
 @Serializable
-data class CaptainActiveVoyagesObj(
-    val Pending: List<VoyageData>,
-    val Accepted: List<VoyageData>,
-    val Started: List<VoyageData>
+data class ActiveVoyages(
+    val Ongoing: List<VoyageDetails>,
+    val InProcess: List<VoyageDetails>
 )
 
 @Serializable
-data class VoyageData(
+data class VoyageDetails(
     val Id: String,
-    val Name: String,
-    val VoyagerUserId: String,
-    val VoyagerName: String,
-    val VoyagerPhoneNumber: String,
-    val PickupDock: String,
-    val PickupDockLatitude: Double,
-    val PickupDockLongitude: Double,
-    val DropOffDock: String,
-    val DropOffDockLatitude: Double,
-    val DropOffDockLongitude: Double,
-    val NoOfVoyager: Int,
-    val BookingDateTime: String,
-    val AmountToPay: Double,
-    val WaterStay: String,
-    val Duration: String
+    val VoyagerUserId: String? = null,
+    val VoyagerName: String? = null,
+    val VoyagerPhoneNumber: String? = null,
+    val PickupDock: String? = null,
+    val PickupDockLatitude: Double? = null,
+    val PickupDockLongitude: Double? = null,
+    val DropOffDock: String? = null,
+    val DropOffDockLatitude: Double? = null,
+    val DropOffDockLongitude: Double? = null,
+    val NoOfVoyager: Int? = null,
+    val AmountToPay: Double? = null,
+    val PastVoyage: Int? = null
 )

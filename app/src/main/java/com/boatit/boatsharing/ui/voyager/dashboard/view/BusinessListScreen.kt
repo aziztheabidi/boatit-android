@@ -116,7 +116,7 @@ fun BusinessListScreen(navController: NavController,
             if (isLoading) {
                 isLoading = false
                 isNetworkError = false
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                
             }
         }
         else -> {}
@@ -210,10 +210,10 @@ fun BusinessListScreen(navController: NavController,
                         ) {
                             when (voyagesList) {
                                 is NetworkResponse.Loading -> {
-                                    println("Loading")
+                                    
                                 }
                                 is NetworkResponse.Error -> {
-                                    println(voyagesList.message)
+                                    
                                 }
                                 is NetworkResponse.Success -> {
                                     items(voyagesList.data!!.obj.Followed.size) { user ->
@@ -233,10 +233,10 @@ fun BusinessListScreen(navController: NavController,
                     ) {
                         when (voyagesList) {
                             is NetworkResponse.Loading -> {
-                                println("Loading")
+                                
                             }
                             is NetworkResponse.Error -> {
-                                println(voyagesList.message)
+                                
                             }
                             is NetworkResponse.Success -> {
                                 items(voyagesList.data!!.obj.UnFollowed.size) { user ->

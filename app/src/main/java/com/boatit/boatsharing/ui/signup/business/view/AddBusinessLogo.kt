@@ -92,7 +92,7 @@ fun AddBusinessLogo(navController: NavController,
     val isValidate = selectedImageUri!= null
     val context = LocalContext.current
     var businesslogo by remember { mutableStateOf("") }
-    var gettingData by remember { mutableStateOf(true) }
+    var getingData by remember { mutableStateOf(true) }
     val fetchState by viewModelfetch.registrationState.collectAsState()
 
 
@@ -132,49 +132,56 @@ fun AddBusinessLogo(navController: NavController,
     }
 
     LaunchedEffect(fetchState) {
-        if (fetchState is NetworkResponse.Success && gettingData) {
+        if (fetchState is NetworkResponse.Success && getingData) {
             businesslogo = fetchState.data?.obj?.LogoPath!!
-            viewModel.imageList = fetchState.data?.obj?.ImagesPath
-                ?.map { it.toUri() }
-                ?: emptyList()
-            gettingData = false
+            viewModel.setImages(
+                fetchState.data?.obj?.ImagesPath?.map { it.toUri() } ?: emptyList()
+            )
+            getingData = false
         }
     }
 
-    LaunchedEffect(gettingData) {
-        if (gettingData) viewModelfetch.GetBusinessProfile()
+    LaunchedEffect(getingData) {
+        if (getingData) viewModelfetch.GetBusinessProfile()
     }
-
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                performLogin()
+    LaunchedEffect(registrationState) {
+        when (registrationState) {
+            is NetworkResponse.Success -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = false
+                    Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT)
+                        .show()
+                    performLogin()
+                }
             }
-        }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
-    }
 
+            is NetworkResponse.Error -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = true
+                    errorMessage = "Network error, please try again."
+                    Toast.makeText(
+                        context,
+                        (registrationState as NetworkResponse.Error).message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            else -> {}
+        }
+    }
     Scaffold(
         containerColor = Color.White,
         topBar = {
             CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 4/4", onImageClick = {
-                println("clicked...")
+                
                 navController.popBack()
             })
         },
         content = { innerPadding ->
-            if (isLoading || gettingData) {
+            if (isLoading || getingData) {
                 Dialog(
                     onDismissRequest = {},
                     properties = DialogProperties(
@@ -403,9 +410,7 @@ fun ImagePickerBox(
 fun SelectMultipleImagesBox(
     viewModel: BusinessLogoViewModel = koinViewModel()
 ) {
-    var triggerGallery by remember { mutableStateOf(false) }
     val imageList = viewModel.imageList
-
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
@@ -415,15 +420,10 @@ fun SelectMultipleImagesBox(
         }
     }
 
-    if (triggerGallery) {
-        triggerGallery = false
-        galleryLauncher.launch("image/*")
-    }
-
     ImagePickerBox(
         selectedImages = imageList,
         onAddImageClick = {
-            if (imageList.size < 6) triggerGallery = true
+            if (imageList.size < 6) galleryLauncher.launch("image/*")
         },
         onRemoveImage = { uri ->
             viewModel.removeImage(uri)

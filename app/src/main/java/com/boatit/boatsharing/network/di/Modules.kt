@@ -1,6 +1,5 @@
 package com.boatit.boatsharing.network.di
 
-import LocationViewModel
 import com.boatit.boatsharing.ui.business.repository.BusinessDashboardRepository
 import com.boatit.boatsharing.ui.business.repository.GetBusinessDocksRepo
 import com.boatit.boatsharing.ui.business.repository.GetBusinessRepo
@@ -8,17 +7,18 @@ import com.boatit.boatsharing.ui.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.ui.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.ui.captain.availabilitystatus.repository.UpdateStatusRepository
 import com.boatit.boatsharing.ui.captain.availabilitystatus.viewmodel.UpdateStatusViewModel
-import com.boatit.boatsharing.ui.captain.dashboard.repository.AcceptRequestRepository
+import com.boatit.boatsharing.ui.captain.dashboard.repository.CaptainFeedbackRepository
 import com.boatit.boatsharing.ui.captain.dashboard.repository.CancelVoyageRepository
 import com.boatit.boatsharing.ui.captain.dashboard.repository.CaptainActiveVoyagesRepository
-import com.boatit.boatsharing.ui.captain.dashboard.repository.CaptainFeedbackRepository
 import com.boatit.boatsharing.ui.captain.dashboard.repository.CompleteVoyageRepository
 import com.boatit.boatsharing.ui.captain.dashboard.repository.StartVoyageRepository
+import com.boatit.boatsharing.ui.captain.dashboard.repository.AcceptRequestRepository
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.AcceptRequestViewModel
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CancelVoyageViewModel
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainActiveVoyagesViewModel
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CaptainFeedbackViewModel
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.CompleteVoyageViewModel
+import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.LocationViewModel
 import com.boatit.boatsharing.ui.captain.dashboard.viewmodel.StartVoyageViewModel
 import com.boatit.boatsharing.ui.captain.voyages.repository.CaptainVoyagesRepository
 import com.boatit.boatsharing.ui.captain.voyages.viewmodel.CaptainVoyagesViewModel
@@ -59,10 +59,12 @@ import com.boatit.boatsharing.ui.signup.captain.viewmodel.GetCaptainDocsViewMode
 import com.boatit.boatsharing.ui.signup.captain.viewmodel.GetCaptainProfileViewModel
 import com.boatit.boatsharing.ui.signup.general.repository.GetVoyagerProfileViewModel
 import com.boatit.boatsharing.ui.signup.general.repository.PasswordViewModel
+import com.boatit.boatsharing.ui.signup.general.repository.RegistrationRepository
 import com.boatit.boatsharing.ui.signup.general.repository.VerifyEmailViewModel
 import com.boatit.boatsharing.ui.signup.general.repository.VoyagerProfileViewModel
 import com.boatit.boatsharing.ui.signup.general.viewmodel.GetVoyagerProfileRepository
 import com.boatit.boatsharing.ui.signup.general.viewmodel.PasswordRepository
+import com.boatit.boatsharing.ui.signup.general.viewmodel.RegistrationViewModel
 import com.boatit.boatsharing.ui.signup.general.viewmodel.VerifyEmailRepository
 import com.boatit.boatsharing.ui.signup.general.viewmodel.VoyagerProfileRepository
 import com.boatit.boatsharing.ui.userroles.repository.FCMTokenRepository
@@ -84,7 +86,6 @@ import com.boatit.boatsharing.ui.voyager.dashboard.repository.GetActiveVoyageRep
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.GoogleDirectionsApi
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.PaymentRepository
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.PaymentSheetConfigRepository
-import com.boatit.boatsharing.ui.voyager.dashboard.repository.RegistrationViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.SponcerVoyagesRepo
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.SponsorPaymentConfirmationRepository
 import com.boatit.boatsharing.ui.voyager.dashboard.repository.SponsorPaymentSheetConfigRepository
@@ -103,7 +104,6 @@ import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.GetActiveVoyageView
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.NearByVoyagesViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.PaymentSheetConfigViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.PaymentViewModel
-import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.RegistrationRepository
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.SponcerVoyagesViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.SponsorPaymentSheetConfigViewModel
@@ -117,21 +117,14 @@ import com.boatit.boatsharing.utils.prefmanager.SharedPrefManager
 import com.boatit.boatsharing.utils.prefmanager.StatusProvider
 import com.boatit.boatsharing.utils.prefmanager.TokenProvider
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import com.google.android.gms.location.LocationServices
 
 val Modules = module {
 
@@ -142,23 +135,23 @@ val Modules = module {
     single<FusedLocationProviderClient> { LocationServices.getFusedLocationProviderClient(androidContext()) }
     single { GoogleDirectionsApi() }
 
+    single { createKtorClient(get()) }
+
     viewModel { NotificationViewModel() }
     viewModel { TrackingLocationViewModel(get(), get(), get(), get(), get()) }
-    viewModel {LocationViewModel(get(), get(), androidContext()) }
+    viewModel { LocationViewModel(get(), get(), androidContext()) }
 
     single { TokenProvider(androidContext()) }
     single { RoleProvider(androidContext()) }
     single { StatusProvider(androidContext()) }
 
-    single { createKtorClient(get()) }
-
-    single { FetchNearByVoyagesRepo(get(), androidContext()) }
+    single { FetchNearByVoyagesRepo(get()) }
     single { FetchCategoryRepo(get(), androidContext()) }
-    viewModel {NearByVoyagesViewModel(get(), get())}
+    viewModel { NearByVoyagesViewModel(get()) }
 
     single { SharedPrefManager(androidContext()) }
     single { LoginRepository(get()) }
-    viewModel { LoginViewModel(get(),get ()) }
+    viewModel { LoginViewModel(get(), get()) }
 
     single { RegistrationRepository(get()) }
     viewModel { RegistrationViewModel(get()) }
@@ -176,10 +169,10 @@ val Modules = module {
     viewModel { RoleViewModel(get(), get(), get()) }
 
     single { VoyagerProfileRepository(get()) }
-    viewModel { VoyagerProfileViewModel(get(), get()) }
+    viewModel { VoyagerProfileViewModel(get()) }
 
     single { GetVoyagerProfileRepository(get()) }
-    viewModel { GetVoyagerProfileViewModel(get())}
+    viewModel { GetVoyagerProfileViewModel(get()) }
 
     single { CaptainProfileRepository(get()) }
     viewModel { CaptainProfileViewModel(get()) }
@@ -188,7 +181,7 @@ val Modules = module {
     viewModel { CaptainDocsViewModel(get()) }
 
     single { CaptainBoatRepository(get()) }
-    viewModel { CaptainBoatViewModel(get(), get()) }
+    viewModel { CaptainBoatViewModel(get()) }
 
     single { GetCaptainProfileRepository(get()) }
     viewModel { GetCaptainProfileViewModel(get()) }
@@ -200,7 +193,7 @@ val Modules = module {
     viewModel { GetCaptainBoatViewModel(get()) }
 
     single { UpdateStatusRepository(get()) }
-    viewModel { UpdateStatusViewModel(get(), get())  }
+    viewModel { UpdateStatusViewModel(get(), get()) }
 
     single { FCMTokenRepository(get()) }
     viewModel { FCMTokenViewModel(get()) }
@@ -282,7 +275,7 @@ val Modules = module {
 
     single { GetBusinessRepo(get()) }
     single { GetBusinessDocksRepo(get()) }
-    viewModel { GetBusinessViewModel(get(),get())}
+    viewModel { GetBusinessViewModel(get(), get()) }
 
     single { GetBusinessProfileRepository(get()) }
     viewModel { GetBusinessProfileViewModel(get()) }
@@ -300,7 +293,7 @@ val Modules = module {
     viewModel { BusinessAboutViewModel(get()) }
 
     single { BusinessLogoRepository(get()) }
-    viewModel { BusinessLogoViewModel(get(), get()) }
+    viewModel { BusinessLogoViewModel(get()) }
 
     single { BusinessDashboardRepository(get()) }
     viewModel { BusinessDashViewModel(get()) }
@@ -313,5 +306,4 @@ val Modules = module {
 
     single { FollowBusinessRepository(get()) }
     viewModel { VoyagerFollowBusinessViewModel(get()) }
-
 }

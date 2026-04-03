@@ -1,35 +1,15 @@
 package com.boatit.boatsharing.ui.voyager.dashboard.repository
 
-import android.util.Log
-import com.boatit.boatsharing.network.di.ApiConstants
+import com.boatit.boatsharing.data.remote.RemoteMapper
+import com.boatit.boatsharing.data.remote.api.VoyageApi
 import com.boatit.boatsharing.ui.voyager.dashboard.model.BookVoyageRequest
 import com.boatit.boatsharing.ui.voyager.dashboard.model.BookVoyageResponse
-import com.boatit.boatsharing.ui.voyager.dashboard.model.CancelBookedVoyageResponse
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 
-class BookVoyageRepo(
-    private val httpClient: HttpClient
-) {
+class BookVoyageRepo(private val api: VoyageApi) {
     suspend fun BookVoyageFunc(profile: BookVoyageRequest): Result<BookVoyageResponse> {
         return try {
-            val response: HttpResponse = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.BOOK_VOYAGE}") {
-                contentType(ContentType.Application.Json)
-                setBody(profile)
-            }
-            if (response.status == HttpStatusCode.Created) {
-                val placesResponse: BookVoyageResponse = response.body()
-                Result.success(placesResponse)
-            } else {
-                print("viewModel" + "Error fetching places: ${response.bodyAsText()}")
-                val placesResponse: BookVoyageResponse = response.body()
-                Result.failure(Exception(placesResponse.Message))
-            }
+            RemoteMapper.toResult(api.bookVoyage(profile))
         } catch (e: Exception) {
-            Log.e("viewModel", "Error fetching places: ${e.localizedMessage}", e)
             Result.failure(Exception("Error fetching places: ${e.localizedMessage}", e))
         }
     }

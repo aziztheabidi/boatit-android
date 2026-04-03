@@ -13,15 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -35,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -58,7 +53,6 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.routes.popBack
-import com.boatit.boatsharing.ui.chat.viewmodel.VoyagersListViewModel
 import com.boatit.boatsharing.ui.voyager.dashboard.model.Sponser
 import com.boatit.boatsharing.ui.voyager.dashboard.model.VoyagerProfile
 import com.boatit.boatsharing.ui.voyager.dashboard.viewmodel.FollowedVoyagerViewModel
@@ -72,8 +66,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun SponsorScreen(navController: NavController,
-                  viewModel: VoyagersListViewModel = koinViewModel()) {
+fun SponsorScreen(navController: NavController, viewModel: FollowedVoyagerViewModel = koinViewModel()) {
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -94,17 +87,17 @@ fun SponsorScreen(navController: NavController,
     val showDialog = mutableStateOf(false)
     var bookingDate by remember { mutableStateOf("") }
 
+
+
     val isEmailValid = paypalEmail.contains("@") && paypalEmail.contains(".")
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var gettingData by remember { mutableStateOf(true) }
+    var getingData by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
-    var isChecked by remember { mutableStateOf(false) }
-    val searchQuery = viewModel.searchQuery
-    var followed = viewModel.filteredBoatListFollowed
+
 
     val isValidate = true
 
@@ -113,31 +106,18 @@ fun SponsorScreen(navController: NavController,
         isError = false
     }
 
-    val registrationState by viewModel.loginState.collectAsState()
+    val registrationState by viewModel.registrationState.collectAsState()
 
-    when (registrationState) {
-        is NetworkResponse.Loading -> {
-            println("Loading")
-        }
-        is NetworkResponse.Error -> {
-            println(registrationState.message)
-            viewModel.resetNearbyPlaces()
-        }
-        is NetworkResponse.Success -> {
-            viewModel.onBoatList(registrationState.data!!)
-            viewModel.resetNearbyPlaces()
-        }
-    }
+    fun performLogin(){}
 
     LaunchedEffect(Unit) {
-        viewModel.voyages()
+        viewModel.FollowedVoyagerFunc()
     }
 
     Scaffold(
-        containerColor = Color.White,
         topBar = {
             CustomTopBar(text = "Add sponsors", onImageClick = {
-               navController.popBackStack()
+                println("clicked...")
             })
 
         },
@@ -174,14 +154,14 @@ fun SponsorScreen(navController: NavController,
 
 
                 CustomTextField(
-                    textValue = searchQuery,
+                    textValue = firstName,
                     placeholderText = "Search",
-                    onTextChange = { viewModel.updateSearchQuery(it)},
+                    onTextChange = { firstName = it },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
-                    errorMessage =  null,
-                    isError = false,
-                    onClearError = {},
+                    errorMessage = if (firstName.isNotEmpty()&& firstName.length <= 3) stringResource(R.string.firstname_validation_text) else null,
+                    isError = firstName.isNotEmpty()&& firstName.length <= 3,
+                    onClearError = handleError,
                     imeAction = ImeAction.Next,
                     keyboardActions = KeyboardActions(
                         onNext = { lastNameFocusRequester.requestFocus() }
@@ -208,21 +188,7 @@ fun SponsorScreen(navController: NavController,
                     text = "Add Sponsors"
                 )
 
-
                 Spacer(Modifier.height(5.dp))
-
-
-                Text(
-                    style = TextStyle(
-                        color = Color.DarkGray,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = "Hey, sponsors are users you follow through the 'Connect with Voyagers' option in the Menu. All registered voyagers are shown in this list."
-                )
-
-
-                Spacer(Modifier.height(10.dp))
 
                 Box(
                     modifier = Modifier
@@ -231,82 +197,50 @@ fun SponsorScreen(navController: NavController,
                         .padding(5.dp),
                 ) {
                     LazyColumn {
-                        items(followed.size) { prediction ->
-                            val user = followed[prediction]
-                            val isAlreadyAdded = remember { mutableStateOf(
-                                AppConstants.sponsorList.any { it.VoyagerUserId == user.UserId }
-                            ) }
+                        when (registrationState) {
+                            is NetworkResponse.Loading -> {
+                                println("Loading")
+                            }
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        if (!isAlreadyAdded.value) {
-                                            AppConstants.sponsorList.add(
-                                                Sponser(
-                                                    VoyagerUserId = user.UserId,
-                                                    VoyagerUserName = "",
-                                                    AmountToPay = 0.0,
-                                                    Status = ""
+                            is NetworkResponse.Error -> {
+                                println("Error")
+                            }
+
+                            is NetworkResponse.Success -> {
+                                items( registrationState.data?.obj?.Followed!!.size) { prediction ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                AppConstants.sponsorList.add(Sponser(VoyagerUserId = registrationState.data?.obj?.Followed!!.get(prediction).UserId))
+                                                Toast.makeText(context, "Sponsor Added" , Toast.LENGTH_SHORT).show()
+                                            }
+                                            .padding(vertical = 8.dp)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically){
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.current_marker),
+                                                    contentDescription = null,
+                                                    tint = Color.Unspecified,
+                                                    modifier = Modifier
+                                                        .size(28.dp)
+                                                        .padding(end = 5.dp)
                                                 )
-                                            )
-                                            AppConstants.Estimated_Cost =
-                                                AppConstants.Estimated_Cost!! / AppConstants.sponsorList.size
-                                            isAlreadyAdded.value = true
-                                            Toast.makeText(context, "Sponsor Added", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            // Optional: If you want to allow removing
-                                            AppConstants.sponsorList.removeIf { it.VoyagerUserId == user.UserId }
-                                            AppConstants.Estimated_Cost =
-                                                if (AppConstants.sponsorList.isNotEmpty())
-                                                    AppConstants.Estimated_Cost!! / AppConstants.sponsorList.size
-                                                else 0.0
-                                            isAlreadyAdded.value = false
-                                            Toast.makeText(context, "Sponsor Removed", Toast.LENGTH_SHORT).show()
+                                                Text(
+                                                    text =  registrationState.data?.obj?.Followed!!.get(prediction).FirstName,
+                                                    fontSize = 16.sp,
+                                                    color = Color.Black,
+                                                    modifier = Modifier.padding(0.dp)
+                                                )
+                                            }
                                         }
                                     }
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .weight(1f),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .width(50.dp)
-                                            .height(50.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFFE0E0E0)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = user.FirstName.firstOrNull()?.uppercase() ?: "",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Black
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = user.FirstName,
-                                        fontSize = 16.sp,
-                                        color = Color.Black,
-                                        modifier = Modifier.padding(0.dp)
-                                    )
                                 }
-
-                                Checkbox(
-                                    checked = isAlreadyAdded.value,
-                                    onCheckedChange = null,
-                                    colors = CheckboxDefaults.colors(
-                                        checkedColor = colorResource(id = R.color.button_normal),
-                                        uncheckedColor = Color.Gray,
-                                        checkmarkColor = Color.White
-                                    )
-                                )
-
                             }
                         }
                     }
@@ -315,7 +249,7 @@ fun SponsorScreen(navController: NavController,
                 Spacer(Modifier.height(15.dp))
 
                 CustomButton(
-                    text = "Back",
+                    text = "Invite to Sponsor",
                     isValidate = isValidate,
                     isLoading = isLoading,
                     onButtonClick = {

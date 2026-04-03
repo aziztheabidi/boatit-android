@@ -69,7 +69,7 @@ fun TermsAndPrivacyView(onClick: () -> Unit) {
                             .clickable
                         {
                             onClick()
-                            println("click")
+                            
                         },
             style = TextStyle(
                 color = Color.Black,

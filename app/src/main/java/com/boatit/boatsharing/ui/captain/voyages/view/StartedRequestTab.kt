@@ -102,7 +102,7 @@ fun StartedRequestTab(navController: NavController,
             if (isLoading) {
                 isLoading = false
                 isNetworkError = false
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                
             }
         }
         else -> {}

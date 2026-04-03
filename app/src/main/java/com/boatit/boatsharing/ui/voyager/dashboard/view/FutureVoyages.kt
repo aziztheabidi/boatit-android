@@ -73,19 +73,19 @@ fun FutureVoyages(navController: NavController,
     val voyagesList by viewModel.loginState.collectAsState()
     val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
     val ConfirmState by viewModelConfirm.nearbyPlaces.collectAsState()
-    var gettingData by remember { mutableStateOf(true) }
+    var getingData by remember { mutableStateOf(true) }
     var voyages by remember { mutableStateOf<BookedVoyageObj?>(null) }
 
     when (CancelState) {
         is NetworkResponse.Success -> {
             Toast.makeText(context, CancelState.message.toString(), Toast.LENGTH_SHORT).show()
-            gettingData = true
+            getingData = true
             viewModel.voyages()
             viewModelCancel.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {
             Toast.makeText(context, CancelState.message, Toast.LENGTH_SHORT).show()
-            gettingData = true
+            getingData = true
             viewModel.voyages()
             viewModelCancel.resetNearbyPlaces()
         }
@@ -94,16 +94,15 @@ fun FutureVoyages(navController: NavController,
 
     when (voyagesList) {
         is NetworkResponse.Success -> {
-            if(gettingData) {
-                gettingData = false
+            if(getingData) {
+                getingData = false
                 voyages = voyagesList.data?.obj
                 Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
                 viewModel.resetNearbyPlaces()
             }
         }
         is NetworkResponse.Error -> {
-            gettingData = true
-            println("Message" + voyagesList.message)
+            getingData = true
             Toast.makeText(context, voyagesList.message, Toast.LENGTH_SHORT).show()
             viewModel.resetNearbyPlaces()
         }
@@ -114,7 +113,7 @@ fun FutureVoyages(navController: NavController,
         is NetworkResponse.Success -> {
             Toast.makeText(context, "Voyage Confirmed", Toast.LENGTH_SHORT).show()
             viewModel.voyages()
-            gettingData = true
+            getingData = true
             viewModelConfirm.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {}
@@ -124,12 +123,12 @@ fun FutureVoyages(navController: NavController,
     when (paymentState) {
         is NetworkResponse.Success -> {
             viewModel.voyages()
-            gettingData = true
+            getingData = true
             viewModelP.resetNearbyPlaces()
         }
         is NetworkResponse.Error -> {
             viewModel.voyages()
-            gettingData = true
+            getingData = true
             viewModelP.resetNearbyPlaces()
         }
         else -> {}
@@ -148,7 +147,7 @@ fun FutureVoyages(navController: NavController,
         containerColor = White,
         content = { innerPadding ->
             Box {
-                if (!gettingData){
+                if (!getingData){
                     Column(
                         modifier = Modifier
                             .padding(
@@ -240,7 +239,7 @@ fun FutureVoyages(navController: NavController,
                         }
                     }
                 }
-                if (gettingData) {
+                if (getingData) {
                     Dialog(
                         onDismissRequest = {},
                         DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)

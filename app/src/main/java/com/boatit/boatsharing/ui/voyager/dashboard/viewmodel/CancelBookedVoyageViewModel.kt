@@ -31,10 +31,18 @@ class CancelBookedVoyageViewModel(
     fun fetchNearbyPlaces(profile: CancelBookedVoyages) = viewModelScope.launch {
         _nearbyPlaces.value = NetworkResponse.Loading()
         val result = repository.findboat(profile)
-        result.onSuccess { placesResponse ->
-            _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
+        result.onSuccess {
+            placesResponse -> _nearbyPlaces.value = NetworkResponse.Success(placesResponse)
+            when (val state = _nearbyPlaces.value) {
+                is NetworkResponse.Success -> {
+                    resetNearbyPlaces()
+                }
+                is NetworkResponse.Error -> {
+                    resetNearbyPlaces()
+                }
+                else -> {}
+            }
         }.onFailure { exception ->
-            Log.e("viewModel", "${exception.localizedMessage}", exception)
             _nearbyPlaces.value = NetworkResponse.Error("${exception.localizedMessage}")
         }
     }

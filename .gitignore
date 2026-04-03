@@ -1,0 +1,27 @@
+## Gradle
+/.gradle/
+/build/
+**/build/
+
+## Local configuration
+/local.properties
+*.keystore
+*.jks
+
+## IDE files
+/.idea/
+*.iml
+*.ipr
+*.iws
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Android/Logs
+*.log
+
+## Misc
+*.class
+*/captures/
+

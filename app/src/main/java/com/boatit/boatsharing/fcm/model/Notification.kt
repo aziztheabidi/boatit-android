@@ -25,10 +25,6 @@ data class VoyageNotification(
     val Duration: String? = null,
 
 ) : Parcelable {
-    override fun describeContents(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun writeToParcel(p0: Parcel, p1: Int) {
-    }
+    override fun describeContents(): Int { return 0 }
+    override fun writeToParcel(p0: Parcel, p1: Int) {}
 }

@@ -32,13 +32,13 @@ class RoleViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    fun selectRole(userId: String, role: String) {
+    fun selectRole(userId: String, role: String ) {
         _isLoading.value = true
         _errorMessage.value = null
         _selectedRole.value = role
 
         viewModelScope.launch {
-            val result = repository.login(userId, role)
+            val result = repository.login(userId, role , tokenProvider.getAccessToken())
             result.onSuccess { response ->
                 _roleState.value = NetworkResponse.Success(response)
                 roleProvider.saveRole(role)

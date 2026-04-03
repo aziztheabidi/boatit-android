@@ -9,9 +9,9 @@ import java.net.URL
 class GoogleDirectionsApi {
     suspend fun getRoute(origin: LatLng, destination: LatLng): RouteData? {
         val url = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=${origin.latitude},${origin.longitude}" +
-                "&destination=${destination.latitude},${destination.longitude}" +
-                "&key=AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng"
+            "origin=${origin.latitude},${origin.longitude}" +
+            "&destination=${destination.latitude},${destination.longitude}" +
+            "&key=AIzaSyDFdwexx0OGCvl62s4Flay0bc4pS0Zoxng"
 
         return withContext(Dispatchers.IO) {
             try {

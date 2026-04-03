@@ -84,7 +84,6 @@ import java.util.Calendar
 fun UserAccountInfoScreen(navController: NavController,
                           value: String?, viewModel: VoyagerProfileViewModel = koinViewModel(), viewModelfeth: GetVoyagerProfileViewModel = koinViewModel()) {
 
-    println("comingFrom:$value")
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val firstNameFocusRequester = remember { FocusRequester() }
@@ -112,7 +111,7 @@ fun UserAccountInfoScreen(navController: NavController,
 
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var gettingData by remember { mutableStateOf(true) }
+    var getingData by remember { mutableStateOf(true) }
     var isNetworkError by remember { mutableStateOf(false) }
 
 
@@ -138,47 +137,58 @@ fun UserAccountInfoScreen(navController: NavController,
         }else{ navController.popBack() }
 
     }
+    LaunchedEffect(registrationState) {
+        when (registrationState) {
+            is NetworkResponse.Success -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = false
+                    Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT)
+                        .show()
+                    performLogin()
+                }
+            }
 
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
-                performLogin()
+            is NetworkResponse.Error -> {
+                if (isLoading) {
+                    isLoading = false
+                    isNetworkError = true
+                    errorMessage = "Network error, please try again."
+                    Toast.makeText(
+                        context,
+                        (registrationState as NetworkResponse.Error).message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+
+            else -> {}
         }
-        is NetworkResponse.Error -> {
-            if(isLoading){
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        else -> {}
     }
 
-    when (fetchState) {
-        is NetworkResponse.Success -> {
-            if(gettingData) {
-                phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
-                firstName = fetchState.data?.obj?.FirstName.toString()
-                lastName = fetchState.data?.obj?.LastName.toString()
-                address = fetchState.data?.obj?.Address.toString()
-                dob = fetchState.data?.obj?.DateOfBirth.toString()
-                paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
-                gettingData = false
+
+    LaunchedEffect(fetchState) {
+        when (fetchState) {
+            is NetworkResponse.Success -> {
+                if(getingData) {
+                    phoneNumber = fetchState.data?.obj?.PhoneNumber.toString()
+                    firstName = fetchState.data?.obj?.FirstName.toString()
+                    lastName = fetchState.data?.obj?.LastName.toString()
+                    address = fetchState.data?.obj?.Address.toString()
+                    dob = fetchState.data?.obj?.DateOfBirth.toString()
+                    paypalEmail = fetchState.data?.obj?.StripeEmail.toString()
+                    getingData = false
+                }
             }
+            is NetworkResponse.Error -> {
+                Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
+                getingData = false
+            }
+            else -> {}
         }
-        is NetworkResponse.Error -> {
-            Toast.makeText(context, fetchState.message, Toast.LENGTH_SHORT).show()
-            gettingData = false
-        }
-        else -> {}
     }
 
-    LaunchedEffect(gettingData) {
+    LaunchedEffect(Unit) {
         viewModelfeth.GetVoyagerProfile()
     }
 
@@ -192,19 +202,19 @@ fun UserAccountInfoScreen(navController: NavController,
             }
             else if (value.toString() == "businessRole"){
                 CustomTopBar(text = stringResource(R.string.add_your_acc_info)+" 1/4", onImageClick = {
-                    println("clicked...")
+                    
                 })
             }
             else{
                 CustomTopBar(text = stringResource(R.string.add_your_acc_info), onImageClick = {
-                    println("clicked...")
+                    
                     navController.popBackStack()
                 })
             }
 
         },
         content = { innerPadding ->
-            if (gettingData) {
+            if (getingData) {
                 Dialog(
                     onDismissRequest = {},
                     DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
@@ -377,7 +387,7 @@ fun UserAccountInfoScreen(navController: NavController,
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            println("Pick location from map clicked")
+                            
                             navController.navigate("map_picker")
                         }
                     ) {
@@ -503,7 +513,7 @@ fun UserAccountInfoScreen(navController: NavController,
                         isButtonEnabled = true
                         isLoading = true
                         focusManager.clearFocus()
-                        println("perform network call")
+                        
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))

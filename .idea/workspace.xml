@@ -10,110 +10,107 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5a8867c3-79e0-4d88-bb8b-6ac34ae79962" name="Changes" comment="find boat feature, chat between  voyager and captain , notifications,">
-      <change beforePath="$PROJECT_DIR$/.gradle/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/config.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AccompanistLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidPluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxActivityLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxComposeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxCoreLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxEspressoLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxLifecycleLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxLifecycleRuntimeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxNavigationLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxNavigationRuntimeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxUiLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxUiTestLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$AndroidxUiToolingLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$BundleAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$CoilLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$CoilNetworkLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$ComposeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$ComposeVersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$FirebaseFirestoreLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$FirebaseLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$FirebaseVersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$FlexibleBottomsheetLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$FlexibleLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$GooglePluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KoinAndroidLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KoinLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KotlinLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KotlinParcelizeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KotlinPluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KotlinVersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KotlinxLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$KtorLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$LifecycleLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$LifecycleLivedataLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$LifecycleViewmodelLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$PlayLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$PlayServicesLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$PluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$StripeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs$VersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibs.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AccompanistLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidPluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxActivityLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxComposeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxCoreLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxEspressoLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxLifecycleLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxLifecycleRuntimeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxNavigationLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxNavigationRuntimeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxUiLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxUiTestLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$AndroidxUiToolingLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$BundleAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$CoilLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$CoilNetworkLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$ComposeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$ComposeVersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$FirebaseFirestoreLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$FirebaseLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$FirebaseVersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$FlexibleBottomsheetLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$FlexibleLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$GooglePluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KoinAndroidLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KoinLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KotlinLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KotlinParcelizeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KotlinPluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KotlinVersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KotlinxLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$KtorLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$LifecycleLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$LifecycleLivedataLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$LifecycleViewmodelLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$PlayLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$PlayServicesLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$PluginAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$StripeLibraryAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock$VersionAccessors.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/classes/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/metadata.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/sources/org/gradle/accessors/dm/LibrariesForLibs.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/dependencies-accessors/498077e54d6815ee20a18f19986239a9585c3085/sources/org/gradle/accessors/dm/LibrariesForLibsInPluginsBlock.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.9/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.9/fileHashes/resourceHashesCache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/network/di/KtorClient.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/network/networkreposne/NetworkResponse.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/network/networkreposne/RefreshRequest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/network/networkreposne/RefreshResponse.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/business/view/BusinessDashboard.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/business/viewmodel/BusinessDashViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/business/viewmodel/BusinessDashViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/business/viewmodel/GetBusinessViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/business/viewmodel/GetBusinessViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/availabilitystatus/view/UpdateStatus.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/availabilitystatus/view/UpdateStatus.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/availabilitystatus/viewmodel/UpdateStatusViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/availabilitystatus/viewmodel/UpdateStatusViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/view/CaptainDahsboard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/view/CaptainDahsboard.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/view/CaptainStatus.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/view/CaptainStatus.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/AcceptRequestViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/AcceptRequestViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CancelVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CancelVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CaptainActiveVoyagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CaptainActiveVoyagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CaptainFeedbackViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CaptainFeedbackViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CompleteVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/CompleteVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/StartVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/dashboard/viewmodel/StartVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/AcceptedRequestTab.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/AcceptedRequestTab.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/CaptainCurrentVoyages.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/CaptainCurrentVoyages.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/CaptainFeedbackScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/CaptainFeedbackScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/CaptainVoyages.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/CaptainVoyages.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/StartedRequestTab.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/StartedRequestTab.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/VoyageStarted.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/view/VoyageStarted.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/viewmodel/CaptainVoyagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/captain/voyages/viewmodel/CaptainVoyagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/view/ChatScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/view/ChatScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/view/VoyagersListScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/view/VoyagersListScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/viewmodel/FollowViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/viewmodel/FollowViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/viewmodel/VoyagersListViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/chat/viewmodel/VoyagersListViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/forgotpassword/view/ForgotPasswordScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/forgotpassword/view/ForgotPasswordScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/forgotpassword/viewmodel/ForgotPassViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/forgotpassword/viewmodel/ForgotPassViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/view/Loginscreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/view/Loginscreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/viewmodel/LoginViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/viewmodel/LoginViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/AddBusinessDescriptions.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/AddBusinessDescriptions.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/AddBusinessLogo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/AddBusinessLogo.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/AddGeneralBusinessInfo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/AddGeneralBusinessInfo.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/BusinessAccountInfoScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/view/BusinessAccountInfoScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/BusinessAboutViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/BusinessAboutViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/BusinessInfoViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/BusinessInfoViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/BusinessProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/BusinessProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/Businesslogoviewmodel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/Businesslogoviewmodel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/GetBusinessInfoViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/GetBusinessInfoViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/GetBusinessProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/business/viewmodel/GetBusinessProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/view/AddCaptainBoatInfoScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/view/AddCaptainBoatInfoScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/view/AddCaptainDocumentInfoScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/view/AddCaptainDocumentInfoScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/view/CaptainAccountInfoScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/view/CaptainAccountInfoScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/CaptainBoatViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/CaptainBoatViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/CaptainDocsViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/CaptainDocsViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/CaptainProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/CaptainProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/GetCaptainBoatViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/GetCaptainBoatViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/GetCaptainDocsViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/GetCaptainDocsViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/GetCaptainProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/captain/viewmodel/GetCaptainProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/GetVoyagerProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/GetVoyagerProfileViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/PasswordViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/PasswordViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/VerifyEmailViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/VerifyEmailViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/VoyagerProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/VoyagerProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/generalSignupViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/repository/generalSignupViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/CreatePassword.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/CreatePassword.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/UserAccountInfoScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/UserAccountInfoScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/UserBasicInfoScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/UserBasicInfoScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/VerifyUserEmail.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/view/VerifyUserEmail.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/userroles/view/SelectRole.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/userroles/view/SelectRole.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/userroles/viewmodel/FCMTokenViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/userroles/viewmodel/FCMTokenViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/userroles/viewmodel/RoleViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/userroles/viewmodel/RoleViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/BusinessDetail.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/BusinessDetail.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/BusinessListScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/BusinessListScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/ConfirmVoyage.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/ConfirmVoyage.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/CreateVoyage.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/CreateVoyage.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/CreateVoyageSponsor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/CreateVoyageSponsor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/Dashboardscreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/Dashboardscreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/FutureVoyageItems.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/FutureVoyageItems.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/FutureVoyages.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/FutureVoyages.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/SponcersList.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/SponcersList.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/Sponsor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/Sponsor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/SponsorVoyagesItems.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/SponsorVoyagesItems.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/TravelNow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/TravelNow.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/TravelNowItem.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/TravelNowItem.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyageBookedVoyager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyageBookedVoyager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyageStartedVoyager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyageStartedVoyager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyagerFeedbackScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyagerFeedbackScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyagerVoyages.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/view/VoyagerVoyages.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/BookVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/BookVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/CalculateFairViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/CalculateFairViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/CancelBookedVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/CancelBookedVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/ConfirmBookedVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/ConfirmBookedVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FetchBusinessViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FetchBusinessViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FindBoatViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FindBoatViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FollowedVoyagerViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FollowedVoyagerViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FutureVoyagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/FutureVoyagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/GetActiveVoyageViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/GetActiveVoyageViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/NearByVoyagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/NearByVoyagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/PaymentSheetConfigViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/PaymentSheetConfigViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/PaymentViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/PaymentViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/SponcerVoyagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/SponcerVoyagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/SponsorPaymentConfirmationViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/SponsorPaymentConfirmationViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/SponsorPaymentSheetConfigViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/SponsorPaymentSheetConfigViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/TravelNowViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/TravelNowViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/VoyagerFeedbackViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/VoyagerFeedbackViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/VoyagerFollowBusinessViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/VoyagerFollowBusinessViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/VoyagerVoyagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/voyager/dashboard/viewmodel/VoyagerVoyagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/viewmodel/PasswordRepo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/signup/general/viewmodel/PasswordRepo.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +120,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=/Users/michaelmanahan/.android/avd/Pixel_9.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -173,27 +170,27 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android App.app.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "QAPhase1",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/itservices/Documents/Boat_Sharing_Apps/untitled folder/james/app/src/main/java/com/boatit/boatsharing/utils/prefmanager",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.17",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "configurable.group.appearance",
-    "show.migrate.to.gradle.popup": "false"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.app.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;QAPhase1&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/itservices/Documents/Boat_Sharing_Apps/untitled folder/james&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/utils/prefmanager" />
@@ -217,8 +214,7 @@
   </component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
-      <module name="BoatSharingApp.app" />
-      <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
+      <module name="BoatSharingApp.app.main" />
       <option name="DEPLOY" value="true" />
       <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
       <option name="DEPLOY_AS_INSTANT" value="false" />
@@ -226,14 +222,12 @@
       <option name="PM_INSTALL_OPTIONS" value="" />
       <option name="ALL_USERS" value="false" />
       <option name="ALWAYS_INSTALL_WITH_PM" value="false" />
-      <option name="ALLOW_ASSUME_VERIFIED" value="false" />
       <option name="CLEAR_APP_STORAGE" value="false" />
       <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
       <option name="ACTIVITY_EXTRA_FLAGS" value="" />
       <option name="MODE" value="default_activity" />
       <option name="RESTORE_ENABLED" value="false" />
       <option name="RESTORE_FILE" value="" />
-      <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" />
       <option name="CLEAR_LOGCAT" value="false" />
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
       <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
@@ -280,7 +274,6 @@
         <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
       </Profilers>
       <option name="DEEP_LINK" value="" />
-      <option name="ACTIVITY" value="" />
       <option name="ACTIVITY_CLASS" value="" />
       <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
       <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
@@ -335,6 +328,42 @@
           <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/splash/SplashComposable.kt</url>
           <line>69</line>
           <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-field">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt</url>
+          <line>5</line>
+          <properties myFieldName="Status" myClassName="com.boatit.boatsharing.ui.login.model.LoginResponse" />
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-field">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt</url>
+          <line>6</line>
+          <properties myFieldName="Message" myClassName="com.boatit.boatsharing.ui.login.model.LoginResponse" />
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-field">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt</url>
+          <line>12</line>
+          <properties myFieldName="Email" myClassName="com.boatit.boatsharing.ui.login.model.UserData" />
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-field">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt</url>
+          <line>14</line>
+          <properties myFieldName="UserId" myClassName="com.boatit.boatsharing.ui.login.model.UserData" />
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-field">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt</url>
+          <line>15</line>
+          <properties myFieldName="Username" myClassName="com.boatit.boatsharing.ui.login.model.UserData" />
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-field">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/boatit/boatsharing/ui/login/model/loginResponse.kt</url>
+          <line>16</line>
+          <properties myFieldName="Role" myClassName="com.boatit.boatsharing.ui.login.model.UserData" />
+          <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

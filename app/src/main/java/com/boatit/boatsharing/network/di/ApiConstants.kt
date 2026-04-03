@@ -1,8 +1,10 @@
 package com.boatit.boatsharing.network.di
 
+import com.boatit.boatsharing.utils.AppConstants
+
 object ApiConstants {
-    const val BASE_URL = "https://testbyfarhan.squarecod.com/api"
-    const val PRIVACY_POLICY = "https://www.boatit.com/legal/privacy-policy"
+    val BASE_URL = AppConstants.BASE_PATH
+    val PRIVACY_POLICY = AppConstants.PRIVACY_PATH
 
     object Endpoints {
         const val LOGIN = "/Account/Login"

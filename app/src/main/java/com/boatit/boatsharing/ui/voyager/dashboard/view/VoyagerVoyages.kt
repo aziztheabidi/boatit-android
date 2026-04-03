@@ -64,10 +64,10 @@ fun VoyagerVoyages(navController: NavController, viewModel: VoyagerVoyagesViewMo
             ) {
                 when (voyagesList) {
                     is NetworkResponse.Loading -> {
-                        println("Loading")
+                        
                     }
                     is NetworkResponse.Error -> {
-                        println(voyagesList.message)
+                        
                     }
                     is NetworkResponse.Success -> {
                         items(voyagesList.data!!.obj.size) { voyage ->

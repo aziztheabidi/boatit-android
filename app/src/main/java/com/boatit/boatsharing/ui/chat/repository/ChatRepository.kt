@@ -50,7 +50,6 @@ class ChatRepository(private val firestore: FirebaseFirestore) {
                 snapshot.documents.forEach { doc ->
                     val status = doc.getString("status")
                     val senderId = doc.getString("user")
-                    println(senderId)
                     if (status == "sent" && senderId != currentUserId) { // Only update if message is unread & sent by others
                         doc.reference.update("status", "read")
                             .addOnSuccessListener {

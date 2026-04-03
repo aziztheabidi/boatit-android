@@ -70,7 +70,6 @@ class StripeSheetActivity : ComponentActivity() {
             is PaymentSheetResult.Failed -> {
                 setResult(RESULT_ERROR)
                 Toast.makeText(this, "${paymentSheetResult.toString()}", Toast.LENGTH_LONG).show()
-                println("Error: ${paymentSheetResult.toString()}")
                 finish()
             }
             is PaymentSheetResult.Completed -> {

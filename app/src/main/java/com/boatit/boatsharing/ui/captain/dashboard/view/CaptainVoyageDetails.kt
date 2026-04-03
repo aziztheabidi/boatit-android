@@ -138,7 +138,6 @@ fun CaptainVoyageDetails(navController: NavController, notification : VoyageData
                                         }
                                     },
                                     onDone = {
-                                        println("value: ${enteredValues.joinToString("")}")
                                         focusManager.clearFocus()
                                     }
                                 ),

@@ -1,4 +1,5 @@
 package com.boatit.boatsharing.network.networkresponse
+
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,5 +14,3 @@ data class TokenData(
     val Accesstoken: String,
     val Refreshtoken: String
 )
-
-

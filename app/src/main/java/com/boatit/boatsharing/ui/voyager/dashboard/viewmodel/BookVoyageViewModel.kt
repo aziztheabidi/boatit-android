@@ -28,7 +28,6 @@ class BookVoyageViewModel(
 
     fun bookVoyageVMfunc(profile: BookVoyageRequest) = viewModelScope.launch {
         val json = Gson().toJson(profile)
-        println(json)
         _nearbyPlaces.value = NetworkResponse.Loading()
         val result = repository.BookVoyageFunc(profile)
         result.onSuccess { placesResponse ->

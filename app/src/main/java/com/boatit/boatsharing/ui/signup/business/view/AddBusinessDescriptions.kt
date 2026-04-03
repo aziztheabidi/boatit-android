@@ -50,7 +50,6 @@ import com.boatit.boatsharing.routes.NavigationManager
 import com.boatit.boatsharing.routes.popBack
 import com.boatit.boatsharing.ui.signup.business.model.SaveBusinessAboutRequest
 import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessAboutViewModel
-import com.boatit.boatsharing.ui.signup.business.viewmodel.BusinessInfoViewModel
 import com.boatit.boatsharing.ui.signup.business.viewmodel.GetBusinessInfoViewModel
 import com.boatit.boatsharing.uihelpers.CustomButton
 import com.boatit.boatsharing.uihelpers.CustomDropDown
@@ -58,13 +57,14 @@ import com.boatit.boatsharing.uihelpers.CustomTextField
 import com.boatit.boatsharing.uihelpers.CustomTopBar
 import com.boatit.boatsharing.uihelpers.FormStepsViews
 import com.boatit.boatsharing.utils.AppConstants
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AddBusinessDescriptions(navController: NavController,
+fun AddBusinessDescriptions(
+    navController: NavController,
     viewModelfetch: GetBusinessInfoViewModel = koinViewModel(),
-    viewModel: BusinessAboutViewModel = koinViewModel()) {
+    viewModel: BusinessAboutViewModel = koinViewModel()
+) {
 
     val focusManager = LocalFocusManager.current
 
@@ -79,9 +79,9 @@ fun AddBusinessDescriptions(navController: NavController,
     var isButtonEnabled by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
-    var gettingData by remember { mutableStateOf(true) }
+    var getingData by remember { mutableStateOf(true) }
     val fetchState by viewModelfetch.registrationState.collectAsState()
-    val isValidate = businessDescription.isNotEmpty()&&selectedOption.isNotEmpty()
+    val isValidate = businessDescription.isNotEmpty() && selectedOption.isNotEmpty()
 
     val handleError = {
         errorMessage = null
@@ -90,57 +90,65 @@ fun AddBusinessDescriptions(navController: NavController,
 
     val registrationState by viewModel.registrationState.collectAsState()
 
-    fun performLogin(){
+    fun performLogin() {
         navController.navigate(NavigationManager.BUSINESS_LOGO_SCREEN)
     }
 
     when (registrationState) {
         is NetworkResponse.Success -> {
-            if(isLoading){
+            if (isLoading) {
                 isLoading = false
                 isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message , Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT).show()
                 performLogin()
             }
         }
+
         is NetworkResponse.Error -> {
-            if(isLoading){
+            if (isLoading) {
                 isLoading = false
                 isNetworkError = true
                 errorMessage = "Network error, please try again."
-                Toast.makeText(context, (registrationState as NetworkResponse.Error).message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    (registrationState as NetworkResponse.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
+
         else -> {}
     }
 
     LaunchedEffect(fetchState) {
-        if (fetchState is NetworkResponse.Success && gettingData) {
+        if (fetchState is NetworkResponse.Success && getingData) {
             businessDescription = fetchState.data?.obj?.Description!!
             selectedOptionBolean = fetchState.data?.obj?.IsDock!!
-            if(selectedOptionBolean){
+            if (selectedOptionBolean) {
                 selectedOption = "Yes"
-            }   else{
+            } else {
                 selectedOption = "No"
             }
-            gettingData = false
+            getingData = false
         }
     }
 
-    LaunchedEffect(gettingData) {
-        if (gettingData) viewModelfetch.GetBusinessProfile()
+    LaunchedEffect(getingData) {
+        if (getingData) viewModelfetch.GetBusinessProfile()
     }
 
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            CustomTopBar(text = stringResource(R.string.add_your_business_info)+ " 3/4", onImageClick = {
-                println("clicked...")
-                navController.popBack()
-            })
+            CustomTopBar(
+                text = stringResource(R.string.add_your_business_info) + " 3/4",
+                onImageClick = {
+
+                    navController.popBack()
+                })
         },
         content = { innerPadding ->
-            if (isLoading || gettingData) {
+            if (isLoading) {
                 Dialog(
                     onDismissRequest = {},
                     properties = DialogProperties(
@@ -157,109 +165,112 @@ fun AddBusinessDescriptions(navController: NavController,
                         CircularProgressIndicator()
                     }
                 }
-            }else {
-            Column(
-                modifier = Modifier
-                    .padding(
-                        top = innerPadding.calculateTopPadding() + 15.dp,
-                        start = 20.dp,
-                        end = 20.dp,
-                        bottom = innerPadding.calculateTopPadding() + 25.dp,
-                    )
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-
-                FormStepsViews(
-                    numberOfViews = 4,
-                    activeColor = colorResource(id = R.color.button_normal),
-                    inactiveColor = Color.Gray,
-                    activeViewsCount = 3
-                )
-
-                Spacer(Modifier.height(30.dp))
-                Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.business_description_label)
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                CustomTextField(
-                    textValue = businessDescription,
-                    placeholderText = stringResource(R.string.business_description_placeholder),
-                    onTextChange = { businessDescription = it },
-                    keyboardType = KeyboardType.Text,
-                    maxChars = 1000,
-                    singleLine = false,
-                    minLines= 20,
-                    errorMessage = if (businessDescription.isNotEmpty()&& businessDescription.length <= 3) stringResource(R.string.business_description_validation_text) else null,
-                    isError = businessDescription.isNotEmpty() && businessDescription.length <= 3,
-                    onClearError = handleError,
-                    imeAction = ImeAction.Done,
-                    showTrailingIcon = false,
-                    keyboardActions = KeyboardActions(
-                       // onNext = { businessTypeFocusRequester.requestFocus() }
-                    ),
-                    focusRequester = businessDescriptionFocusRequester
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-
-                Text(
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    text = stringResource(R.string.business_dock_label)
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                CustomDropDown(
-                    options = options,
-                    selectedOption = selectedOption,
-                    onOptionSelected = {
-                        selectedOption = it
-                          if(selectedOption.equals("Yes")){
-                              selectedOptionBolean = true
-                          }   else{
-                              selectedOptionBolean = false
-                          }
-                    },
-                    placeholderText = stringResource(R.string.business_dock_placeholder),
-                    isError = false
-                )
-
-
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                CustomButton(
-                    text = stringResource(R.string.save_button_label),
-                    isValidate = isValidate,
-                    isLoading = isLoading,
-                    onButtonClick = {
-                        isLoading = true
-                        viewModel.saveBusinessAbout(
-                            SaveBusinessAboutRequest(
-                                AppConstants.USER_ID!!,
-                                Description = businessDescription,
-                                IsDock = selectedOptionBolean,
-                            ),
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            top = innerPadding.calculateTopPadding() + 15.dp,
+                            start = 20.dp,
+                            end = 20.dp,
+                            bottom = innerPadding.calculateTopPadding() + 25.dp,
                         )
-                        focusManager.clearFocus()
-                    }
-                )
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    FormStepsViews(
+                        numberOfViews = 4,
+                        activeColor = colorResource(id = R.color.button_normal),
+                        inactiveColor = Color.Gray,
+                        activeViewsCount = 3
+                    )
 
-            }}
+                    Spacer(Modifier.height(30.dp))
+                    Text(
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        text = stringResource(R.string.business_description_label)
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    CustomTextField(
+                        textValue = businessDescription,
+                        placeholderText = stringResource(R.string.business_description_placeholder),
+                        onTextChange = { businessDescription = it },
+                        keyboardType = KeyboardType.Text,
+                        maxChars = 1000,
+                        singleLine = false,
+                        minLines = 20,
+                        errorMessage = if (businessDescription.isNotEmpty() && businessDescription.length <= 3) stringResource(
+                            R.string.business_description_validation_text
+                        ) else null,
+                        isError = businessDescription.isNotEmpty() && businessDescription.length <= 3,
+                        onClearError = handleError,
+                        imeAction = ImeAction.Done,
+                        showTrailingIcon = false,
+                        keyboardActions = KeyboardActions(
+                            // onNext = { businessTypeFocusRequester.requestFocus() }
+                        ),
+                        focusRequester = businessDescriptionFocusRequester
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+
+                    Text(
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        text = stringResource(R.string.business_dock_label)
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    CustomDropDown(
+                        options = options,
+                        selectedOption = selectedOption,
+                        onOptionSelected = {
+                            selectedOption = it
+                            if (selectedOption.equals("Yes")) {
+                                selectedOptionBolean = true
+                            } else {
+                                selectedOptionBolean = false
+                            }
+                        },
+                        placeholderText = stringResource(R.string.business_dock_placeholder),
+                        isError = false
+                    )
+
+
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    CustomButton(
+                        text = stringResource(R.string.save_button_label),
+                        isValidate = isValidate,
+                        isLoading = isLoading,
+                        onButtonClick = {
+                            isLoading = true
+                            viewModel.saveBusinessAbout(
+                                SaveBusinessAboutRequest(
+                                    AppConstants.USER_ID!!,
+                                    Description = businessDescription,
+                                    IsDock = selectedOptionBolean,
+                                ),
+                            )
+                            focusManager.clearFocus()
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                }
+            }
         },
 
         )
