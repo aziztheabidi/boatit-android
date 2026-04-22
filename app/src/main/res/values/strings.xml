@@ -1,0 +1,257 @@
+<resources>
+    <string name="app_name">Boat IT</string>
+
+    <string name="reset_password_h1">Reset Password</string>
+    <string name="reset_password_h2">We will email you \n a link to reset password</string>
+    <string name="back_to_login">Back to LogIn</string>
+    <string name="reset_password_success_message">We have sent an email to example@example.com with instructions to reset your password</string>
+    <string name="email">Email</string>
+    <string name="email_placeholder">example@example</string>
+    <string name="email_validation_text">Invalid email format</string>
+    <string name="send_button_text">Send</string>
+
+
+    <string name="login_h1">Log Into Account</string>
+    <string name="password">Password</string>
+    <string name="password_placeholder">Enter password</string>
+    <string name="password_validation_text">Password must be at least 8 characters</string>
+    <string name="login">Log In</string>
+    <string name="forgot_password">Forgot Password?</string>
+
+    <string name="business">Business</string>
+    <string name="business_onboarding_text">Revolutionise the boating industry, connect boat owners\nand passengers with boat type  with our boat riding</string>
+
+    <string name="create_account">Create New Account</string>
+    <string name="create_account_">Create New Account?</string>
+    <string name="already_registered">Already have an account?</string>
+
+    <string name="captain">Captain</string>
+    <string name="captain_onboarding_text">Join our boat riding sharing community and turn your boat into an adventure</string>
+    <string name="skip">Skip</string>
+
+    <string name="voyager">Voyager</string>
+    <string name="voyager_onboarding_text">Share a ride, make a memory - discover new horizons\nwith our boat riding</string>
+
+    <string name="add_your_info">Add Your Info</string>
+    <string name="continue_button_text">Continue</string>
+    <string name="email_verification_text">We just sent a 5-digit code to\n%s, enter it below:</string>
+
+    <string name="code_text">Code</string>
+    <string name="wrong_email_text">Wrong email? </string>
+    <string name="another_email_text"> Send to different email</string>
+
+    <string name="name_label">Name</string>
+    <string name="name_placeholder">Enter name</string>
+    <string name="name_validation_text">Enter minimum 3 characters"</string>
+
+    <string name="phone_label">Phone</string>
+    <string name="phone_placeholder">+1 234 567 8900</string>
+    <string name="phone_validation_text">Enter correct phone number"</string>
+
+    <string name="roles_h1">Please Select your\nExperience</string>
+    <string name="roles_h2">Begin with creating free account.This helps you keep your learning way easier</string>
+    <string name="voyager_role_card_h2">"Book your first ride today!</string>
+    <string name="captain_role_card_h2">"Get your first voyager onboard!</string>
+    <string name="business_role_card_h2">"Start serving voyagers today!</string>
+    <string name="guest_button_text">Continue as Guest</string>
+
+
+    <string name="add_your_acc_info">Add Your Account Info</string>
+
+    <string name="firstname_label">First Name</string>
+    <string name="firstname_placeholder">Enter First Name</string>
+    <string name="firstname_validation_text">First Name should not be empty</string>
+
+    <string name="lastname_label">Last Name</string>
+    <string name="lastname_placeholder">Enter Last Name</string>
+    <string name="lastname_validation_text">Last Name should not be empty</string>
+
+    <string name="address_label">Address</string>
+    <string name="address_placeholder">Enter Address</string>
+    <string name="address_validation_text">Address should not be empty"</string>
+
+    <string name="dob_label">DOB</string>
+    <string name="dob_placeholder">12/12/1991</string>
+    <string name="dob_validation_text">DOB should not be empty"</string>
+
+    <string name="paypal_email_label">PayPal Email</string>
+
+    <string name="save_button_label">Save and Proceed</string>
+
+
+    <string name="add_your_document_info">Add Your Document Info</string>
+
+    <string name="license_label">License Number</string>
+    <string name="license_placeholder">LP123456</string>
+    <string name="license_validation_text">License number should not be empty</string>
+
+    <string name="license_exp_label">License Expiration</string>
+    <string name="license_exp_placeholder">12/12/2026</string>
+    <string name="license_exp_validation_text">License expiration date required</string>
+
+    <string name="license_type_label">License Type</string>
+    <string name="license_type_placeholder">Enter License Type</string>
+    <string name="license_type_validation_text">License type required</string>
+
+    <string name="insurance_company_label">Insurance Company</string>
+    <string name="insurance_company_placeholder">Enter Insurance Company Name</string>
+    <string name="insurance_company_validation_text">Insurance company required</string>
+
+
+    <string name="policy_number_label">Policy Number</string>
+    <string name="policy_number_placeholder">Enter Policy Number</string>
+    <string name="policy_number_validation_text">Policy number required</string>
+
+
+    <string name="policy_exp_label">Expiration of Policy</string>
+    <string name="policy_exp_placeholder">10/11/2028</string>
+    <string name="policy_exp_validation_text">Policy expiration date required</string>
+
+    <string name="add_your_boat_info">Add Your Boat Info</string>
+
+    <string name="boat_name_label">Boat Name</string>
+    <string name="boat_name_placeholder">Enter Boat Name</string>
+    <string name="boat_name_validation_text">>Boat name required</string>
+
+    <string name="boat_make_label">Boat Make</string>
+    <string name="boat_make_placeholder">Enter Boat Make</string>
+    <string name="boat_make_validation_text">Boat make required</string>
+
+    <string name="boat_model_label">Boat Model</string>
+    <string name="boat_model_placeholder">Enter Boat Model</string>
+    <string name="boat_model_validation_text">Boat model required</string>
+
+    <string name="boat_year_label">Boat Year</string>
+    <string name="boat_year_placeholder">Enter Boat Year</string>
+    <string name="boat_year_validation_text">Boat year required</string>
+
+    <string name="boat_size_label">Boat Size</string>
+    <string name="boat_size_placeholder">Enter Boat Size</string>
+    <string name="boat_size_validation_text">Boat size required</string>
+
+    <string name="boat_capacity_label">Boat Capacity</string>
+    <string name="boat_capacity_placeholder">Enter Sitting Capacity</string>
+    <string name="boat_capacity_validation_text"> Sitting capacity required</string>
+
+
+    <string name="add_your_business_info">Add Your Business Info</string>
+
+    <string name="business_name_label">Business Name</string>
+    <string name="business_name_placeholder">Enter Business Name</string>
+    <string name="business_name_validation_text">Business name required</string>
+
+    <string name="business_type_label">Business Type</string>
+    <string name="business_type_placeholder">Enter Business Type</string>
+    <string name="business_type_validation_text">Business type required</string>
+
+    <string name="business_address_label">Business Address</string>
+    <string name="business_address_placeholder">Enter Business Address</string>
+    <string name="business_address_validation_text">Business address required</string>
+
+    <string name="business_contact_no_label">Business Phone Number</string>
+    <string name="business_contact_no_placeholder">Enter Business Phone Number</string>
+    <string name="business_contact_no_validation_text">Business phone Number required</string>
+
+    <string name="business_starting_year_label">Year of Establishment</string>
+    <string name="business_starting_year_placeholder">2019</string>
+    <string name="business_starting_year_validation_text">Year of establishment required</string>
+
+    <string name="business_time_label">Business Time</string>
+    <string name="business_time_placeholder">Select Business Time</string>
+    <string name="business_time_validation_text">Business Time required</string>
+
+    <string name="business_description_label">Business Description</string>
+    <string name="business_description_placeholder">Write about your business</string>
+    <string name="business_description_validation_text">Business description is must</string>
+
+    <string name="business_dock_label">Does this business have dock?</string>
+    <string name="business_dock_placeholder">Yes/No</string>
+    <string name="business_dock_validation_text">Select option</string>
+
+    <string name="add_business_logo_label">Add Logo</string>
+    <string name="add_business_logo_h2">Add your business logo</string>
+    <string name="add_business_images">Add business Images</string>
+
+
+    <string name="find_destination_button_text">Find Destination</string>
+    <string name="destination_location_h1">Destination Location</string>
+    <string name="pickup_location_h1">PickUp Location</string>
+
+    <string name="next">Next</string>
+
+
+    <string name="location_permission_text">Location Permission Needed</string>
+    <string name="location_permission_alert_text"> This app requires location access to function correctly.</string>
+    <string name="try_again">Try Again</string>
+    <string name="cancel">Cancel</string>
+    <string name="location_service_disabled_title">Location Services Disabled</string>
+    <string name="location_service_disabled_message">Please enable location services to use this feature.</string>
+    <string name="enable_location">Enable Location</string>
+
+    <string name="location_services_disabled">Location Services Disabled</string>
+    <string name="enable_location_services">Please enable location services to continue using the app.</string>
+    <string name="enable">Enable</string>
+
+    <string name="pickup_location_text">Pickup location required</string>
+    <string name="pickup_location_lbl">Pickup location</string>
+
+
+    <string name="drop_off_location_text">Drop off location required</string>
+    <string name="drop_off_location_lbl">Drop off location</string>
+
+    <string name="num_off_voyagers_text">add number of passengers</string>
+    <string name="num_off_voyagers_lbl">No. of voyagers</string>
+
+    <string name="find_boat_button_text">Create Voyage</string>
+    <string name="title_activity_rotating_wheel_view">RotatingWheelView</string>
+    <string name="booking_date">Current Date:</string>
+    <string name="selected_booking_date">Booking Date:</string>
+
+    <string name="pay_now_text">Pay Now</string>
+    <string name="pick_up_notes">ANy pick up Notes?</string>
+    <string name="voyage_start_text">"Meet at “Pickup Point” for your\n“destination point” in…</string>
+    <string name="enter_pin_text">PIN for the Voyage is:"</string>
+    <string name="welcome_text">Welcome!</string>
+    <string name="update_captain_status_text">Tap the wheel to go online and start getting voyage requests</string>
+    <string name="online_text">you are Online!</string>
+    <string name="online_status_text">Start accepting  voyager and help voyagers reach there destinations</string>
+    <string name="voyages_screen">Voyages Requests</string>
+    <string name="voyages_past">Past Voyages</string>
+    <string name="voyages_future">Upcoming Voyages</string>
+    <string name="voyages_sponsor">Sponsor Voyages</string>
+    <string name="voyagers_screen">Voyagers List</string>
+    <string name="accept_text">Accept</string>
+    <string name="start_text">Start</string>
+    <string name="decline_text">Decline</string>
+    <string name="voyage_text">Voyages</string>
+    <string name="fb_submit_text">Submit</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="add_to_yoyage">Add to Yoyage</string>
+    <string name="followed">Followed</string>
+    <string name="travel_now">Travel Now</string>
+    <string name="categoy">Categoy</string>
+    <string name="shores">Shores</string>
+    <string name="zones">Zones</string>
+    <string name="island">Island</string>
+    <string name="follow">Follow</string>
+    <string name="add_dock">Add Dock</string>
+
+    <string name="add_to_voyage">Add to Voyage</string>
+
+
+    <string name="businesses">Businesses</string>
+    <string name="business_email">Business Email</string>
+    <string name="website">Website</string>
+    <string name="enter_website">Enter website</string>
+    <string name="un_follow">Unfollow</string>
+    <string name="complain_submitted">Complain Submitted</string>
+
+    <string name="settings_">Settings</string>
+    <string name="edit_profile">Edit Profile</string>
+
+    <string name="logout">Logout</string>
+
+    <string name="voyage_pending_text">"Please wait until not excepted by captain…</string>
+
+
+</resources>
