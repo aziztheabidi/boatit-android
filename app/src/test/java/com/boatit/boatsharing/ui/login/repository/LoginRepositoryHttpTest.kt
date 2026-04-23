@@ -1,6 +1,6 @@
 package com.boatit.boatsharing.features.login.repository
 
-import com.boatit.boatsharing.testutils.apiExecutorReturningJson
+import com.boatit.boatsharing.testutils.httpClientReturningJson
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -27,7 +27,7 @@ class LoginRepositoryHttpTest {
                   }
                 }
                 """.trimIndent()
-            val repository = LoginRepository(apiExecutorReturningJson(json))
+            val repository = LoginRepository(httpClientReturningJson(json))
 
             val result = repository.login("user@example.com", "secret123")
 

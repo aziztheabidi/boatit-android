@@ -34,7 +34,7 @@ class VoyagePaymentAndStatusUseCasesTest {
             val paymentResult = paymentConfigUseCase("voy-1")
             val sponsorResult =
                 sponsorConfigUseCase(
-                    SponsorVoyagePaymentRequest(Id = "voy-1", VoyagerUserId = "u-1", SponserUserId = "u-2"),
+                    SponsorVoyagePaymentRequest(Id = "voy-1", VoyagerUserId = "u-1", sponsorUserId = "u-2"),
                 )
             val declineResult = declineUseCase(DeclineRequest(Id = "voy-1"))
 

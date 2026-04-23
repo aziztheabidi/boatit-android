@@ -36,8 +36,8 @@ fun UserData.toDomainModel(): AuthenticatedUser {
         username = Username,
         role = Role,
         missingStep = MissingStep,
-        accessToken = Accesstoken,
-        refreshToken = Refreshtoken,
+        accessToken = accessToken,
+        refreshToken = refreshToken,
     )
 }
 
@@ -49,7 +49,7 @@ fun AuthenticatedUser.toUserData(): UserData {
         Username = username,
         Role = role,
         MissingStep = missingStep,
-        Accesstoken = accessToken,
-        Refreshtoken = refreshToken,
+        accessToken = accessToken,
+        refreshToken = refreshToken,
     )
 }

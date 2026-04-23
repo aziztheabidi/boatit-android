@@ -71,7 +71,7 @@ fun CreateVoyageRateCalcScreen(
     }
 
     LaunchedEffect(viewModel) {
-        viewModel.uiEffects.collectLatest { effect ->
+        viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 is CreateVoyageRateCalcUiEffect.NavigateToSponsor -> {
                     navController.navigate(route = VoyagerFlowRoutes.createVoyageSponsor(effect.splitPayment))

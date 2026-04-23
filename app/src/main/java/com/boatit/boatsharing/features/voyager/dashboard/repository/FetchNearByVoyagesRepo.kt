@@ -2,6 +2,7 @@ package com.boatit.boatsharing.features.voyager.dashboard.repository
 
 import android.content.Context
 import com.boatit.boatsharing.data.network.di.ApiConstants
+import com.boatit.boatsharing.data.network.di.executeGetRequest
 import com.boatit.boatsharing.data.network.di.networkFailure
 import com.boatit.boatsharing.data.network.di.toResult
 import com.boatit.boatsharing.features.voyager.dashboard.model.NearbyPlacesResponse
@@ -15,11 +16,13 @@ class FetchNearByVoyagesRepo(
     private val context: Context,
 ) {
     suspend fun getNearbyPlaces(): Result<NearbyPlacesResponse> {
-        return try {
-            val response: HttpResponse = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.DOCK}")
-            response.toResult<NearbyPlacesResponse>(successStatus = HttpStatusCode.OK)
-        } catch (e: Exception) {
-            networkFailure("Error fetching places", e)
-        }
+        return executeGetRequest(
+            httpClient = httpClient,
+            url = "${ApiConstants.BASE_URL}${ApiConstants.Endpoints.DOCK}",
+            handleResponse = { response ->
+                response.toResult<NearbyPlacesResponse>(successStatus = HttpStatusCode.OK)
+            },
+            onException = { e -> networkFailure("Error fetching places", e) },
+        )
     }
 }

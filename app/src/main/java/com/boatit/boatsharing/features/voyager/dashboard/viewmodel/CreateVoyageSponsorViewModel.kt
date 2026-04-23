@@ -1,16 +1,15 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiState
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
 import com.boatit.boatsharing.features.chat.model.VoyagerInfo
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.FetchActiveVoyagersUseCase
+import com.boatit.boatsharing.features.voyager.dashboard.model.CreateVoyageSponsorUiEffect
 import com.boatit.boatsharing.features.voyager.dashboard.model.CreateVoyageSponsorUiEvent
-import com.boatit.boatsharing.features.voyager.dashboard.model.Sponser
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.boatit.boatsharing.features.voyager.dashboard.model.Sponsor
 import kotlinx.coroutines.launch
 
 data class CreateVoyageSponsorUiState(
@@ -33,7 +32,7 @@ data class CreateVoyageSponsorUiState(
     val pickup: String = "",
     val dropOff: String = "",
     val sponsorCount: String = "0",
-    val sponsorEntries: List<Sponser> = emptyList(),
+    val sponsorEntries: List<Sponsor> = emptyList(),
     val searchQuery: String = "",
     val followedVoyagers: List<VoyagerInfo> = emptyList(),
     val filteredFollowedVoyagers: List<VoyagerInfo> = emptyList(),
@@ -41,25 +40,26 @@ data class CreateVoyageSponsorUiState(
     val voyagersLoadError: String? = null,
     val splitPaymentEnabled: Boolean = false,
     val actionText: String = "Find Boat",
-)
+) : UiState
 
 class CreateVoyageSponsorViewModel(
     private val fetchActiveVoyagersUseCase: FetchActiveVoyagersUseCase,
     private val draftStore: CreateVoyageDraftStore,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel(), ICreateVoyageSponsorViewModel {
-    private val _uiState = MutableStateFlow(CreateVoyageSponsorUiState())
-    override val uiState: StateFlow<CreateVoyageSponsorUiState> = _uiState.asStateFlow()
-
+) : BaseViewModel<CreateVoyageSponsorUiState, CreateVoyageSponsorUiEvent, CreateVoyageSponsorUiEffect>(
+        CreateVoyageSponsorUiState(),
+    ),
+    ICreateVoyageSponsorViewModel {
     override fun onEvent(event: CreateVoyageSponsorUiEvent) {
         when (event) {
             CreateVoyageSponsorUiEvent.Initialize -> {
                 val draft = draftStore.state.value
                 val splitEnabled = draft.splitPaymentEnabled || !draft.isImmediately
-                _uiState.value =
-                    _uiState.value.copy(
+                updateState {
+                    copy(
                         splitPaymentEnabled = splitEnabled,
                         actionText = if (splitEnabled) "Book Voyage" else "Find Boat",
                     )
+                }
                 syncBookingDraftData()
                 syncDisplayData()
                 loadFollowedVoyagers()
@@ -67,20 +67,21 @@ class CreateVoyageSponsorViewModel(
             CreateVoyageSponsorUiEvent.RefreshDisplayData -> syncDisplayData()
             CreateVoyageSponsorUiEvent.LoadFollowedVoyagers -> loadFollowedVoyagers()
             is CreateVoyageSponsorUiEvent.UpdateSearchQuery -> {
-                _uiState.value =
-                    _uiState.value.copy(
+                updateState {
+                    copy(
                         searchQuery = event.query,
                         filteredFollowedVoyagers =
                             filterFollowedVoyagers(
-                                voyagers = _uiState.value.followedVoyagers,
+                                voyagers = currentState.followedVoyagers,
                                 query = event.query,
                             ),
                     )
+                }
             }
             is CreateVoyageSponsorUiEvent.AddSponsor -> addSponsor(event.voyagerUserId, event.voyagerUserName)
             is CreateVoyageSponsorUiEvent.RemoveSponsor -> removeSponsor(event.voyagerUserId)
             is CreateVoyageSponsorUiEvent.ToggleSponsorSelection -> {
-                if (_uiState.value.sponsorEntries.any { it.VoyagerUserId == event.voyagerUserId }) {
+                if (currentState.sponsorEntries.any { it.VoyagerUserId == event.voyagerUserId }) {
                     removeSponsor(event.voyagerUserId)
                 } else {
                     addSponsor(event.voyagerUserId, event.voyagerUserName)
@@ -88,11 +89,11 @@ class CreateVoyageSponsorViewModel(
             }
             is CreateVoyageSponsorUiEvent.UpdateSponsorAmount -> {
                 val updated =
-                    _uiState.value.sponsorEntries.map {
+                    currentState.sponsorEntries.map {
                         if (it.VoyagerUserId == event.voyagerUserId) it.copy(AmountToPay = event.amountToPay) else it
                     }
                 val normalized = normalizeSponsorAmounts(updated)
-                _uiState.value = _uiState.value.copy(sponsorEntries = normalized)
+                updateState { copy(sponsorEntries = normalized) }
                 writeBackSponsors()
                 syncDisplayData(updatedSponsors = normalized)
             }
@@ -103,73 +104,75 @@ class CreateVoyageSponsorViewModel(
         voyagerUserId: String,
         voyagerUserName: String,
     ) {
-        if (_uiState.value.sponsorEntries.any { it.VoyagerUserId == voyagerUserId }) return
+        if (currentState.sponsorEntries.any { it.VoyagerUserId == voyagerUserId }) return
 
         val updated =
-            _uiState.value.sponsorEntries +
-                Sponser(
+            currentState.sponsorEntries +
+                Sponsor(
                     VoyagerUserId = voyagerUserId,
                     VoyagerUserName = voyagerUserName,
                     AmountToPay = 0.0,
                     Status = "",
                 )
         val normalized = normalizeSponsorAmounts(updated)
-        _uiState.value = _uiState.value.copy(sponsorEntries = normalized)
+        updateState { copy(sponsorEntries = normalized) }
         writeBackSponsors()
         syncDisplayData(updatedSponsors = normalized)
     }
 
     private fun removeSponsor(voyagerUserId: String) {
-        val updated = _uiState.value.sponsorEntries.filterNot { it.VoyagerUserId == voyagerUserId }
+        val updated = currentState.sponsorEntries.filterNot { it.VoyagerUserId == voyagerUserId }
         val normalized = normalizeSponsorAmounts(updated)
-        _uiState.value = _uiState.value.copy(sponsorEntries = normalized)
+        updateState { copy(sponsorEntries = normalized) }
         writeBackSponsors()
         syncDisplayData(updatedSponsors = normalized)
     }
 
     private fun writeBackSponsors() {
-        draftStore.setSponsors(_uiState.value.sponsorEntries)
+        draftStore.setSponsors(currentState.sponsorEntries)
     }
 
-    private fun normalizeSponsorAmounts(sponsors: List<Sponser>): List<Sponser> {
+    private fun normalizeSponsorAmounts(sponsors: List<Sponsor>): List<Sponsor> {
         val splitAmount = calculateIndividualFareAmount(sponsors)
         return sponsors.map { sponsor ->
             sponsor.copy(AmountToPay = splitAmount)
         }
     }
 
-    private fun calculateIndividualFareAmount(sponsors: List<Sponser>): Double {
+    private fun calculateIndividualFareAmount(sponsors: List<Sponsor>): Double {
         if (sponsors.isEmpty()) return 0.0
-        val totalCost = _uiState.value.totalCostAmount
+        val totalCost = currentState.totalCostAmount
         return totalCost / sponsors.size
     }
 
     private fun loadFollowedVoyagers() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isVoyagersLoading = true, voyagersLoadError = null)
+            updateState { copy(isVoyagersLoading = true, voyagersLoadError = null) }
             when (val result = fetchActiveVoyagersUseCase().toResource()) {
                 is Resource.Success -> {
                     val followed = result.data.obj.Followed
-                    val currentQuery = _uiState.value.searchQuery
-                    _uiState.value =
-                        _uiState.value.copy(
+                    val currentQuery = currentState.searchQuery
+                    updateState {
+                        copy(
                             isVoyagersLoading = false,
                             voyagersLoadError = null,
                             followedVoyagers = followed,
                             filteredFollowedVoyagers = filterFollowedVoyagers(followed, currentQuery),
                         )
+                    }
                 }
 
                 is Resource.Error -> {
-                    _uiState.value =
-                        _uiState.value.copy(
+                    updateState {
+                        copy(
                             isVoyagersLoading = false,
                             voyagersLoadError = result.error.toMessage(),
                         )
+                    }
                 }
 
                 Resource.Loading -> {
-                    _uiState.value = _uiState.value.copy(isVoyagersLoading = true)
+                    updateState { copy(isVoyagersLoading = true) }
                 }
             }
         }
@@ -187,8 +190,8 @@ class CreateVoyageSponsorViewModel(
 
     private fun syncBookingDraftData() {
         val draft = draftStore.state.value
-        _uiState.value =
-            _uiState.value.copy(
+        updateState {
+            copy(
                 voyagerUserId = draft.voyagerUserId,
                 eventName = draft.eventName,
                 voyageCategoryId = draft.voyageCategoryId,
@@ -205,21 +208,23 @@ class CreateVoyageSponsorViewModel(
                 totalCostAmount = draft.totalCostAmount,
                 pickup = draft.pickupDockName,
                 dropOff = draft.dropOffDockName,
-                sponsorEntries = if (draft.sponsorEntries.isNotEmpty()) draft.sponsorEntries else _uiState.value.sponsorEntries,
+                sponsorEntries = if (draft.sponsorEntries.isNotEmpty()) draft.sponsorEntries else sponsorEntries,
             )
+        }
     }
 
-    private fun syncDisplayData(updatedSponsors: List<Sponser>? = null) {
-        val currentSponsors = updatedSponsors ?: _uiState.value.sponsorEntries
+    private fun syncDisplayData(updatedSponsors: List<Sponsor>? = null) {
+        val currentSponsors = updatedSponsors ?: currentState.sponsorEntries
         val individualAmount = calculateIndividualFareAmount(currentSponsors)
-        _uiState.value =
-            _uiState.value.copy(
-                totalFare = _uiState.value.totalCostAmount.toString(),
+        updateState {
+            copy(
+                totalFare = totalCostAmount.toString(),
                 individualFare = individualAmount.toString(),
-                pickup = _uiState.value.pickup,
-                dropOff = _uiState.value.dropOff,
+                pickup = pickup,
+                dropOff = dropOff,
                 sponsorCount = currentSponsors.size.toString(),
                 sponsorEntries = currentSponsors,
             )
+        }
     }
 }

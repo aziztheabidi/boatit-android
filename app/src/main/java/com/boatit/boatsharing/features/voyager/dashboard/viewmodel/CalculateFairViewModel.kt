@@ -2,20 +2,16 @@ package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
 import android.text.format.DateFormat
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.CalculateVoyageFareUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.CalculateFair
 import com.boatit.boatsharing.features.voyager.dashboard.model.CreateVoyageUiEffect
 import com.boatit.boatsharing.features.voyager.dashboard.model.CreateVoyageUiEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -35,21 +31,14 @@ data class CreateVoyageUiState(
     val showStartTimePicker: Boolean = false,
     val showEndTimePicker: Boolean = false,
     val isButtonEnabled: Boolean = false,
-)
+    val fareResult: NetworkResponse<CalculateFair> = NetworkResponse.Loading(),
+) : UiState
 
 class CalculateFairViewModel(
     private val calculateVoyageFareUseCase: CalculateVoyageFareUseCase,
     private val draftStore: CreateVoyageDraftStore,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel(), ICreateVoyageViewModel {
-    private val _uiState = MutableStateFlow(CreateVoyageUiState())
-    override val uiState: StateFlow<CreateVoyageUiState> = _uiState
-
-    private val _uiEffects = MutableSharedFlow<CreateVoyageUiEffect>(extraBufferCapacity = 1)
-    override val uiEffects: SharedFlow<CreateVoyageUiEffect> = _uiEffects
-
-    private val _registrationState = MutableStateFlow<NetworkResponse<CalculateFair>>(NetworkResponse.Loading())
-    val registrationState: StateFlow<NetworkResponse<CalculateFair>> = _registrationState
-
+) : BaseViewModel<CreateVoyageUiState, CreateVoyageUiEvent, CreateVoyageUiEffect>(CreateVoyageUiState()),
+    ICreateVoyageViewModel {
     override fun onEvent(event: CreateVoyageUiEvent) {
         when (event) {
             is CreateVoyageUiEvent.DobChanged -> onDobChange(event.value)
@@ -70,8 +59,8 @@ class CalculateFairViewModel(
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val currentTime = DateFormat.format("HH:mm:ss", Date(System.currentTimeMillis())).toString()
 
-        _uiState.update {
-            it.copy(
+        updateState {
+            copy(
                 dob = currentDate,
                 startTime = currentTime,
             )
@@ -79,62 +68,62 @@ class CalculateFairViewModel(
     }
 
     fun onDobChange(newDob: String) {
-        _uiState.update { it.copy(dob = newDob) }
+        updateState { copy(dob = newDob) }
     }
 
     fun onStartTimeChange(newStartTime: String) {
-        _uiState.update { it.copy(startTime = newStartTime) }
+        updateState { copy(startTime = newStartTime) }
     }
 
     fun onEndTimeChange(newEndTime: String) {
-        _uiState.update { it.copy(endTime = newEndTime) }
+        updateState { copy(endTime = newEndTime) }
     }
 
     fun onTravelNowSwitchChange(isChecked: Boolean) {
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val currentTime = DateFormat.format("hh:mm:ss", Date(System.currentTimeMillis())).toString()
 
-        _uiState.update {
-            it.copy(
+        updateState {
+            copy(
                 travelNowSwitchState = isChecked,
-                dob = if (isChecked) currentDate else it.dob,
-                startTime = if (isChecked) currentTime else it.startTime,
+                dob = if (isChecked) currentDate else dob,
+                startTime = if (isChecked) currentTime else startTime,
             )
         }
     }
 
     fun resetNearbyPlaces() {
-        _registrationState.value = NetworkResponse.Loading()
+        updateState { copy(fareResult = NetworkResponse.Loading()) }
     }
 
     fun onSpendTimeSwitchChange(isChecked: Boolean) {
-        _uiState.update { it.copy(spendTimeSwitchState = isChecked) }
+        updateState { copy(spendTimeSwitchState = isChecked) }
     }
 
     fun onShowDatePicker(show: Boolean) {
-        _uiState.update { it.copy(showDatePicker = show) }
+        updateState { copy(showDatePicker = show) }
     }
 
     fun onShowStartTimePicker(show: Boolean) {
-        _uiState.update { it.copy(showStartTimePicker = show) }
+        updateState { copy(showStartTimePicker = show) }
     }
 
     fun onShowEndTimePicker(show: Boolean) {
-        _uiState.update { it.copy(showEndTimePicker = show) }
+        updateState { copy(showEndTimePicker = show) }
     }
 
     fun clearError() {
-        _uiState.update { it.copy(errorMessage = null, isNetworkError = false) }
+        updateState { copy(errorMessage = null, isNetworkError = false) }
     }
 
     fun calculateFare() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, isNetworkError = false, errorMessage = null) }
+            updateState { copy(isLoading = true, isNetworkError = false, errorMessage = null) }
             val durationHours =
-                if (_uiState.value.spendTimeSwitchState) {
+                if (currentState.spendTimeSwitchState) {
                     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                    val start = timeFormat.parse(_uiState.value.startTime)
-                    val end = timeFormat.parse(_uiState.value.endTime)
+                    val start = timeFormat.parse(currentState.startTime)
+                    val end = timeFormat.parse(currentState.endTime)
                     val durationMillis = end.time - start.time
                     val durationInMinutes = TimeUnit.MILLISECONDS.toMinutes(durationMillis)
                     durationInMinutes.toDouble() / 60.0
@@ -154,9 +143,14 @@ class CalculateFairViewModel(
             when (val resource = result.toResource()) {
                 is Resource.Success -> {
                     val response = resource.data
-                    _registrationState.value = NetworkResponse.Success(response)
-                    _uiState.update { it.copy(isLoading = false, isButtonEnabled = true) }
-                    _uiEffects.tryEmit(CreateVoyageUiEffect.NavigateToRateCalculation)
+                    updateState {
+                        copy(
+                            isLoading = false,
+                            isButtonEnabled = true,
+                            fareResult = NetworkResponse.Success(response),
+                        )
+                    }
+                    emitEffect(CreateVoyageUiEffect.NavigateToRateCalculation)
 
                     draftStore.setDraft(
                         CreateVoyageDraftState(
@@ -169,12 +163,12 @@ class CalculateFairViewModel(
                             dropOffDockId = draftStore.state.value.dropOffDockId,
                             dropOffDockName = draftStore.state.value.dropOffDockName,
                             noOfVoyagers = draftStore.state.value.noOfVoyagers,
-                            isImmediately = _uiState.value.travelNowSwitchState,
+                            isImmediately = currentState.travelNowSwitchState,
                             splitPaymentEnabled = draftStore.state.value.splitPaymentEnabled,
-                            bookingDate = _uiState.value.dob,
-                            startTime = _uiState.value.startTime,
-                            isStayOnWater = _uiState.value.spendTimeSwitchState,
-                            endTime = _uiState.value.endTime,
+                            bookingDate = currentState.dob,
+                            startTime = currentState.startTime,
+                            isStayOnWater = currentState.spendTimeSwitchState,
+                            endTime = currentState.endTime,
                             perHourRate = response.obj?.PerHourRate ?: 0.0,
                             durationInHours = durationHours,
                             estimatedCost = response.obj?.TotalFair ?: 0.0,
@@ -187,19 +181,23 @@ class CalculateFairViewModel(
                 is Resource.Error -> {
                     val message = resource.error.toMessage()
                     Log.e("calculate_fare_error", message)
-                    _registrationState.value = NetworkResponse.Error(resource.error)
-                    _uiState.update {
-                        it.copy(
+                    updateState {
+                        copy(
                             isLoading = false,
                             isNetworkError = true,
                             errorMessage = message,
+                            fareResult = NetworkResponse.Error(resource.error),
                         )
                     }
                 }
 
                 Resource.Loading -> {
-                    _registrationState.value = NetworkResponse.Loading()
-                    _uiState.update { it.copy(isLoading = true) }
+                    updateState {
+                        copy(
+                            isLoading = true,
+                            fareResult = NetworkResponse.Loading(),
+                        )
+                    }
                 }
             }
         }

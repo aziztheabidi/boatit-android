@@ -1,28 +1,55 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
 import android.location.Location
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
 import com.boatit.boatsharing.features.captain.dashboard.model.LocationData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ShipTrackingViewModel(private val database: FirebaseDatabase, private val userId: String) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _userLocation = MutableStateFlow<Location?>(null)
-    val userLocation: StateFlow<Location?> = _userLocation
+data class ShipTrackingUiState(
+    val userLocation: Location? = null,
+) : UiState
 
+sealed interface ShipTrackingUiEvent : UiEvent {
+    data object StartListening : ShipTrackingUiEvent
+
+    data object StopListening : ShipTrackingUiEvent
+
+    data class LocationUpdated(val location: Location) : ShipTrackingUiEvent
+}
+
+sealed interface ShipTrackingUiEffect : UiEffect {
+    data object NoOpEffect : ShipTrackingUiEffect
+}
+
+class ShipTrackingViewModel(
+    private val database: FirebaseDatabase,
+    private val userId: String,
+) : BaseViewModel<ShipTrackingUiState, ShipTrackingUiEvent, ShipTrackingUiEffect>(ShipTrackingUiState()) {
     private val userRef: DatabaseReference = database.reference.child("user_locations").child(userId)
     private var locationListener: ValueEventListener? = null
-    private var isListening = false // Flag to track listener state
+    private var isListening = false
+
+    override fun onEvent(event: ShipTrackingUiEvent) {
+        when (event) {
+            ShipTrackingUiEvent.StartListening -> startListening()
+            ShipTrackingUiEvent.StopListening -> stopListening()
+            is ShipTrackingUiEvent.LocationUpdated -> {
+                updateState { copy(userLocation = event.location) }
+            }
+        }
+    }
 
     fun startListening() {
-        if (isListening) return // Prevent multiple listeners
+        if (isListening) return
         isListening = true
 
         locationListener =
@@ -35,13 +62,13 @@ class ShipTrackingViewModel(private val database: FirebaseDatabase, private val 
                                 longitude = locationData.longitude
                             }
                         viewModelScope.launch {
-                            _userLocation.emit(location)
+                            onEvent(ShipTrackingUiEvent.LocationUpdated(location))
                         }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    isListening = false // Reset flag on error
+                    isListening = false
                 }
             }
 

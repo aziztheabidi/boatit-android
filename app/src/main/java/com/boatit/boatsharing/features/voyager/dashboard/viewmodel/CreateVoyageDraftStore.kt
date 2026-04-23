@@ -1,6 +1,6 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
-import com.boatit.boatsharing.features.voyager.dashboard.model.Sponser
+import com.boatit.boatsharing.features.voyager.dashboard.model.Sponsor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +25,7 @@ data class CreateVoyageDraftState(
     val durationInHours: Double = 0.0,
     val estimatedCost: Double = 0.0,
     val totalCostAmount: Double = 0.0,
-    val sponsorEntries: List<Sponser> = emptyList(),
+    val sponsorEntries: List<Sponsor> = emptyList(),
 )
 
 class CreateVoyageDraftStore {
@@ -52,7 +52,7 @@ class CreateVoyageDraftStore {
             )
     }
 
-    fun setSponsors(sponsors: List<Sponser>) {
+    fun setSponsors(sponsors: List<Sponsor>) {
         _state.value =
             _state.value.copy(
                 initialized = true,

@@ -28,12 +28,12 @@ class VoyageBookingSerializationContractTest {
                 EndTime = "11:00:00",
                 PerHourRate = 100.0,
                 DurationInHours = 1.0,
-                NoOfSponsers = 1,
+                noOfSponsors = 1,
                 EstimatedCost = 100.0,
                 IndvidualAmount = 100.0,
-                Sponsers =
+                sponsors =
                     listOf(
-                        Sponser(
+                        Sponsor(
                             VoyagerUserId = "u-2",
                             VoyagerUserName = "Alex",
                             AmountToPay = 100.0,

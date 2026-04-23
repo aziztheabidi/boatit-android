@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.features.voyager.dashboard.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 @Serializable
 data class TravelNowResponse(
@@ -29,5 +30,6 @@ data class TravelNowObj(
     val WaterStay: String? = "",
     val Duration: String? = "",
     val BookingDateTime: String? = "",
-    val Sponsers: List<Sponser>? = emptyList(),
+    @SerialName("Sponsers")
+    val sponsors: List<Sponsor>? = emptyList(),
 )

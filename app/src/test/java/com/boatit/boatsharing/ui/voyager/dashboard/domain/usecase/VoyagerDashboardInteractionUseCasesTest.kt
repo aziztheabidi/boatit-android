@@ -291,7 +291,7 @@ class VoyagerDashboardInteractionUseCasesTest {
             WaterStay = "No",
             Duration = "1h",
             BookingDateTime = "2026-04-05",
-            Sponsers = emptyList(),
+            sponsors = emptyList(),
         )
     }
 }

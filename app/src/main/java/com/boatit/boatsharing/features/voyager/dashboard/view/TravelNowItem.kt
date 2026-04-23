@@ -67,7 +67,7 @@ import com.boatit.boatsharing.domain.core.ErrorType
 import com.boatit.boatsharing.features.voyager.dashboard.model.CancelBookedVoyages
 import com.boatit.boatsharing.features.voyager.dashboard.model.ConfirmBookedVoyages
 import com.boatit.boatsharing.features.voyager.dashboard.model.PaymentConfirmationRequest
-import com.boatit.boatsharing.features.voyager.dashboard.model.Sponser
+import com.boatit.boatsharing.features.voyager.dashboard.model.Sponsor
 import com.boatit.boatsharing.features.voyager.dashboard.model.SponsorVoyagePaymentRequest
 import com.boatit.boatsharing.features.voyager.dashboard.model.TravelNowObj
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.CancelBookedVoyageViewModel
@@ -90,9 +90,12 @@ fun TravelNowItem(
     viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel(),
     userSessionStore: UserSessionStore = get(UserSessionStore::class.java),
 ) {
-    val ConfirmState by viewModelConfirm.confirmationState.collectAsState()
-    val stripeState by viewModelStripe.paymentSheetConfigState.collectAsState()
-    val paymentState by viewModelP.loginState.collectAsState()
+    val confirmUi by viewModelConfirm.uiState.collectAsState()
+    val ConfirmState = confirmUi.confirmationState
+    val stripeVm by viewModelStripe.uiState.collectAsState()
+    val stripeState = stripeVm.paymentSheetConfigState
+    val paymentUi by viewModelP.uiState.collectAsState()
+    val paymentState = paymentUi.networkState
     val context = LocalContext.current
 
     var loading by remember { mutableStateOf(false) }
@@ -453,7 +456,7 @@ fun TravelNowItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            SponsorsList(notification?.Sponsers.orEmpty())
+            SponsorsList(notification?.sponsors.orEmpty())
 
             Spacer(Modifier.height(10.dp))
             Row(
@@ -509,7 +512,7 @@ fun TravelNowItem(
             if (showDialog) {
                 val sponsorNames =
                     remember(notification) {
-                        notification?.Sponsers.orEmpty().joinToString(", ") { it.VoyagerUserName }
+                        notification?.sponsors.orEmpty().joinToString(", ") { it.VoyagerUserName }
                     }
                 MissingPaymentDialog(
                     name = sponsorNames,
@@ -550,7 +553,7 @@ fun TravelNowItem(
 }
 
 @Composable
-fun SponsorsList(users: List<Sponser>) {
+fun SponsorsList(users: List<Sponsor>) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier =

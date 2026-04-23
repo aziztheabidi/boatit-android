@@ -118,8 +118,8 @@ class SharedPrefManager(context: Context) {
             putString(KEY_USERNAME, userData.Username)
             putString(KEY_USERROLE, userData.Role)
             putInt(KEY_STEP, userData.MissingStep)
-            putString(KEY_ACCESS_TOKEN, userData.Accesstoken)
-            putString(KEY_REFRESH_TOKEN, userData.Refreshtoken)
+            putString(KEY_ACCESS_TOKEN, userData.accessToken)
+            putString(KEY_REFRESH_TOKEN, userData.refreshToken)
             apply()
         }
     }
@@ -150,8 +150,8 @@ class SharedPrefManager(context: Context) {
             Username = username,
             Role = userrole,
             MissingStep = step,
-            Accesstoken = accessToken,
-            Refreshtoken = refreshToken,
+            accessToken = accessToken,
+            refreshToken = refreshToken,
         )
     }
 

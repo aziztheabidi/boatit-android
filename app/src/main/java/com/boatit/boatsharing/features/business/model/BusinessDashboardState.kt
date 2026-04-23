@@ -1,5 +1,7 @@
 package com.boatit.boatsharing.features.business.model
 
+import com.boatit.boatsharing.core.presentation.UiState
+
 data class LocationData(
     val location: String = "",
     val state: String = "",
@@ -35,4 +37,4 @@ data class BusinessDashboardState(
     val isLoading: Boolean = true,
     val isError: Boolean = false,
     val errorMessage: String? = null,
-)
+) : UiState

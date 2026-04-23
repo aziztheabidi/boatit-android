@@ -37,7 +37,7 @@ class SponsorPaymentConfirmationViewModelTest {
             viewModel.payment(sampleRequest())
             advanceUntilIdle()
 
-            assertTrue(viewModel.loginState.value is NetworkResponse.Success)
+            assertTrue(viewModel.uiState.value.networkState is NetworkResponse.Success)
         }
 
     @Test
@@ -52,9 +52,10 @@ class SponsorPaymentConfirmationViewModelTest {
             viewModel.payment(sampleRequest())
             advanceUntilIdle()
 
-            val state = viewModel.loginState.value
-            assertTrue(state is NetworkResponse.Error)
-            assertEquals("sponsor payment failed", (state as NetworkResponse.Error).message)
+            when (val state = viewModel.uiState.value.networkState) {
+                is NetworkResponse.Error -> assertEquals("sponsor payment failed", state.message)
+                else -> assertTrue("expected NetworkResponse.Error", false)
+            }
         }
 
     private fun sampleRequest(): PaymentConfirmationRequest {

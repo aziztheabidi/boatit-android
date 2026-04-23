@@ -1,8 +1,10 @@
 package com.boatit.boatsharing.features.voyager.dashboard.model
 
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.CreateVoyageRateCalcUiState
 
-sealed interface CreateVoyageRateCalcUiEvent {
+sealed interface CreateVoyageRateCalcUiEvent : UiEvent {
     data object Initialize : CreateVoyageRateCalcUiEvent
 
     data class EventNameChanged(val value: String) : CreateVoyageRateCalcUiEvent
@@ -12,7 +14,7 @@ sealed interface CreateVoyageRateCalcUiEvent {
     data object Proceed : CreateVoyageRateCalcUiEvent
 }
 
-sealed interface CreateVoyageRateCalcUiEffect {
+sealed interface CreateVoyageRateCalcUiEffect : UiEffect {
     data class NavigateToSponsor(val splitPayment: Boolean) : CreateVoyageRateCalcUiEffect
 }
 

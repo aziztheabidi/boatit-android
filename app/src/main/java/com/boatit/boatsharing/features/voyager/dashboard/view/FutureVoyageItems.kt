@@ -88,9 +88,12 @@ fun FutureVoyagerItems(
     viewModelP: SponsorPaymentConfirmationViewModel = koinViewModel(),
     userSessionStore: UserSessionStore = get(UserSessionStore::class.java),
 ) {
-    val ConfirmState by viewModelConfirm.confirmationState.collectAsState()
-    val stripeState by viewModelStripe.paymentSheetConfigState.collectAsState()
-    val paymentState by viewModelP.loginState.collectAsState()
+    val confirmUi by viewModelConfirm.uiState.collectAsState()
+    val ConfirmState = confirmUi.confirmationState
+    val stripeVm by viewModelStripe.uiState.collectAsState()
+    val stripeState = stripeVm.paymentSheetConfigState
+    val paymentUi by viewModelP.uiState.collectAsState()
+    val paymentState = paymentUi.networkState
 
     val context = LocalContext.current
 
@@ -464,7 +467,7 @@ fun FutureVoyagerItems(
 
             Spacer(Modifier.height(10.dp))
 
-            SponsorsList(notification?.Sponsers.orEmpty())
+            SponsorsList(notification?.sponsors.orEmpty())
 
             Spacer(Modifier.height(10.dp))
 
@@ -535,7 +538,7 @@ fun FutureVoyagerItems(
             if (showDialog) {
                 val sponsorNames =
                     remember(notification) {
-                        notification?.Sponsers.orEmpty().joinToString(", ") { it.VoyagerUserName }
+                        notification?.sponsors.orEmpty().joinToString(", ") { it.VoyagerUserName }
                     }
                 MissingPaymentDialog(
                     name = sponsorNames,

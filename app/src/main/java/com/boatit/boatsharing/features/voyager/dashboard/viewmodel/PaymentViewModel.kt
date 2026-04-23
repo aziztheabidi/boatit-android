@@ -11,14 +11,14 @@ import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.ConfirmVoyagePaymentUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.PaymentConfirmationRequest
 import com.boatit.boatsharing.features.voyager.dashboard.model.VoyagePaymentResponse
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 data class PaymentUiState(
     val isLoading: Boolean = false,
     val paymentResponse: VoyagePaymentResponse? = null,
     val errorMessage: String? = null,
+    /** Same contract as the former `loginState` flow: payment gateway [NetworkResponse]. */
+    val networkState: NetworkResponse<VoyagePaymentResponse> = NetworkResponse.Loading(),
 ) : UiState
 
 sealed interface PaymentUiEvent : UiEvent {
@@ -36,9 +36,6 @@ sealed interface PaymentUiEffect : UiEffect {
 class PaymentViewModel(
     private val confirmVoyagePaymentUseCase: ConfirmVoyagePaymentUseCase,
 ) : BaseViewModel<PaymentUiState, PaymentUiEvent, PaymentUiEffect>(PaymentUiState()) {
-    private val _loginState = MutableStateFlow<NetworkResponse<VoyagePaymentResponse>>(NetworkResponse.Loading())
-    val loginState: StateFlow<NetworkResponse<VoyagePaymentResponse>> = _loginState
-
     override fun onEvent(event: PaymentUiEvent) {
         when (event) {
             is PaymentUiEvent.ConfirmPayment -> payment(event.request)
@@ -48,33 +45,59 @@ class PaymentViewModel(
 
     fun payment(request: PaymentConfirmationRequest) {
         viewModelScope.launch {
-            updateState { copy(isLoading = true, errorMessage = null) }
-            _loginState.value = NetworkResponse.Loading()
+            updateState {
+                copy(
+                    isLoading = true,
+                    errorMessage = null,
+                    networkState = NetworkResponse.Loading(),
+                )
+            }
 
             when (val result = confirmVoyagePaymentUseCase(request).toResource()) {
                 is Resource.Success -> {
-                    updateState { copy(isLoading = false, paymentResponse = result.data, errorMessage = null) }
-                    _loginState.value = NetworkResponse.Success(result.data)
+                    updateState {
+                        copy(
+                            isLoading = false,
+                            paymentResponse = result.data,
+                            errorMessage = null,
+                            networkState = NetworkResponse.Success(result.data),
+                        )
+                    }
                     emitEffect(PaymentUiEffect.PaymentConfirmed(result.data))
                 }
 
                 is Resource.Error -> {
                     val message = result.error.toMessage()
-                    updateState { copy(isLoading = false, errorMessage = message) }
-                    _loginState.value = NetworkResponse.Error(result.error)
+                    updateState {
+                        copy(
+                            isLoading = false,
+                            errorMessage = message,
+                            networkState = NetworkResponse.Error(result.error),
+                        )
+                    }
                     emitEffect(PaymentUiEffect.ShowToast(message))
                 }
 
                 Resource.Loading -> {
-                    updateState { copy(isLoading = true) }
-                    _loginState.value = NetworkResponse.Loading()
+                    updateState {
+                        copy(
+                            isLoading = true,
+                            networkState = NetworkResponse.Loading(),
+                        )
+                    }
                 }
             }
         }
     }
 
     fun resetNearbyPlaces() {
-        updateState { copy(isLoading = false, paymentResponse = null, errorMessage = null) }
-        _loginState.value = NetworkResponse.Loading()
+        updateState {
+            copy(
+                isLoading = false,
+                paymentResponse = null,
+                errorMessage = null,
+                networkState = NetworkResponse.Loading(),
+            )
+        }
     }
 }

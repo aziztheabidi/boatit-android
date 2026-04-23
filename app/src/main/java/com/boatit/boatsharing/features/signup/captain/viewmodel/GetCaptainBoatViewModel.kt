@@ -1,36 +1,58 @@
 package com.boatit.boatsharing.features.signup.captain.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.signup.captain.domain.usecase.FetchCaptainBoatUseCase
 import com.boatit.boatsharing.features.signup.captain.model.GetCaptainBoatResponse
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+data class GetCaptainBoatUiState(
+    val registrationState: NetworkResponse<GetCaptainBoatResponse> = NetworkResponse.Loading(),
+) : UiState
+
+sealed interface GetCaptainBoatUiEvent : UiEvent {
+    data object Fetch : GetCaptainBoatUiEvent
+}
+
+sealed interface GetCaptainBoatUiEffect : UiEffect {
+    data object NoOpEffect : GetCaptainBoatUiEffect
+}
 
 class GetCaptainBoatViewModel(
     private val fetchCaptainBoatUseCase: FetchCaptainBoatUseCase,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _registrationState = MutableStateFlow<NetworkResponse<GetCaptainBoatResponse>>(NetworkResponse.Loading())
-    val registrationState: StateFlow<NetworkResponse<GetCaptainBoatResponse>> = _registrationState
+) : BaseViewModel<GetCaptainBoatUiState, GetCaptainBoatUiEvent, GetCaptainBoatUiEffect>(
+        GetCaptainBoatUiState(),
+    ) {
+    override fun onEvent(event: GetCaptainBoatUiEvent) {
+        when (event) {
+            GetCaptainBoatUiEvent.Fetch -> fetchBoat()
+        }
+    }
 
     fun GetCaptainBoat() {
+        onEvent(GetCaptainBoatUiEvent.Fetch)
+    }
+
+    private fun fetchBoat() {
         viewModelScope.launch {
-            _registrationState.value = NetworkResponse.Loading()
+            updateState { copy(registrationState = NetworkResponse.Loading()) }
             when (val result = fetchCaptainBoatUseCase().toResource()) {
                 is Resource.Success -> {
-                    _registrationState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(registrationState = NetworkResponse.Success(result.data)) }
                 }
 
                 is Resource.Error -> {
-                    _registrationState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(registrationState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _registrationState.value = NetworkResponse.Loading()
+                    updateState { copy(registrationState = NetworkResponse.Loading()) }
                 }
             }
         }

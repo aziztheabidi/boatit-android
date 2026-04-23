@@ -19,8 +19,8 @@ fun RoleResponseDto.toDomainModel(): RoleAssignmentDomainModel =
     RoleAssignmentDomainModel(
         status = Status,
         message = Message,
-        accessToken = obj?.Accesstoken,
-        refreshToken = obj?.Refreshtoken,
+        accessToken = obj?.accessToken,
+        refreshToken = obj?.refreshToken,
     )
 
 fun UpdateDeviceTokenResponseDto.toDomainModel(): DeviceTokenUpdateDomainModel =

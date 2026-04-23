@@ -41,6 +41,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.navigation.NavigationManager
 import com.boatit.boatsharing.features.signup.captain.view.MyFutureDatePickerDialog
+import com.boatit.boatsharing.features.signup.captain.viewmodel.CaptainDocsUiEvent
 import com.boatit.boatsharing.features.signup.captain.viewmodel.CaptainDocsViewModel
 import com.boatit.boatsharing.features.signup.captain.viewmodel.GetCaptainDocsViewModel
 import com.boatit.boatsharing.ui.components.CustomButton
@@ -61,14 +62,17 @@ fun AddCaptainDocumentInfoScreen(
     val showDialog = mutableStateOf(false)
     val showDialogExp = mutableStateOf(false)
     val focusManager = LocalFocusManager.current
-    val registrationState by viewModel.registrationState.collectAsState()
-    val fetchState by viewModelfetch.registrationState.collectAsState()
+    val docsUi by viewModel.uiState.collectAsState()
+    val registrationState = docsUi.registrationState
+    val fetchVm by viewModelfetch.uiState.collectAsState()
+    val fetchState = fetchVm.registrationState
     var getingData by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val handleError = {
         errorMessage = null
         isError = false
+        viewModel.onEvent(CaptainDocsUiEvent.ClearError)
     }
 
     LaunchedEffect(registrationState) {
@@ -92,7 +96,7 @@ fun AddCaptainDocumentInfoScreen(
 
     LaunchedEffect(fetchState) {
         if (fetchState is NetworkResponse.Success && getingData) {
-            viewModel.loadInitialData(fetchState.data)
+            viewModel.onEvent(CaptainDocsUiEvent.LoadInitial(fetchState.data))
             getingData = false
         }
     }
@@ -122,7 +126,7 @@ fun AddCaptainDocumentInfoScreen(
             if (showDialog.value) {
                 MyFutureDatePickerDialog(
                     onDateSelected = {
-                        viewModel.policyExpirationDate = it
+                        viewModel.onEvent(CaptainDocsUiEvent.PolicyExpirationChanged(it))
                     },
                     onDismiss = { showDialog.value = false },
                 )
@@ -130,15 +134,15 @@ fun AddCaptainDocumentInfoScreen(
             if (showDialogExp.value) {
                 MyFutureDatePickerDialog(
                     onDateSelected = {
-                        viewModel.licenseNoExpiryDate = it
+                        viewModel.onEvent(CaptainDocsUiEvent.LicenseExpiryChanged(it))
                     },
                     onDismiss = { showDialogExp.value = false },
                 )
             }
             Spacer(Modifier.height(30.dp))
-            DocumentField(label = R.string.license_label, value = viewModel.licenseNo, onValueChange = {
-                viewModel.licenseNo = it
-            }, errorCondition = viewModel.licenseNo.length <= 5)
+            DocumentField(label = R.string.license_label, value = docsUi.licenseNo, onValueChange = {
+                viewModel.onEvent(CaptainDocsUiEvent.LicenseNoChanged(it))
+            }, errorCondition = docsUi.licenseNo.length <= 5)
             Text(text = "License Expiration Date", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.Black))
             Spacer(Modifier.height(10.dp))
             Spacer(modifier = Modifier.height(10.dp))
@@ -146,9 +150,9 @@ fun AddCaptainDocumentInfoScreen(
                 modifier = Modifier.clickable { showDialogExp.value = true },
             ) {
                 CustomDobField(
-                    textValue = viewModel.licenseNoExpiryDate,
+                    textValue = docsUi.licenseNoExpiryDate,
                     placeholderText = stringResource(R.string.dob_placeholder),
-                    onTextChange = { viewModel.licenseNoExpiryDate = it },
+                    onTextChange = { viewModel.onEvent(CaptainDocsUiEvent.LicenseExpiryChanged(it)) },
                     keyboardType = KeyboardType.Text,
                     maxChars = 40,
                     errorMessage = null,
@@ -161,15 +165,15 @@ fun AddCaptainDocumentInfoScreen(
             Spacer(Modifier.height(10.dp))
             Spacer(modifier = Modifier.height(10.dp))
 
-            DocumentField(label = R.string.license_type_label, value = viewModel.licenseType, onValueChange = {
-                viewModel.licenseType = it
-            }, errorCondition = viewModel.licenseType.length <= 3)
-            DocumentField(label = R.string.insurance_company_label, value = viewModel.insuranceCompany, onValueChange = {
-                viewModel.insuranceCompany = it
-            }, errorCondition = viewModel.insuranceCompany.length <= 3)
-            DocumentField(label = R.string.policy_number_label, value = viewModel.policyNo, onValueChange = {
-                viewModel.policyNo = it
-            }, errorCondition = viewModel.policyNo.length <= 3)
+            DocumentField(label = R.string.license_type_label, value = docsUi.licenseType, onValueChange = {
+                viewModel.onEvent(CaptainDocsUiEvent.LicenseTypeChanged(it))
+            }, errorCondition = docsUi.licenseType.length <= 3)
+            DocumentField(label = R.string.insurance_company_label, value = docsUi.insuranceCompany, onValueChange = {
+                viewModel.onEvent(CaptainDocsUiEvent.InsuranceCompanyChanged(it))
+            }, errorCondition = docsUi.insuranceCompany.length <= 3)
+            DocumentField(label = R.string.policy_number_label, value = docsUi.policyNo, onValueChange = {
+                viewModel.onEvent(CaptainDocsUiEvent.PolicyNoChanged(it))
+            }, errorCondition = docsUi.policyNo.length <= 3)
             Text(text = "Policy Expiration Date", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.Black))
             Spacer(Modifier.height(10.dp))
             Spacer(modifier = Modifier.height(10.dp))
@@ -177,9 +181,9 @@ fun AddCaptainDocumentInfoScreen(
                 modifier = Modifier.clickable { showDialog.value = true },
             ) {
                 CustomDobField(
-                    textValue = viewModel.policyExpirationDate,
+                    textValue = docsUi.policyExpirationDate,
                     placeholderText = stringResource(R.string.dob_placeholder),
-                    onTextChange = { viewModel.policyExpirationDate = it },
+                    onTextChange = { viewModel.onEvent(CaptainDocsUiEvent.PolicyExpirationChanged(it)) },
                     keyboardType = KeyboardType.Text,
                     maxChars = 40,
                     errorMessage = null,
@@ -192,10 +196,10 @@ fun AddCaptainDocumentInfoScreen(
             Spacer(modifier = Modifier.height(40.dp))
             CustomButton(
                 text = stringResource(R.string.save_button_label),
-                isValidate = viewModel.isFormValid,
-                isLoading = viewModel.isLoading,
+                isValidate = docsUi.isFormValid,
+                isLoading = docsUi.isLoading,
                 onButtonClick = {
-                    viewModel.saveDocs()
+                    viewModel.onEvent(CaptainDocsUiEvent.SaveDocs)
                     focusManager.clearFocus()
                 },
             )

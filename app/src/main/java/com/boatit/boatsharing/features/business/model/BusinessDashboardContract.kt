@@ -1,10 +1,12 @@
 package com.boatit.boatsharing.features.business.model
 
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
 import java.io.File
 
 typealias BusinessDashboardUiState = BusinessDashboardState
 
-sealed interface BusinessDashboardUiEvent {
+sealed interface BusinessDashboardUiEvent : UiEvent {
     data object Initialize : BusinessDashboardUiEvent
 
     data class UpdateImageList(val imageList: List<String>) : BusinessDashboardUiEvent
@@ -32,7 +34,7 @@ sealed interface BusinessDashboardUiEvent {
     data object SaveBusinessProfile : BusinessDashboardUiEvent
 }
 
-sealed interface BusinessDashboardUiEffect {
+sealed interface BusinessDashboardUiEffect : UiEffect {
     data class ShowToast(val message: String) : BusinessDashboardUiEffect
 
     data object SessionExpired : BusinessDashboardUiEffect

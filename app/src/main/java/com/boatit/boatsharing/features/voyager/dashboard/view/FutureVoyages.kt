@@ -53,6 +53,7 @@ import com.boatit.boatsharing.ui.navigation.popBack
 import com.boatit.boatsharing.features.voyager.dashboard.model.BookedVoyageObj
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.ConfirmBookedVoyageViewModel
+import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.FutureVoyagesUiEvent
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.FutureVoyagesViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.SponsorPaymentConfirmationViewModel
 import com.boatit.boatsharing.ui.components.CustomTopBar
@@ -69,10 +70,14 @@ fun FutureVoyages(
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("UnConfirmed", "Pending")
     val context = LocalContext.current
-    val paymentState by viewModelP.loginState.collectAsState()
-    val voyagesList by viewModel.loginState.collectAsState()
-    val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
-    val ConfirmState by viewModelConfirm.confirmationState.collectAsState()
+    val paymentUi by viewModelP.uiState.collectAsState()
+    val paymentState = paymentUi.networkState
+    val futureVoyagesUi by viewModel.uiState.collectAsState()
+    val voyagesList = futureVoyagesUi.voyagesResult
+    val cancelUi by viewModelCancel.uiState.collectAsState()
+    val CancelState = cancelUi.nearbyPlaces
+    val confirmUi by viewModelConfirm.uiState.collectAsState()
+    val ConfirmState = confirmUi.confirmationState
     var getingData by remember { mutableStateOf(true) }
     var voyages by remember { mutableStateOf<BookedVoyageObj?>(null) }
 
@@ -81,14 +86,14 @@ fun FutureVoyages(
             is NetworkResponse.Success -> {
                 Toast.makeText(context, CancelState.message.toString(), Toast.LENGTH_SHORT).show()
                 getingData = true
-                viewModel.voyages()
+                viewModel.onEvent(FutureVoyagesUiEvent.FetchVoyages)
                 viewModelCancel.resetNearbyPlaces()
             }
 
             is NetworkResponse.Error -> {
                 Toast.makeText(context, CancelState.message, Toast.LENGTH_SHORT).show()
                 getingData = true
-                viewModel.voyages()
+                viewModel.onEvent(FutureVoyagesUiEvent.FetchVoyages)
                 viewModelCancel.resetNearbyPlaces()
             }
 
@@ -103,14 +108,14 @@ fun FutureVoyages(
                     getingData = false
                     voyages = voyagesList.data?.obj
                     Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
-                    viewModel.resetNearbyPlaces()
+                    viewModel.onEvent(FutureVoyagesUiEvent.Reset)
                 }
             }
 
             is NetworkResponse.Error -> {
                 getingData = true
                 Toast.makeText(context, voyagesList.message, Toast.LENGTH_SHORT).show()
-                viewModel.resetNearbyPlaces()
+                viewModel.onEvent(FutureVoyagesUiEvent.Reset)
             }
 
             else -> Unit
@@ -121,7 +126,7 @@ fun FutureVoyages(
         when (ConfirmState) {
             is NetworkResponse.Success -> {
                 Toast.makeText(context, "Voyage Confirmed", Toast.LENGTH_SHORT).show()
-                viewModel.voyages()
+                viewModel.onEvent(FutureVoyagesUiEvent.FetchVoyages)
                 getingData = true
                 viewModelConfirm.resetConfirmationState()
             }
@@ -137,7 +142,7 @@ fun FutureVoyages(
             is NetworkResponse.Success,
             is NetworkResponse.Error,
             -> {
-                viewModel.voyages()
+                viewModel.onEvent(FutureVoyagesUiEvent.FetchVoyages)
                 getingData = true
                 viewModelP.resetNearbyPlaces()
             }
@@ -147,7 +152,7 @@ fun FutureVoyages(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.voyages()
+        viewModel.onEvent(FutureVoyagesUiEvent.FetchVoyages)
     }
 
     Scaffold(

@@ -33,55 +33,27 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.boatit.boatsharing.R
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
-import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.CancelBookedVoyageViewModel
-import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.ConfirmBookedVoyageViewModel
+import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.TravelNowUiEffect
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.TravelNowViewModel
 import com.boatit.boatsharing.ui.components.CustomTopBar
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun TravelNow(
     navController: NavController,
-    viewModelCancel: CancelBookedVoyageViewModel = koinViewModel(),
-    viewModelConfirm: ConfirmBookedVoyageViewModel = koinViewModel(),
     viewModel: TravelNowViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.state.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
-    val CancelState by viewModelCancel.nearbyPlaces.collectAsState()
-    val ConfirmState by viewModelConfirm.confirmationState.collectAsState()
-
-    LaunchedEffect(CancelState) {
-        when (CancelState) {
-            is NetworkResponse.Success -> {
-                Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show()
-                viewModel.loadVoyages()
-                viewModelCancel.resetNearbyPlaces()
+    LaunchedEffect(viewModel) {
+        viewModel.uiEffect.collectLatest { effect ->
+            when (effect) {
+                is TravelNowUiEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
             }
-
-            is NetworkResponse.Error -> {
-                Toast.makeText(context, CancelState.message, Toast.LENGTH_SHORT).show()
-                viewModel.loadVoyages()
-                viewModelCancel.resetNearbyPlaces()
-            }
-
-            else -> Unit
-        }
-    }
-
-    LaunchedEffect(ConfirmState) {
-        when (ConfirmState) {
-            is NetworkResponse.Success -> {
-                Toast.makeText(context, "Voyage Confirmed", Toast.LENGTH_SHORT).show()
-                viewModel.loadVoyages()
-                viewModelConfirm.resetConfirmationState()
-            }
-
-            is NetworkResponse.Error,
-            is NetworkResponse.Loading,
-            -> Unit
         }
     }
 

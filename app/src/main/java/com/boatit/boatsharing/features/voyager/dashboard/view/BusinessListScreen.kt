@@ -86,7 +86,8 @@ fun BusinessListScreen(
     val tabTitles = listOf("Followed", "All")
     var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
     var notification by remember { mutableStateOf<VoyageNotification?>(null) }
-    val followState by viewModelF.nearbyPlaces.collectAsState()
+    val followUi by viewModelF.uiState.collectAsState()
+    val followState = followUi.nearbyPlaces
 
     when (followState) {
         is NetworkResponse.Success -> {

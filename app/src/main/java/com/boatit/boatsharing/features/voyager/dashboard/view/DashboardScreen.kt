@@ -67,8 +67,10 @@ import com.boatit.boatsharing.features.voyager.dashboard.model.PaymentConfirmati
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.CancelBookedVoyageViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.FindBoatPrefillStore
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.FindBoatViewModel
+import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.GetActiveVoyageUiEvent
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.GetActiveVoyageViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.NearByVoyagesViewModel
+import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.PaymentSheetConfigUiEvent
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.PaymentSheetConfigViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.PaymentViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.VoyageSessionStore
@@ -138,7 +140,8 @@ fun DashboardScreen(
     val coroutineScope = rememberCoroutineScope()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val markerState = remember { MarkerState(position = currentLatLng) }
-    val logoutEvent by viewModel.logoutEvent.collectAsState()
+    val nearbyVm by viewModel.uiState.collectAsState()
+    val logoutEvent = nearbyVm.logoutEvent
     if (navController.currentBackStackEntry?.savedStateHandle?.contains("result_key") == true) {
         val keyData = navController.currentBackStackEntry?.savedStateHandle?.get<String>("result_key").orEmpty()
         selectedLocation = keyData.split(":")
@@ -166,13 +169,18 @@ fun DashboardScreen(
         },
     )
 
-    val nearbyPlacesState by viewModel.nearbyPlaces.collectAsState()
-    val categoryState by viewModel.cate.collectAsState()
-    val currentState by viewModelCurrent.loginState.collectAsState()
-    val findState by viewModelFind.nearbyPlaces.collectAsState()
-    val paymentState by viewModelP.loginState.collectAsState()
-    val stripeState by viewModelStripe.paymentSheetConfigState.collectAsState()
-    val notificationState by viewModelN.notificationState.collectAsStateWithLifecycle()
+    val nearbyPlacesState = nearbyVm.nearbyPlaces
+    val categoryState = nearbyVm.categories
+    val activeVoyageUi by viewModelCurrent.uiState.collectAsState()
+    val currentState = activeVoyageUi.voyageResult
+    val findVm by viewModelFind.uiState.collectAsState()
+    val findState = findVm.findBoatRequest
+    val paymentUi by viewModelP.uiState.collectAsState()
+    val paymentState = paymentUi.networkState
+    val stripeUi by viewModelStripe.uiState.collectAsState()
+    val stripeState = stripeUi.paymentSheetConfigState
+    val notificationVm by viewModelN.uiState.collectAsStateWithLifecycle()
+    val notificationState = notificationVm.notification
     val findBoatPrefillState by findBoatPrefillStore.state.collectAsState()
     val activeVoyageId by voyageSessionStore.voyageId.collectAsState()
 
@@ -208,7 +216,7 @@ fun DashboardScreen(
             is NetworkResponse.Success -> {
                 showWaitingResponsePrompt = false
                 waitingResponsePromptValue = "pay_now"
-                viewModelCurrent.voyages()
+                viewModelCurrent.onEvent(GetActiveVoyageUiEvent.FetchActiveVoyage)
                 viewModelP.resetNearbyPlaces()
             }
 
@@ -259,7 +267,7 @@ fun DashboardScreen(
                 intent.putExtra("customerId", id)
                 intent.putExtra("ephemeralKey", ephemeralKeySecret)
                 stripeLauncher.launch(intent)
-                viewModelStripe.resetPaymentSheetState()
+                viewModelStripe.onEvent(PaymentSheetConfigUiEvent.ResetPaymentSheetState)
             }
 
             is NetworkResponse.Error -> {
@@ -308,7 +316,7 @@ fun DashboardScreen(
                         navController.navigate(route = InteractionRoutes.voyagerFeedback(currentState.data?.obj?.Id))
                     }
                 }
-                viewModelCurrent.resetNearbyPlaces()
+                viewModelCurrent.onEvent(GetActiveVoyageUiEvent.Reset)
             }
 
             is NetworkResponse.Error,
@@ -320,7 +328,7 @@ fun DashboardScreen(
     LaunchedEffect(notificationState) {
         viewModel.fetchNearbyPlaces()
         viewModel.fetchCategories()
-        viewModelCurrent.voyages()
+        viewModelCurrent.onEvent(GetActiveVoyageUiEvent.FetchActiveVoyage)
     }
 
     LaunchedEffect(findBoatPrefillState) {
@@ -469,7 +477,9 @@ fun DashboardScreen(
                                     },
                                     onPayNowClick = {
                                         if (activeVoyageId.isNotBlank()) {
-                                            viewModelStripe.loadPaymentSheetConfig(activeVoyageId)
+                                            viewModelStripe.onEvent(
+                                                PaymentSheetConfigUiEvent.LoadPaymentSheetConfig(activeVoyageId),
+                                            )
                                         }
                                     },
                                 )

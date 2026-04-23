@@ -2,9 +2,12 @@ package com.boatit.boatsharing.features.captain.dashboard.viewmodel
 
 import android.annotation.SuppressLint
 import android.location.Location
-import androidx.lifecycle.ViewModel
-import com.boatit.boatsharing.features.captain.dashboard.model.LocationData
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
 import com.boatit.boatsharing.data.local.prefmanager.UserSessionStore
+import com.boatit.boatsharing.features.captain.dashboard.model.LocationData
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -14,28 +17,48 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+
+data class CaptainLocationUiState(
+    val userLocation: Location? = null,
+) : UiState
+
+sealed interface CaptainLocationUiEvent : UiEvent {
+    data object None : CaptainLocationUiEvent
+
+    data class LocationChanged(val location: Location) : CaptainLocationUiEvent
+}
+
+sealed interface CaptainLocationUiEffect : UiEffect {
+    data object NoOpEffect : CaptainLocationUiEffect
+}
 
 class LocationViewModel(
     private val auth: FirebaseAuth,
     private val database: FirebaseDatabase,
     private val fusedLocationClient: FusedLocationProviderClient,
     private val userSessionStore: UserSessionStore,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _userLocation = MutableStateFlow<Location?>(null)
-    val userLocation = _userLocation.asStateFlow()
-
+) : BaseViewModel<CaptainLocationUiState, CaptainLocationUiEvent, CaptainLocationUiEffect>(
+        CaptainLocationUiState(),
+    ) {
     init {
         startLocationUpdates()
         listenForLocationUpdates()
     }
 
-    @SuppressLint("MissingPermission") // Ensure to request permissions properly in UI
+    override fun onEvent(event: CaptainLocationUiEvent) {
+        when (event) {
+            CaptainLocationUiEvent.None -> Unit
+            is CaptainLocationUiEvent.LocationChanged -> {
+                updateState { copy(userLocation = event.location) }
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         val locationRequest =
             LocationRequest.create().apply {
-                interval = 5000 // 5 seconds
+                interval = 5000
                 fastestInterval = 5000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
@@ -44,7 +67,7 @@ class LocationViewModel(
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     locationResult.lastLocation?.let { location ->
-                        _userLocation.value = location
+                        onEvent(CaptainLocationUiEvent.LocationChanged(location))
                         saveLocationToFirebase(location.latitude, location.longitude)
                     }
                 }
@@ -83,7 +106,7 @@ class LocationViewModel(
                                 latitude = locationData.latitude
                                 longitude = locationData.longitude
                             }
-                        _userLocation.value = location
+                        onEvent(CaptainLocationUiEvent.LocationChanged(location))
                     }
                 }
 

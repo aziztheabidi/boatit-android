@@ -4,11 +4,18 @@ import com.boatit.boatsharing.domain.core.ApiException
 import com.boatit.boatsharing.domain.core.ErrorType
 import com.boatit.boatsharing.domain.core.ExceptionMapper
 import com.boatit.boatsharing.domain.core.NetworkException
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 
 /**
  * Network error handling utilities
@@ -91,5 +98,54 @@ fun Exception.mapToErrorType(): ErrorType {
         }
 
         else -> ErrorType.Unknown(message = message ?: "Unknown error", throwable = this)
+    }
+}
+
+suspend inline fun <reified Req : Any, reified Res : Any> executePostRequest(
+    httpClient: HttpClient,
+    url: String,
+    requestBody: Req,
+    successStatus: HttpStatusCode,
+    crossinline requestConfig: HttpRequestBuilder.() -> Unit = {},
+    crossinline onApiError: (responseBody: Res, status: HttpStatusCode) -> Exception,
+    crossinline onException: (exception: Exception) -> Result<Res>,
+): Result<Res> {
+    return try {
+        val response: HttpResponse =
+            httpClient.post(url) {
+                contentType(ContentType.Application.Json)
+                requestConfig()
+                setBody(requestBody)
+            }
+        val responseBody: Res = response.body()
+        if (response.status == successStatus) {
+            Result.success(responseBody)
+        } else {
+            Result.failure(onApiError(responseBody, response.status))
+        }
+    } catch (e: Exception) {
+        onException(e)
+    }
+}
+
+/**
+ * Executes a GET request and maps the [HttpResponse] in [handleResponse].
+ * Use for repositories that need custom success vs non-success handling (query params, mixed body types).
+ */
+suspend inline fun <reified Res : Any> executeGetRequest(
+    httpClient: HttpClient,
+    url: String,
+    crossinline requestConfig: HttpRequestBuilder.() -> Unit = {},
+    crossinline handleResponse: suspend (HttpResponse) -> Result<Res>,
+    crossinline onException: (Exception) -> Result<Res>,
+): Result<Res> {
+    return try {
+        val response: HttpResponse =
+            httpClient.get(url) {
+                requestConfig()
+            }
+        handleResponse(response)
+    } catch (e: Exception) {
+        onException(e)
     }
 }

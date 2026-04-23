@@ -1,6 +1,6 @@
 package com.boatit.boatsharing.features.signup.general.repository
 
-import com.boatit.boatsharing.testutils.apiExecutorReturningJson
+import com.boatit.boatsharing.testutils.httpClientReturningJson
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -18,7 +18,7 @@ class VerifyEmailRepositoryHttpTest {
                   "obj": "token-123"
                 }
                 """.trimIndent()
-            val repository = VerifyEmailRepository(apiExecutorReturningJson(json))
+            val repository = VerifyEmailRepository(httpClientReturningJson(json))
 
             val result = repository.verifyEmail("user@example.com", "1234")
 

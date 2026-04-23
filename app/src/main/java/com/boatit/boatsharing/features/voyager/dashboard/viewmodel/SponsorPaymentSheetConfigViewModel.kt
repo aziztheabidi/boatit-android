@@ -1,49 +1,65 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.captain.dashboard.model.DeclineRequest
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.DeclineSponsorPaymentUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.FetchSponsorPaymentSheetConfigUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.PaymentSheetConfigResponse
 import com.boatit.boatsharing.features.voyager.dashboard.model.SponsorVoyagePaymentRequest
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+data class SponsorPaymentSheetConfigUiState(
+    val paymentSheetConfigState: NetworkResponse<PaymentSheetConfigResponse> = NetworkResponse.Loading(),
+    val declinePaymentState: NetworkResponse<PaymentSheetConfigResponse> = NetworkResponse.Loading(),
+) : UiState
+
+sealed interface SponsorPaymentSheetConfigUiEvent : UiEvent {
+    data class LoadPaymentSheetConfig(val request: SponsorVoyagePaymentRequest) : SponsorPaymentSheetConfigUiEvent
+
+    data class DeclineSponsorPayment(val request: DeclineRequest) : SponsorPaymentSheetConfigUiEvent
+
+    data object Reset : SponsorPaymentSheetConfigUiEvent
+}
+
+sealed interface SponsorPaymentSheetConfigUiEffect : UiEffect {
+    data object NoOpEffect : SponsorPaymentSheetConfigUiEffect
+}
 
 class SponsorPaymentSheetConfigViewModel(
     private val fetchSponsorPaymentSheetConfigUseCase: FetchSponsorPaymentSheetConfigUseCase,
     private val declineSponsorPaymentUseCase: DeclineSponsorPaymentUseCase,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _paymentSheetConfigState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
-    val paymentSheetConfigState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _paymentSheetConfigState
-
-    @Deprecated("Use paymentSheetConfigState")
-    val loginState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = paymentSheetConfigState
-
-    private val _declinePaymentState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
-    val declinePaymentState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _declinePaymentState
-
-    @Deprecated("Use declinePaymentState")
-    val declineState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = declinePaymentState
+) : BaseViewModel<SponsorPaymentSheetConfigUiState, SponsorPaymentSheetConfigUiEvent, SponsorPaymentSheetConfigUiEffect>(
+        SponsorPaymentSheetConfigUiState(),
+    ) {
+    override fun onEvent(event: SponsorPaymentSheetConfigUiEvent) {
+        when (event) {
+            is SponsorPaymentSheetConfigUiEvent.LoadPaymentSheetConfig -> loadPaymentSheetConfig(event.request)
+            is SponsorPaymentSheetConfigUiEvent.DeclineSponsorPayment -> declineSponsorPayment(event.request)
+            SponsorPaymentSheetConfigUiEvent.Reset -> resetPaymentSheetState()
+        }
+    }
 
     fun loadPaymentSheetConfig(request: SponsorVoyagePaymentRequest) {
         viewModelScope.launch {
-            _paymentSheetConfigState.value = NetworkResponse.Loading()
+            updateState { copy(paymentSheetConfigState = NetworkResponse.Loading()) }
             when (val result = fetchSponsorPaymentSheetConfigUseCase(request).toResource()) {
                 is Resource.Success -> {
-                    _paymentSheetConfigState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(paymentSheetConfigState = NetworkResponse.Success(result.data)) }
                 }
 
                 is Resource.Error -> {
-                    _paymentSheetConfigState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(paymentSheetConfigState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _paymentSheetConfigState.value = NetworkResponse.Loading()
+                    updateState { copy(paymentSheetConfigState = NetworkResponse.Loading()) }
                 }
             }
         }
@@ -56,18 +72,18 @@ class SponsorPaymentSheetConfigViewModel(
 
     fun declineSponsorPayment(request: DeclineRequest) {
         viewModelScope.launch {
-            _declinePaymentState.value = NetworkResponse.Loading()
+            updateState { copy(declinePaymentState = NetworkResponse.Loading()) }
             when (val result = declineSponsorPaymentUseCase(request).toResource()) {
                 is Resource.Success -> {
-                    _declinePaymentState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(declinePaymentState = NetworkResponse.Success(result.data)) }
                 }
 
                 is Resource.Error -> {
-                    _declinePaymentState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(declinePaymentState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _declinePaymentState.value = NetworkResponse.Loading()
+                    updateState { copy(declinePaymentState = NetworkResponse.Loading()) }
                 }
             }
         }
@@ -79,8 +95,12 @@ class SponsorPaymentSheetConfigViewModel(
     }
 
     fun resetPaymentSheetState() {
-        _paymentSheetConfigState.value = NetworkResponse.Loading()
-        _declinePaymentState.value = NetworkResponse.Loading()
+        updateState {
+            copy(
+                paymentSheetConfigState = NetworkResponse.Loading(),
+                declinePaymentState = NetworkResponse.Loading(),
+            )
+        }
     }
 
     @Deprecated("Use resetPaymentSheetState")

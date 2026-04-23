@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.features.voyager.dashboard.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 @Serializable
 data class VoyagePaymentRequest(
@@ -11,7 +12,8 @@ data class VoyagePaymentRequest(
 data class SponsorVoyagePaymentRequest(
     val Id: String,
     val VoyagerUserId: String,
-    val SponserUserId: String,
+    @SerialName("SponserUserId")
+    val sponsorUserId: String,
 )
 
 @Serializable

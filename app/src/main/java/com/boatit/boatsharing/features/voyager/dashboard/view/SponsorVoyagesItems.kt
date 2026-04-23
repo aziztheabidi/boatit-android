@@ -88,7 +88,8 @@ fun SponsorVoyagerItems(
     var showVoyageDetails by rememberSaveable { mutableStateOf(false) }
     var showFindBoat by rememberSaveable { mutableStateOf(false) }
 
-    val stripeState by viewModelStripe.paymentSheetConfigState.collectAsState()
+    val stripeVm by viewModelStripe.uiState.collectAsState()
+    val stripeState = stripeVm.paymentSheetConfigState
 
     val context = LocalContext.current
 

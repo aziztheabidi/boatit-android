@@ -1,6 +1,9 @@
 package com.boatit.boatsharing.features.voyager.dashboard.model
 
-sealed interface CreateVoyageSponsorUiEvent {
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+
+sealed interface CreateVoyageSponsorUiEvent : UiEvent {
     data object Initialize : CreateVoyageSponsorUiEvent
 
     data object RefreshDisplayData : CreateVoyageSponsorUiEvent
@@ -16,4 +19,8 @@ sealed interface CreateVoyageSponsorUiEvent {
     data class ToggleSponsorSelection(val voyagerUserId: String, val voyagerUserName: String) : CreateVoyageSponsorUiEvent
 
     data class UpdateSponsorAmount(val voyagerUserId: String, val amountToPay: Double) : CreateVoyageSponsorUiEvent
+}
+
+sealed interface CreateVoyageSponsorUiEffect : UiEffect {
+    data object NoOpEffect : CreateVoyageSponsorUiEffect
 }

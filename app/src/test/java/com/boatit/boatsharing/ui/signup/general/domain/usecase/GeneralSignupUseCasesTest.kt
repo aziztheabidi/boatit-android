@@ -129,8 +129,8 @@ class GeneralSignupUseCasesTest {
                                             Username = "User",
                                             Role = "Voyager",
                                             MissingStep = 0,
-                                            Accesstoken = "acc",
-                                            Refreshtoken = "ref",
+                                            accessToken = "acc",
+                                            refreshToken = "ref",
                                         ),
                                 ),
                             )

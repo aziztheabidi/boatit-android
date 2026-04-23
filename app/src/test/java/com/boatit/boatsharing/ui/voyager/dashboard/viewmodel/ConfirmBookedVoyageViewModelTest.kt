@@ -1,10 +1,10 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
 import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
-import com.boatit.boatsharing.testutils.MainDispatcherRule
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.ConfirmBookedVoyageUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.ConfirmBookedVoyageResponse
 import com.boatit.boatsharing.features.voyager.dashboard.model.ConfirmBookedVoyages
+import com.boatit.boatsharing.testutils.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -30,7 +30,7 @@ class ConfirmBookedVoyageViewModelTest {
             viewModel.submitConfirmation(ConfirmBookedVoyages(Id = "voy-123"))
             advanceUntilIdle()
 
-            assertTrue(viewModel.confirmationState.value is NetworkResponse.Success)
+            assertTrue(viewModel.uiState.value.confirmationState is NetworkResponse.Success)
         }
 
     @Test
@@ -45,8 +45,9 @@ class ConfirmBookedVoyageViewModelTest {
             viewModel.submitConfirmation(ConfirmBookedVoyages(Id = "voy-123"))
             advanceUntilIdle()
 
-            val state = viewModel.confirmationState.value
-            assertTrue(state is NetworkResponse.Error)
-            assertEquals("confirm failed", (state as NetworkResponse.Error).message)
+            when (val state = viewModel.uiState.value.confirmationState) {
+                is NetworkResponse.Error -> assertEquals("confirm failed", state.message)
+                else -> assertTrue("expected NetworkResponse.Error", false)
+            }
         }
 }

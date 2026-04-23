@@ -3,8 +3,11 @@ package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Looper
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
 import com.boatit.boatsharing.features.voyager.dashboard.repository.GoogleDirectionsApi
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -13,24 +16,35 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+data class TrackingLocationUiState(
+    val userLocation: Location? = null,
+    val routePolyline: List<LatLng>? = null,
+    val estimatedTime: String? = null,
+) : UiState
+
+sealed interface TrackingLocationUiEvent : UiEvent {
+    data object None : TrackingLocationUiEvent
+}
+
+sealed interface TrackingLocationUiEffect : UiEffect {
+    data object NoOpEffect : TrackingLocationUiEffect
+}
 
 class TrackingLocationViewModel(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     private val googleDirectionsApi: GoogleDirectionsApi,
-    private val auth: FirebaseAuth,
-    private val database: FirebaseDatabase,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _userLocation = MutableStateFlow<Location?>(null)
-    val userLocation = _userLocation.asStateFlow()
-
-    private val _routePolyline = MutableStateFlow<List<LatLng>?>(null)
-    val routePolyline = _routePolyline.asStateFlow()
-
-    private val _estimatedTime = MutableStateFlow<String?>(null)
-    val estimatedTime = _estimatedTime.asStateFlow()
+    @Suppress("unused") private val auth: FirebaseAuth,
+    @Suppress("unused") private val database: FirebaseDatabase,
+) : BaseViewModel<TrackingLocationUiState, TrackingLocationUiEvent, TrackingLocationUiEffect>(
+        TrackingLocationUiState(),
+    ) {
+    override fun onEvent(event: TrackingLocationUiEvent) {
+        when (event) {
+            TrackingLocationUiEvent.None -> Unit
+        }
+    }
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
@@ -45,7 +59,7 @@ class TrackingLocationViewModel(
             object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {
                     result.lastLocation?.let { location ->
-                        _userLocation.value = location
+                        updateState { copy(userLocation = location) }
                         fetchRouteAndETA(location)
                     }
                 }
@@ -56,15 +70,19 @@ class TrackingLocationViewModel(
 
     private fun fetchRouteAndETA(location: Location) {
         viewModelScope.launch {
-            val destination = LatLng(40.65209, -73.13763) // Example destination
+            val destination = LatLng(40.65209, -73.13763)
             val response =
                 googleDirectionsApi.getRoute(
                     origin = LatLng(40.75808, -73.01926),
                     destination = destination,
                 )
             response?.let {
-                _routePolyline.value = it.polylinePoints
-                _estimatedTime.value = it.estimatedTime
+                updateState {
+                    copy(
+                        routePolyline = it.polylinePoints,
+                        estimatedTime = it.estimatedTime,
+                    )
+                }
             }
         }
     }

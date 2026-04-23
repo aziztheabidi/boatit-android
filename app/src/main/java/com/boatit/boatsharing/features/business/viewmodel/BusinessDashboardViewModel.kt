@@ -1,7 +1,8 @@
 package com.boatit.boatsharing.features.business.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.data.local.prefmanager.UserSessionStore
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.requiresReLogin
 import com.boatit.boatsharing.domain.core.toResource
@@ -17,13 +18,7 @@ import com.boatit.boatsharing.features.business.model.BusinessRequest
 import com.boatit.boatsharing.features.business.model.DockData
 import com.boatit.boatsharing.features.business.model.LocationData
 import com.boatit.boatsharing.features.signup.business.domain.usecase.SaveBusinessGalleryUseCase
-import com.boatit.boatsharing.data.local.prefmanager.UserSessionStore
-import com.boatit.boatsharing.data.local.session.SessionEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -33,17 +28,11 @@ class BusinessDashboardViewModel(
     private val saveBusinessDashboardProfileUseCase: SaveBusinessDashboardProfileUseCase,
     private val saveBusinessGalleryUseCase: SaveBusinessGalleryUseCase,
     private val userSessionStore: UserSessionStore,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel(), IBusinessDashboardViewModel {
-    private val _dashboardState = MutableStateFlow(BusinessDashboardState())
-    override val uiState: StateFlow<BusinessDashboardUiState> = _dashboardState.asStateFlow()
+) : BaseViewModel<BusinessDashboardUiState, BusinessDashboardUiEvent, BusinessDashboardUiEffect>(
+        BusinessDashboardState(),
+    ),
+    IBusinessDashboardViewModel {
     override val dashboardState: StateFlow<BusinessDashboardState> = uiState
-
-    private val _uiEffects = MutableSharedFlow<BusinessDashboardUiEffect>(extraBufferCapacity = 1)
-    override val uiEffects: SharedFlow<BusinessDashboardUiEffect> = _uiEffects
-
-    private val _sessionEvents = MutableSharedFlow<SessionEvent>(extraBufferCapacity = 1)
-
-    override fun getSessionEvents(): SharedFlow<SessionEvent> = _sessionEvents
 
     override fun onEvent(event: BusinessDashboardUiEvent) {
         when (event) {
@@ -51,13 +40,13 @@ class BusinessDashboardViewModel(
             is BusinessDashboardUiEvent.UpdateImageList -> updateImageList(event.imageList)
             is BusinessDashboardUiEvent.UploadGalleryImages -> uploadImagesToBackend(event.files)
             is BusinessDashboardUiEvent.UploadLogo -> {
-                updateImageList(listOf(event.imageUrl) + _dashboardState.value.imageList)
+                updateImageList(listOf(event.imageUrl) + currentState.imageList)
                 uploadImagesToBackend(listOf(event.file))
             }
             is BusinessDashboardUiEvent.RemoveImage -> {
-                val updated = _dashboardState.value.imageList.toMutableList().apply { remove(event.imageUrl) }
+                val updated = currentState.imageList.toMutableList().apply { remove(event.imageUrl) }
                 updateImageList(updated)
-                emitUiEffect(BusinessDashboardUiEffect.ShowToast("Image removed"))
+                emitEffect(BusinessDashboardUiEffect.ShowToast("Image removed"))
             }
             is BusinessDashboardUiEvent.UpdateLocationData -> updateLocationData(event.locationData)
             is BusinessDashboardUiEvent.UpdateSelectedZone -> updateSelectedZone(event.zoneId, event.zoneName)
@@ -74,7 +63,7 @@ class BusinessDashboardViewModel(
 
     override fun initializeDashboardData() {
         viewModelScope.launch {
-            _dashboardState.value = _dashboardState.value.copy(isLoading = true, isError = false, errorMessage = null)
+            updateState { copy(isLoading = true, isError = false, errorMessage = null) }
 
             when (val profileResult = fetchBusinessDashboardProfileUseCase().toResource()) {
                 is Resource.Success -> {
@@ -93,8 +82,8 @@ class BusinessDashboardViewModel(
                             longitude = business?.Longitude ?: 0.0,
                         )
 
-                    _dashboardState.value =
-                        _dashboardState.value.copy(
+                    updateState {
+                        copy(
                             businessData = business,
                             imageList = business?.ImagesPath ?: emptyList(),
                             locationData = locationData,
@@ -116,67 +105,69 @@ class BusinessDashboardViewModel(
                             isError = false,
                             errorMessage = null,
                         )
+                    }
                     validateForm()
                 }
 
                 is Resource.Error -> {
                     val message = profileResult.error.toMessage()
                     if (profileResult.error.requiresReLogin()) {
-                        _sessionEvents.tryEmit(SessionEvent.SessionExpired)
-                        emitUiEffect(BusinessDashboardUiEffect.SessionExpired)
+                        emitEffect(BusinessDashboardUiEffect.SessionExpired)
                     }
-                    _dashboardState.value =
-                        _dashboardState.value.copy(
+                    updateState {
+                        copy(
                             isLoading = false,
                             isError = true,
                             errorMessage = message,
                         )
-                    emitUiEffect(BusinessDashboardUiEffect.ShowToast(message))
+                    }
+                    emitEffect(BusinessDashboardUiEffect.ShowToast(message))
                 }
 
                 Resource.Loading -> {
-                    _dashboardState.value = _dashboardState.value.copy(isLoading = true)
+                    updateState { copy(isLoading = true) }
                 }
             }
 
             when (val docksResult = fetchBusinessDocksUseCase().toResource()) {
                 is Resource.Success -> {
                     val response = docksResult.data
-                    _dashboardState.value =
-                        _dashboardState.value.copy(
+                    updateState {
+                        copy(
                             zones = response.obj?.Zone ?: emptyList(),
                             shores = response.obj?.Shore ?: emptyList(),
                             islands = response.obj?.Island ?: emptyList(),
                         )
+                    }
                 }
 
                 is Resource.Error -> {
                     val message = docksResult.error.toMessage()
                     if (docksResult.error.requiresReLogin()) {
-                        _sessionEvents.tryEmit(SessionEvent.SessionExpired)
-                        emitUiEffect(BusinessDashboardUiEffect.SessionExpired)
+                        emitEffect(BusinessDashboardUiEffect.SessionExpired)
                     }
-                    _dashboardState.value =
-                        _dashboardState.value.copy(
+                    updateState {
+                        copy(
                             isError = true,
                             errorMessage = message,
                         )
-                    emitUiEffect(BusinessDashboardUiEffect.ShowToast(message))
+                    }
+                    emitEffect(BusinessDashboardUiEffect.ShowToast(message))
                 }
 
                 Resource.Loading -> {
-                    _dashboardState.value = _dashboardState.value.copy(isLoading = true)
+                    updateState { copy(isLoading = true) }
                 }
             }
         }
     }
 
     override fun updateImageList(imageList: List<String>) {
-        _dashboardState.value = _dashboardState.value.copy(imageList = imageList)
+        updateState { copy(imageList = imageList) }
     }
 
     override fun updateLocationData(locationData: LocationData) {
-        _dashboardState.value = _dashboardState.value.copy(locationData = locationData)
+        updateState { copy(locationData = locationData) }
         validateForm()
     }
 
@@ -184,7 +175,7 @@ class BusinessDashboardViewModel(
         zoneId: Int,
         zone: String,
     ) {
-        _dashboardState.value = _dashboardState.value.copy(selectedZone = zone, selectedZoneId = zoneId)
+        updateState { copy(selectedZone = zone, selectedZoneId = zoneId) }
         validateForm()
     }
 
@@ -192,7 +183,7 @@ class BusinessDashboardViewModel(
         shoreId: Int,
         shore: String,
     ) {
-        _dashboardState.value = _dashboardState.value.copy(selectedShore = shore, selectedShoreId = shoreId)
+        updateState { copy(selectedShore = shore, selectedShoreId = shoreId) }
         validateForm()
     }
 
@@ -200,26 +191,26 @@ class BusinessDashboardViewModel(
         islandId: Int,
         island: String,
     ) {
-        _dashboardState.value = _dashboardState.value.copy(selectedIsland = island, selectedIslandId = islandId)
+        updateState { copy(selectedIsland = island, selectedIslandId = islandId) }
         validateForm()
     }
 
     override fun updateDockEnabled(enabled: Boolean) {
-        _dashboardState.value = _dashboardState.value.copy(dockEnabled = enabled)
+        updateState { copy(dockEnabled = enabled) }
         validateForm()
     }
 
     override fun updateDockData(dockData: DockData) {
-        _dashboardState.value = _dashboardState.value.copy(dockData = dockData)
+        updateState { copy(dockData = dockData) }
         validateForm()
     }
 
     override fun saveBusinessHours(hours: List<BusinessHour>) {
-        _dashboardState.value = _dashboardState.value.copy(businessHours = hours)
+        updateState { copy(businessHours = hours) }
     }
 
     override fun saveBusinessProfile() {
-        val state = _dashboardState.value
+        val state = currentState
         val business = state.businessData
         val businessRequest =
             BusinessRequest(
@@ -241,37 +232,37 @@ class BusinessDashboardViewModel(
             )
 
         viewModelScope.launch {
-            _dashboardState.value = _dashboardState.value.copy(isLoading = true, isError = false, errorMessage = null)
+            updateState { copy(isLoading = true, isError = false, errorMessage = null) }
 
             when (val saveResult = saveBusinessDashboardProfileUseCase(businessRequest).toResource()) {
                 is Resource.Success -> {
-                    _dashboardState.value = _dashboardState.value.copy(isLoading = false, isError = false, errorMessage = null)
+                    updateState { copy(isLoading = false, isError = false, errorMessage = null) }
                 }
 
                 is Resource.Error -> {
                     val message = saveResult.error.toMessage()
                     if (saveResult.error.requiresReLogin()) {
-                        _sessionEvents.tryEmit(SessionEvent.SessionExpired)
-                        emitUiEffect(BusinessDashboardUiEffect.SessionExpired)
+                        emitEffect(BusinessDashboardUiEffect.SessionExpired)
                     }
-                    _dashboardState.value =
-                        _dashboardState.value.copy(
+                    updateState {
+                        copy(
                             isLoading = false,
                             isError = true,
                             errorMessage = message,
                         )
-                    emitUiEffect(BusinessDashboardUiEffect.ShowToast(message))
+                    }
+                    emitEffect(BusinessDashboardUiEffect.ShowToast(message))
                 }
 
                 Resource.Loading -> {
-                    _dashboardState.value = _dashboardState.value.copy(isLoading = true)
+                    updateState { copy(isLoading = true) }
                 }
             }
         }
     }
 
     override fun validateForm() {
-        val state = _dashboardState.value
+        val state = currentState
         val isDockValid =
             if (state.dockEnabled) {
                 state.dockData.name.isNotBlank() && state.dockData.address.isNotBlank()
@@ -281,10 +272,11 @@ class BusinessDashboardViewModel(
 
         val isLocationValid = state.selectedZoneId > 0 && state.selectedShoreId > 0 && state.selectedIslandId > 0
 
-        _dashboardState.value =
-            state.copy(
+        updateState {
+            copy(
                 isButtonEnabled = isDockValid && isLocationValid && state.businessHours.isNotEmpty(),
             )
+        }
     }
 
     override fun uploadImagesToBackend(files: List<File>) {
@@ -293,30 +285,30 @@ class BusinessDashboardViewModel(
         if (files.isEmpty()) return
 
         viewModelScope.launch {
-            _dashboardState.value = _dashboardState.value.copy(isLoading = true)
+            updateState { copy(isLoading = true) }
 
             when (val uploadResult = saveBusinessGalleryUseCase(userId, files).toResource()) {
                 is Resource.Success -> {
-                    _dashboardState.value = _dashboardState.value.copy(isLoading = false)
+                    updateState { copy(isLoading = false) }
                 }
 
                 is Resource.Error -> {
                     val message = uploadResult.error.toMessage()
                     if (uploadResult.error.requiresReLogin()) {
-                        _sessionEvents.tryEmit(SessionEvent.SessionExpired)
-                        emitUiEffect(BusinessDashboardUiEffect.SessionExpired)
+                        emitEffect(BusinessDashboardUiEffect.SessionExpired)
                     }
-                    _dashboardState.value =
-                        _dashboardState.value.copy(
+                    updateState {
+                        copy(
                             isLoading = false,
                             isError = true,
                             errorMessage = message,
                         )
-                    emitUiEffect(BusinessDashboardUiEffect.ShowToast(message))
+                    }
+                    emitEffect(BusinessDashboardUiEffect.ShowToast(message))
                 }
 
                 Resource.Loading -> {
-                    _dashboardState.value = _dashboardState.value.copy(isLoading = true)
+                    updateState { copy(isLoading = true) }
                 }
             }
         }
@@ -326,14 +318,6 @@ class BusinessDashboardViewModel(
         val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         return daysOfWeek.map { day ->
             BusinessHour(Day = day, StartTime = "09:00:00", EndTimeTime = "17:00:00")
-        }
-    }
-
-    private fun emitUiEffect(effect: BusinessDashboardUiEffect) {
-        if (!_uiEffects.tryEmit(effect)) {
-            viewModelScope.launch {
-                _uiEffects.emit(effect)
-            }
         }
     }
 }

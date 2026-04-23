@@ -106,8 +106,8 @@ fun createKtorClient(
                                     setBody(RefreshRequest(accessToken, refreshToken))
                                 }
                             val result = responses.body<TokenResponse>()
-                            tokenProvider.saveTokens(result.obj.Accesstoken, result.obj.Refreshtoken)
-                            BearerTokens(result.obj.Accesstoken, result.obj.Refreshtoken)
+                            tokenProvider.saveTokens(result.obj.accessToken, result.obj.refreshToken)
+                            BearerTokens(result.obj.accessToken, result.obj.refreshToken)
                         } catch (e: Exception) {
                             null
                         }

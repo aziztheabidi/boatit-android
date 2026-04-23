@@ -1,5 +1,10 @@
 package com.boatit.boatsharing.features.voyager.dashboard.model
 
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
+
 data class FindBoatUiState(
     val voyagerUserId: String = "",
     val pickupLocation: String = "",
@@ -21,9 +26,10 @@ data class FindBoatUiState(
     val showPassengerLimitDialog: Boolean = false,
     val categoryOptions: List<VoyageCategory> = emptyList(),
     val dockOptions: List<Place> = emptyList(),
-)
+    val findBoatRequest: NetworkResponse<FindBoatResponse> = NetworkResponse.Loading(),
+) : UiState
 
-sealed interface FindBoatUiEvent {
+sealed interface FindBoatUiEvent : UiEvent {
     data class Initialize(
         val voyagerUserId: String,
         val pickupLocation: String,
@@ -65,7 +71,7 @@ sealed interface FindBoatUiEvent {
     data object DismissPassengerDialog : FindBoatUiEvent
 }
 
-sealed interface FindBoatUiEffect {
+sealed interface FindBoatUiEffect : UiEffect {
     data object NavigateCreateVoyage : FindBoatUiEffect
 
     data object NavigateDashboardAfterFindBoat : FindBoatUiEffect

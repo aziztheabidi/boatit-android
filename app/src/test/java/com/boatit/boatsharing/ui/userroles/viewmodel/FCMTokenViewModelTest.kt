@@ -35,7 +35,7 @@ class FCMTokenViewModelTest {
             viewModel.updateFcmToken("user-1", "token-1")
             advanceUntilIdle()
 
-            assertTrue(viewModel.tokenUpdateState.value is NetworkResponse.Success)
+            assertTrue(viewModel.uiState.value.tokenUpdateState is NetworkResponse.Success)
         }
 
     @Test
@@ -54,7 +54,7 @@ class FCMTokenViewModelTest {
             viewModel.updateFcmToken("user-1", "token-1")
             advanceUntilIdle()
 
-            val state = viewModel.tokenUpdateState.value
+            val state = viewModel.uiState.value.tokenUpdateState
             assertTrue(state is NetworkResponse.Error)
             assertEquals("token update failed", (state as NetworkResponse.Error).message)
         }

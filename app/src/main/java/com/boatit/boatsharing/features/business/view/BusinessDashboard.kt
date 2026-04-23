@@ -193,7 +193,7 @@ fun BusinessDashboard(
     }
 
     LaunchedEffect(viewModel) {
-        viewModel.uiEffects.collectLatest { effect ->
+        viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 is BusinessDashboardUiEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()

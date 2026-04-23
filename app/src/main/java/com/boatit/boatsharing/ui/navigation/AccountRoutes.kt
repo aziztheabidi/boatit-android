@@ -8,25 +8,25 @@ object AccountRoutes {
     const val EMAIL_ARG = "email"
     const val TOKEN_ARG = "tokenValue"
 
-    val settingsPattern: String = "${NavigationManager.SETTINGS_SCREEN}/{$ACCOUNT_CONTEXT_ARG}"
-    val userAccountInfoPattern: String = "${NavigationManager.USER_ACCOUNT_INFO_SCREEN}/{$ACCOUNT_CONTEXT_ARG}"
-    val createAccountStepTwoPattern: String = "${NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN}/{$EMAIL_ARG}"
-    val createAccountStepThreePattern: String = "${NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN}/{$TOKEN_ARG}"
+    val settingsPattern: String = "${AppRoutes.Auth.SETTINGS}/{$ACCOUNT_CONTEXT_ARG}"
+    val userAccountInfoPattern: String = "${AppRoutes.Auth.USER_ACCOUNT_INFO}/{$ACCOUNT_CONTEXT_ARG}"
+    val createAccountStepTwoPattern: String = "${AppRoutes.Auth.CREATE_ACCOUNT_STEP_TWO}/{$EMAIL_ARG}"
+    val createAccountStepThreePattern: String = "${AppRoutes.Auth.CREATE_ACCOUNT_STEP_THREE}/{$TOKEN_ARG}"
 
     fun settings(contextValue: String): String {
-        return "${NavigationManager.SETTINGS_SCREEN}/${encode(contextValue)}"
+        return "${AppRoutes.Auth.SETTINGS}/${encode(contextValue)}"
     }
 
     fun userAccountInfo(contextValue: String): String {
-        return "${NavigationManager.USER_ACCOUNT_INFO_SCREEN}/${encode(contextValue)}"
+        return "${AppRoutes.Auth.USER_ACCOUNT_INFO}/${encode(contextValue)}"
     }
 
     fun createAccountStepTwo(email: String): String {
-        return "${NavigationManager.CREATE_ACCOUNT_STEP_TWO_SCREEN}/${encode(email)}"
+        return "${AppRoutes.Auth.CREATE_ACCOUNT_STEP_TWO}/${encode(email)}"
     }
 
     fun createAccountStepThree(token: String): String {
-        return "${NavigationManager.CREATE_ACCOUNT_STEP_THREE_SCREEN}/${encode(token)}"
+        return "${AppRoutes.Auth.CREATE_ACCOUNT_STEP_THREE}/${encode(token)}"
     }
 
     private fun encode(value: String): String {

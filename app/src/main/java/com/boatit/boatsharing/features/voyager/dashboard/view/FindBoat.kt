@@ -97,7 +97,7 @@ fun FindBoat(
     val handleError = {}
 
     LaunchedEffect(viewModel) {
-        viewModel.uiEffects.collectLatest { effect ->
+        viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 FindBoatUiEffect.NavigateCreateVoyage -> onFindBoatClick()
                 FindBoatUiEffect.NavigateDashboardAfterFindBoat -> Unit

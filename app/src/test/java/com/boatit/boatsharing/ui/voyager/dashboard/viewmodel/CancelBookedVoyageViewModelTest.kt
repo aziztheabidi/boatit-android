@@ -1,10 +1,10 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
 import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
-import com.boatit.boatsharing.testutils.MainDispatcherRule
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.CancelBookedVoyageUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.CancelBookedVoyageResponse
 import com.boatit.boatsharing.features.voyager.dashboard.model.CancelBookedVoyages
+import com.boatit.boatsharing.testutils.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -30,7 +30,7 @@ class CancelBookedVoyageViewModelTest {
             viewModel.fetchNearbyPlaces(CancelBookedVoyages(Id = "voy-123", Reason = "changed plans"))
             advanceUntilIdle()
 
-            assertTrue(viewModel.nearbyPlaces.value is NetworkResponse.Loading)
+            assertTrue(viewModel.uiState.value.nearbyPlaces is NetworkResponse.Loading)
         }
 
     @Test
@@ -45,8 +45,9 @@ class CancelBookedVoyageViewModelTest {
             viewModel.fetchNearbyPlaces(CancelBookedVoyages(Id = "voy-123", Reason = "changed plans"))
             advanceUntilIdle()
 
-            val state = viewModel.nearbyPlaces.value
-            assertTrue(state is NetworkResponse.Error)
-            assertEquals("cancel failed", (state as NetworkResponse.Error).message)
+            when (val state = viewModel.uiState.value.nearbyPlaces) {
+                is NetworkResponse.Error -> assertEquals("cancel failed", state.message)
+                else -> assertTrue("expected NetworkResponse.Error", false)
+            }
         }
 }

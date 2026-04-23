@@ -8,7 +8,7 @@ import androidx.navigation.NavController
  * route strings so behavior stays aligned with [AppNavGraph].
  */
 fun NavController.navigateToMapPicker() {
-    navigate(NavigationManager.MAP_PICKER_SCREEN)
+    navigate(AppRoutes.Core.MAP_PICKER)
 }
 
 fun NavController.navigateToVoyagerDashboard(navArg: String? = null) {

@@ -8,10 +8,9 @@ import com.boatit.boatsharing.features.business.model.BusinessHour
 import com.boatit.boatsharing.features.business.model.DockData
 import com.boatit.boatsharing.features.business.model.LocationData
 import com.boatit.boatsharing.features.business.viewmodel.IBusinessDashboardViewModel
-import com.boatit.boatsharing.data.local.session.SessionEvent
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
@@ -21,12 +20,8 @@ class MockBusinessDashboardViewModel : IBusinessDashboardViewModel {
     override val uiState: StateFlow<BusinessDashboardUiState> = _dashboardState.asStateFlow()
     override val dashboardState: StateFlow<BusinessDashboardState> = uiState
 
-    private val _uiEffects = MutableSharedFlow<BusinessDashboardUiEffect>()
-    override val uiEffects: SharedFlow<BusinessDashboardUiEffect> = _uiEffects
-
-    private val _sessionEvents = MutableSharedFlow<SessionEvent>()
-
-    override fun getSessionEvents(): SharedFlow<SessionEvent> = _sessionEvents
+    private val _uiEffect = MutableSharedFlow<BusinessDashboardUiEffect>(extraBufferCapacity = 1)
+    override val uiEffect: Flow<BusinessDashboardUiEffect> = _uiEffect
 
     override fun onEvent(event: BusinessDashboardUiEvent) {
         when (event) {
@@ -40,7 +35,7 @@ class MockBusinessDashboardViewModel : IBusinessDashboardViewModel {
             }
             is BusinessDashboardUiEvent.RemoveImage -> {
                 updateImageList(_dashboardState.value.imageList.filterNot { it == event.imageUrl })
-                _uiEffects.tryEmit(BusinessDashboardUiEffect.ShowToast("Image removed"))
+                _uiEffect.tryEmit(BusinessDashboardUiEffect.ShowToast("Image removed"))
             }
             is BusinessDashboardUiEvent.UpdateLocationData -> updateLocationData(event.locationData)
             is BusinessDashboardUiEvent.UpdateSelectedZone -> updateSelectedZone(event.zoneId, event.zoneName)

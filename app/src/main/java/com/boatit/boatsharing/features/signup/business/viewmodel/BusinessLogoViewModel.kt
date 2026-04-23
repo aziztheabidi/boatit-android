@@ -1,54 +1,87 @@
 package com.boatit.boatsharing.features.signup.business.viewmodel
 
 import android.net.Uri
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.local.prefmanager.SharedPrefManager
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.signup.business.domain.usecase.SaveBusinessGalleryUseCase
 import com.boatit.boatsharing.features.signup.business.domain.usecase.SaveBusinessLogoUseCase
 import com.boatit.boatsharing.features.signup.business.model.SaveBusinessLogoResponse
-import com.boatit.boatsharing.data.local.prefmanager.SharedPrefManager
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.File
+
+data class BusinessLogoUiState(
+    val imageList: List<Uri> = emptyList(),
+    val registrationState: NetworkResponse<SaveBusinessLogoResponse> = NetworkResponse.Loading(),
+) : UiState
+
+sealed interface BusinessLogoUiEvent : UiEvent {
+    data class AddImages(val uris: List<Uri>) : BusinessLogoUiEvent
+
+    data class RemoveImage(val uri: Uri) : BusinessLogoUiEvent
+
+    data class SetImages(val list: List<Uri>) : BusinessLogoUiEvent
+
+    data object ClearImages : BusinessLogoUiEvent
+
+    data class UploadLogo(
+        val userId: String,
+        val logoFile: File,
+        val logoFiles: List<File?>,
+    ) : BusinessLogoUiEvent
+
+    data class UploadGallery(
+        val userId: String,
+        val logoFiles: List<File?>,
+    ) : BusinessLogoUiEvent
+}
+
+sealed interface BusinessLogoUiEffect : UiEffect {
+    data object NoOpEffect : BusinessLogoUiEffect
+}
 
 class BusinessLogoViewModel(
     private val saveBusinessLogoUseCase: SaveBusinessLogoUseCase,
     private val saveBusinessGalleryUseCase: SaveBusinessGalleryUseCase,
     private val sharedPrefManager: SharedPrefManager,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _registrationState =
-        MutableStateFlow<NetworkResponse<SaveBusinessLogoResponse>>(NetworkResponse.Loading())
-    val registrationState: StateFlow<NetworkResponse<SaveBusinessLogoResponse>> = _registrationState
-
-    private val _imageList = mutableStateListOf<Uri>()
-    val imageList: SnapshotStateList<Uri> get() = _imageList
+) : BaseViewModel<BusinessLogoUiState, BusinessLogoUiEvent, BusinessLogoUiEffect>(BusinessLogoUiState()) {
+    override fun onEvent(event: BusinessLogoUiEvent) {
+        when (event) {
+            is BusinessLogoUiEvent.AddImages -> addImages(event.uris)
+            is BusinessLogoUiEvent.RemoveImage -> removeImage(event.uri)
+            is BusinessLogoUiEvent.SetImages -> setImages(event.list)
+            BusinessLogoUiEvent.ClearImages -> clearImages()
+            is BusinessLogoUiEvent.UploadLogo -> uploadBusinessLogo(event.userId, event.logoFile, event.logoFiles)
+            is BusinessLogoUiEvent.UploadGallery -> uploadBusinessGallery(event.userId, event.logoFiles)
+        }
+    }
 
     fun addImages(uris: List<Uri>) {
-        val remaining = (6 - _imageList.size).coerceAtLeast(0)
-        _imageList.addAll(uris.take(remaining))
+        val current = currentState.imageList
+        val remaining = (6 - current.size).coerceAtLeast(0)
+        updateState { copy(imageList = current + uris.take(remaining)) }
     }
 
     fun removeImage(uri: Uri) {
-        _imageList.remove(uri)
+        updateState { copy(imageList = imageList.filterNot { it == uri }) }
     }
 
     fun setImages(list: List<Uri>) {
-        _imageList.clear()
-        _imageList.addAll(list)
+        updateState { copy(imageList = list) }
     }
 
     fun clearImages() {
-        _imageList.clear()
+        updateState { copy(imageList = emptyList()) }
     }
 
     fun resetNearbyPlaces() {
-        _registrationState.value = NetworkResponse.Loading()
+        updateState { copy(registrationState = NetworkResponse.Loading()) }
     }
 
     fun uploadBusinessLogo(
@@ -57,19 +90,19 @@ class BusinessLogoViewModel(
         logoFiles: List<File?>,
     ) {
         viewModelScope.launch {
-            _registrationState.value = NetworkResponse.Loading()
+            updateState { copy(registrationState = NetworkResponse.Loading()) }
             when (val result = saveBusinessLogoUseCase(userId, logoFile, logoFiles).toResource()) {
                 is Resource.Success -> {
-                    _registrationState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(registrationState = NetworkResponse.Success(result.data)) }
                     saveLoginData(0)
                 }
 
                 is Resource.Error -> {
-                    _registrationState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(registrationState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _registrationState.value = NetworkResponse.Loading()
+                    updateState { copy(registrationState = NetworkResponse.Loading()) }
                 }
             }
         }
@@ -80,18 +113,18 @@ class BusinessLogoViewModel(
         logoFiles: List<File?>,
     ) {
         viewModelScope.launch {
-            _registrationState.value = NetworkResponse.Loading()
+            updateState { copy(registrationState = NetworkResponse.Loading()) }
             when (val result = saveBusinessGalleryUseCase(userId, logoFiles).toResource()) {
                 is Resource.Success -> {
-                    _registrationState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(registrationState = NetworkResponse.Success(result.data)) }
                 }
 
                 is Resource.Error -> {
-                    _registrationState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(registrationState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _registrationState.value = NetworkResponse.Loading()
+                    updateState { copy(registrationState = NetworkResponse.Loading()) }
                 }
             }
         }

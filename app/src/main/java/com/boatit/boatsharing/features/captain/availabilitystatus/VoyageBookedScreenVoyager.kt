@@ -96,8 +96,10 @@ fun VoyageBookedScreenVoyager(
     var showVoyageDetails by rememberSaveable { mutableStateOf(false) }
     var showFindBoat by rememberSaveable { mutableStateOf(false) }
 
-    val stripeState by viewModelStripe.paymentSheetConfigState.collectAsState()
-    val paymentState by viewModelP.loginState.collectAsState()
+    val stripeVm by viewModelStripe.uiState.collectAsState()
+    val stripeState = stripeVm.paymentSheetConfigState
+    val paymentUi by viewModelP.uiState.collectAsState()
+    val paymentState = paymentUi.networkState
     val activeVoyageId = voyageSessionStore.voyageId.collectAsState().value
 
     val stripeLauncher =

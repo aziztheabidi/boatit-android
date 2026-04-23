@@ -53,6 +53,6 @@ val chatUserrolesModule =
 
         single { FollowRepository(get()) }
         single { FollowVoyagerUseCase { request -> get<FollowRepository>().findboat(request) } }
-        single { ComplainVoyagerUseCase { request -> get<FollowRepository>().complian(request) } }
+        single { ComplainVoyagerUseCase { request -> get<FollowRepository>().complain(request) } }
         viewModel { FollowViewModel(get(), get()) }
     }

@@ -29,9 +29,10 @@ fun LiveTrackingMapScreen(viewModel: TrackingLocationViewModel = koinViewModel()
     val mapUiSettings = remember { MapUiSettings(zoomControlsEnabled = true) }
     val mapProperties = remember { MapProperties(isMyLocationEnabled = true) }
 
-    val userLocation by viewModel.userLocation.collectAsState()
-    val routePolyline by viewModel.routePolyline.collectAsState()
-    val estimatedTime by viewModel.estimatedTime.collectAsState()
+    val trackState by viewModel.uiState.collectAsState()
+    val userLocation = trackState.userLocation
+    val routePolyline = trackState.routePolyline
+    val estimatedTime = trackState.estimatedTime
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),

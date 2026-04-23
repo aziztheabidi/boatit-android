@@ -1,14 +1,10 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
-import androidx.lifecycle.ViewModel
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiState
 import com.boatit.boatsharing.features.voyager.dashboard.model.CreateVoyageRateCalcUiEffect
 import com.boatit.boatsharing.features.voyager.dashboard.model.CreateVoyageRateCalcUiEvent
-import com.boatit.boatsharing.features.voyager.dashboard.model.Sponser
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.boatit.boatsharing.features.voyager.dashboard.model.Sponsor
 
 data class CreateVoyageRateCalcUiState(
     val eventName: String = "",
@@ -21,25 +17,22 @@ data class CreateVoyageRateCalcUiState(
     val pickup: String = "",
     val dropOff: String = "",
     val isTravelNow: Boolean = false,
-)
+) : UiState
 
 class CreateVoyageRateCalcViewModel(
     private val draftStore: CreateVoyageDraftStore,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel(), ICreateVoyageRateCalcViewModel {
-    private val _uiState = MutableStateFlow(CreateVoyageRateCalcUiState())
-    override val uiState: StateFlow<CreateVoyageRateCalcUiState> = _uiState.asStateFlow()
-
-    private val _uiEffects = MutableSharedFlow<CreateVoyageRateCalcUiEffect>(extraBufferCapacity = 1)
-    override val uiEffects: SharedFlow<CreateVoyageRateCalcUiEffect> = _uiEffects
-
+) : BaseViewModel<CreateVoyageRateCalcUiState, CreateVoyageRateCalcUiEvent, CreateVoyageRateCalcUiEffect>(
+        CreateVoyageRateCalcUiState(),
+    ),
+    ICreateVoyageRateCalcViewModel {
     override fun onEvent(event: CreateVoyageRateCalcUiEvent) {
         when (event) {
             CreateVoyageRateCalcUiEvent.Initialize -> initializeState()
             is CreateVoyageRateCalcUiEvent.EventNameChanged -> {
-                _uiState.value = _uiState.value.copy(eventName = event.value)
+                updateState { copy(eventName = event.value) }
             }
             is CreateVoyageRateCalcUiEvent.SplitPaymentToggled -> {
-                _uiState.value = _uiState.value.copy(splitPaymentEnabled = event.enabled)
+                updateState { copy(splitPaymentEnabled = event.enabled) }
             }
             CreateVoyageRateCalcUiEvent.Proceed -> proceedToSponsor()
         }
@@ -47,8 +40,8 @@ class CreateVoyageRateCalcViewModel(
 
     private fun initializeState() {
         val draft = draftStore.state.value
-        _uiState.value =
-            _uiState.value.copy(
+        updateState {
+            copy(
                 eventName = draft.eventName,
                 splitPaymentEnabled = draft.splitPaymentEnabled,
                 bookingDate = draft.bookingDate,
@@ -60,10 +53,11 @@ class CreateVoyageRateCalcViewModel(
                 dropOff = draft.dropOffDockName,
                 isTravelNow = draft.isImmediately,
             )
+        }
     }
 
     private fun proceedToSponsor() {
-        val state = _uiState.value
+        val state = currentState
         if (state.eventName.isBlank()) return
 
         draftStore.updateRateCalc(
@@ -75,7 +69,7 @@ class CreateVoyageRateCalcViewModel(
             val voyagerUserId = draftStore.state.value.voyagerUserId
             draftStore.setSponsors(
                 listOf(
-                    Sponser(
+                    Sponsor(
                         VoyagerUserId = voyagerUserId,
                         VoyagerUserName = "",
                         AmountToPay = 0.0,
@@ -87,7 +81,7 @@ class CreateVoyageRateCalcViewModel(
             draftStore.setSponsors(emptyList())
         }
 
-        _uiEffects.tryEmit(
+        emitEffect(
             CreateVoyageRateCalcUiEffect.NavigateToSponsor(state.splitPaymentEnabled),
         )
     }

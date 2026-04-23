@@ -77,7 +77,7 @@ fun CreateVoyageScreen(
     val paypalFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(viewModel) {
-        viewModel.uiEffects.collectLatest { effect ->
+        viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 CreateVoyageUiEffect.NavigateToRateCalculation -> {
                     navController.navigate(NavigationManager.CREATE_VOYAGE_RATE_CALC_SCREEN)

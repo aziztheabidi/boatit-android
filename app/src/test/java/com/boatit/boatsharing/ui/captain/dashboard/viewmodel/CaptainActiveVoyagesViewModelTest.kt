@@ -72,7 +72,7 @@ class CaptainActiveVoyagesViewModelTest {
 
             val effect =
                 async {
-                    viewModel.uiEffects.first { it is CaptainCurrentVoyagesUiEffect.ShowToast }
+                    viewModel.uiEffect.first { it is CaptainCurrentVoyagesUiEffect.ShowToast }
                 }
 
             viewModel.onEvent(CaptainCurrentVoyagesUiEvent.Initialize)

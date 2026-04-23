@@ -1,6 +1,6 @@
 package com.boatit.boatsharing.features.signup.general.repository
 
-import com.boatit.boatsharing.testutils.apiExecutorReturningJson
+import com.boatit.boatsharing.testutils.httpClientReturningJson
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -18,7 +18,7 @@ class RegistrationRepositoryHttpTest {
                   "obj": "user@example.com"
                 }
                 """.trimIndent()
-            val repository = RegistrationRepository(apiExecutorReturningJson(json))
+            val repository = RegistrationRepository(httpClientReturningJson(json))
 
             val result = repository.tempRegister("Ali", "123", "user@example.com")
 

@@ -7,7 +7,7 @@ import com.boatit.boatsharing.features.voyager.dashboard.model.BookVoyageRequest
 import com.boatit.boatsharing.features.voyager.dashboard.model.BookVoyageResponse
 import com.boatit.boatsharing.features.voyager.dashboard.model.BookVoyageUiEffect
 import com.boatit.boatsharing.features.voyager.dashboard.model.BookVoyageUiEvent
-import com.boatit.boatsharing.features.voyager.dashboard.model.Sponser
+import com.boatit.boatsharing.features.voyager.dashboard.model.Sponsor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -32,12 +32,12 @@ class BookVoyageViewModelTest {
                     Result.success(BookVoyageResponse(Status = 201, Message = "Booked", obj = "voy-123"))
                 }
             val viewModel = BookVoyageViewModel(useCase)
-            val effectDeferred = async { viewModel.uiEffects.first() }
+            val effectDeferred = async { viewModel.uiEffect.first() }
 
             viewModel.onEvent(BookVoyageUiEvent.SubmitBookVoyage(sampleRequest()))
             advanceUntilIdle()
 
-            assertTrue(viewModel.nearbyPlaces.value is NetworkResponse.Success)
+            assertTrue(viewModel.uiState.value.bookRequest is NetworkResponse.Success)
             assertFalse(viewModel.uiState.value.isSubmitting)
             val effect = effectDeferred.await()
             assertTrue(effect is BookVoyageUiEffect.BookedSuccess)
@@ -52,12 +52,12 @@ class BookVoyageViewModelTest {
                     Result.failure(Exception("booking failed"))
                 }
             val viewModel = BookVoyageViewModel(useCase)
-            val effectDeferred = async { viewModel.uiEffects.first() }
+            val effectDeferred = async { viewModel.uiEffect.first() }
 
             viewModel.onEvent(BookVoyageUiEvent.SubmitBookVoyage(sampleRequest()))
             advanceUntilIdle()
 
-            assertTrue(viewModel.nearbyPlaces.value is NetworkResponse.Error)
+            assertTrue(viewModel.uiState.value.bookRequest is NetworkResponse.Error)
             assertTrue(viewModel.uiState.value.showErrorDialog)
             assertEquals("booking failed", viewModel.uiState.value.errorMessage)
             val effect = effectDeferred.await()
@@ -81,10 +81,10 @@ class BookVoyageViewModelTest {
             EndTime = "11:00",
             PerHourRate = 100.0,
             DurationInHours = 1.0,
-            NoOfSponsers = 1,
+            noOfSponsors = 1,
             EstimatedCost = 100.0,
             IndvidualAmount = 100.0,
-            Sponsers = listOf(Sponser("u2", "Alice", 100.0, "Pending")),
+            sponsors = listOf(Sponsor("u2", "Alice", 100.0, "Pending")),
         )
     }
 }

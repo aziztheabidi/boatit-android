@@ -121,8 +121,10 @@ fun BusinessAccountInfoScreen(
         isError = false
     }
 
-    val registrationState by viewModel.registrationState.collectAsState()
-    val fetchState by viewModelfeth.registrationState.collectAsState()
+    val profileUi by viewModel.uiState.collectAsState()
+    val registrationState = profileUi.registrationState
+    val fetchVm by viewModelfeth.uiState.collectAsState()
+    val fetchState = fetchVm.registrationState
 
     fun performLogin() {
         navController.navigate(NavigationManager.BUSINESS_GENERAL_INFO_SCREEN)

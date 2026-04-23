@@ -63,6 +63,7 @@ import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.navigation.NavigationManager
 import com.boatit.boatsharing.ui.navigation.navigateToMapPicker
 import com.boatit.boatsharing.ui.navigation.popBack
+import com.boatit.boatsharing.features.signup.business.viewmodel.BusinessInfoUiEvent
 import com.boatit.boatsharing.features.signup.business.viewmodel.BusinessInfoViewModel
 import com.boatit.boatsharing.features.signup.business.viewmodel.GetBusinessInfoViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.view.MyTimePickerDialog
@@ -97,22 +98,24 @@ fun AddGeneralBusinessInfo(
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
     var getingData by remember { mutableStateOf(true) }
-    val fetchState by viewModelfetch.registrationState.collectAsState()
+    val infoUi by viewModel.uiState.collectAsState()
+    val fetchInfoVm by viewModelfetch.uiState.collectAsState()
+    val fetchState = fetchInfoVm.registrationState
 
     val isValidate =
-        viewModel.businessName.isNotEmpty() &&
-            viewModel.businessType.isNotEmpty() &&
-            viewModel.businessAddress.isNotEmpty() &&
-            viewModel.businessPhoneNo.isNotEmpty() &&
-            viewModel.establishmentYear.isNotEmpty() &&
-            viewModel.businessTime.isNotEmpty()
+        infoUi.businessName.isNotEmpty() &&
+            infoUi.businessType.isNotEmpty() &&
+            infoUi.businessAddress.isNotEmpty() &&
+            infoUi.businessPhoneNo.isNotEmpty() &&
+            infoUi.establishmentYear.isNotEmpty() &&
+            infoUi.businessTime.isNotEmpty()
 
     val handleError = {
         errorMessage = null
         isError = false
     }
 
-    val registrationState by viewModel.registrationState.collectAsState()
+    val registrationState = infoUi.registrationState
 
     fun performLogin() {
         navController.navigate(NavigationManager.BUSINESS_DESCRIPTIONS_SCREEN)
@@ -199,8 +202,8 @@ fun AddGeneralBusinessInfo(
                     if (showDialog.value) {
                         MyDatePickerDialog(
                             onDateSelected = {
-                                viewModel.bookingDate = it
-                                viewModel.establishmentYear = viewModel.bookingDate
+                                viewModel.onEvent(BusinessInfoUiEvent.BookingDateChanged(it))
+                                viewModel.onEvent(BusinessInfoUiEvent.EstablishmentYearChanged(it))
                             },
                             onDismiss = { showDialog.value = false },
                         )
@@ -209,7 +212,7 @@ fun AddGeneralBusinessInfo(
                     if (showTimeDialog.value) {
                         MyTimePickerDialog(
                             onDateSelected = {
-                                viewModel.businessTime = it + ":00"
+                                viewModel.onEvent(BusinessInfoUiEvent.BusinessTimeChanged(it + ":00"))
                                 showTimeDialog.value = false
                             },
                             onDismiss = { showTimeDialog.value = false },
@@ -230,20 +233,20 @@ fun AddGeneralBusinessInfo(
                     Spacer(Modifier.height(10.dp))
 
                     CustomTextField(
-                        textValue = viewModel.businessName,
+                        textValue = infoUi.businessName,
                         placeholderText = stringResource(R.string.business_name_placeholder),
-                        onTextChange = { viewModel.businessName = it },
+                        onTextChange = { viewModel.onEvent(BusinessInfoUiEvent.BusinessNameChanged(it)) },
                         keyboardType = KeyboardType.Text,
                         maxChars = 100,
                         errorMessage =
-                            if (viewModel.businessName.isNotEmpty() && viewModel.businessName.length <= 3) {
+                            if (infoUi.businessName.isNotEmpty() && infoUi.businessName.length <= 3) {
                                 stringResource(
                                     R.string.business_name_validation_text,
                                 )
                             } else {
                                 null
                             },
-                        isError = viewModel.businessName.isNotEmpty(),
+                        isError = infoUi.businessName.isNotEmpty(),
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions =
@@ -267,20 +270,20 @@ fun AddGeneralBusinessInfo(
                     Spacer(Modifier.height(10.dp))
 
                     CustomTextField(
-                        textValue = viewModel.businessType,
+                        textValue = infoUi.businessType,
                         placeholderText = stringResource(R.string.business_type_placeholder),
-                        onTextChange = { viewModel.businessType = it },
+                        onTextChange = { viewModel.onEvent(BusinessInfoUiEvent.BusinessTypeChanged(it)) },
                         keyboardType = KeyboardType.Text,
                         maxChars = 100,
                         errorMessage =
-                            if (viewModel.businessType.isNotEmpty() && viewModel.businessType.length <= 3) {
+                            if (infoUi.businessType.isNotEmpty() && infoUi.businessType.length <= 3) {
                                 stringResource(
                                     R.string.business_type_validation_text,
                                 )
                             } else {
                                 null
                             },
-                        isError = viewModel.businessType.isNotEmpty(),
+                        isError = infoUi.businessType.isNotEmpty(),
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions =
@@ -309,7 +312,7 @@ fun AddGeneralBusinessInfo(
 
                     LaunchedEffect(selectedAddress) {
                         if (!selectedAddress.isNullOrBlank()) {
-                            viewModel.businessAddress = selectedAddress
+                            viewModel.onEvent(BusinessInfoUiEvent.BusinessAddressChanged(selectedAddress))
                             navBackStackEntry?.savedStateHandle?.remove<String>("selected_address")
                         }
                     }
@@ -364,22 +367,22 @@ fun AddGeneralBusinessInfo(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     CustomTextField(
-                        textValue = viewModel.businessAddress,
+                        textValue = infoUi.businessAddress,
                         placeholderText = stringResource(R.string.business_address_placeholder),
-                        onTextChange = { viewModel.businessAddress = it },
+                        onTextChange = { viewModel.onEvent(BusinessInfoUiEvent.BusinessAddressChanged(it)) },
                         keyboardType = KeyboardType.Text,
                         maxChars = 500,
                         singleLine = false,
                         maxLines = 3,
                         errorMessage =
-                            if (viewModel.businessAddress.isNotEmpty() && viewModel.businessAddress.length <= 3) {
+                            if (infoUi.businessAddress.isNotEmpty() && infoUi.businessAddress.length <= 3) {
                                 stringResource(
                                     R.string.business_address_validation_text,
                                 )
                             } else {
                                 null
                             },
-                        isError = viewModel.businessAddress.isNotEmpty(),
+                        isError = infoUi.businessAddress.isNotEmpty(),
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions =
@@ -402,20 +405,20 @@ fun AddGeneralBusinessInfo(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     CustomTextField(
-                        textValue = viewModel.businessPhoneNo,
+                        textValue = infoUi.businessPhoneNo,
                         placeholderText = stringResource(R.string.business_contact_no_placeholder),
-                        onTextChange = { viewModel.businessPhoneNo = it },
+                        onTextChange = { viewModel.onEvent(BusinessInfoUiEvent.BusinessPhoneChanged(it)) },
                         keyboardType = KeyboardType.Number,
                         maxChars = 50,
                         errorMessage =
-                            if (viewModel.businessPhoneNo.isNotEmpty() && viewModel.businessPhoneNo.length <= 5) {
+                            if (infoUi.businessPhoneNo.isNotEmpty() && infoUi.businessPhoneNo.length <= 5) {
                                 stringResource(
                                     R.string.business_contact_no_validation_text,
                                 )
                             } else {
                                 null
                             },
-                        isError = viewModel.businessPhoneNo.isNotEmpty(),
+                        isError = infoUi.businessPhoneNo.isNotEmpty(),
                         onClearError = handleError,
                         imeAction = ImeAction.Next,
                         keyboardActions =
@@ -442,13 +445,13 @@ fun AddGeneralBusinessInfo(
                         modifier = Modifier.clickable { showDialog.value = true },
                     ) {
                         CustomDobField(
-                            textValue = viewModel.establishmentYear,
+                            textValue = infoUi.establishmentYear,
                             placeholderText = stringResource(R.string.business_starting_year_placeholder),
-                            onTextChange = { viewModel.establishmentYear = it },
+                            onTextChange = { viewModel.onEvent(BusinessInfoUiEvent.EstablishmentYearChanged(it)) },
                             keyboardType = KeyboardType.Number,
                             maxChars = 4,
                             errorMessage = null,
-                            isError = viewModel.establishmentYear.isNotEmpty(),
+                            isError = infoUi.establishmentYear.isNotEmpty(),
                             onClearError = handleError,
                             imeAction = ImeAction.Next,
                             keyboardActions =
@@ -479,20 +482,20 @@ fun AddGeneralBusinessInfo(
                             },
                     ) {
                         CustomDobField(
-                            textValue = viewModel.businessTime,
+                            textValue = infoUi.businessTime,
                             placeholderText = stringResource(R.string.business_time_placeholder),
-                            onTextChange = { viewModel.businessTime = it },
+                            onTextChange = { viewModel.onEvent(BusinessInfoUiEvent.BusinessTimeChanged(it)) },
                             keyboardType = KeyboardType.Text,
                             maxChars = 40,
                             errorMessage =
-                                if (viewModel.businessTime.isNotEmpty() && viewModel.businessTime.length <= 5) {
+                                if (infoUi.businessTime.isNotEmpty() && infoUi.businessTime.length <= 5) {
                                     stringResource(
                                         R.string.business_time_validation_text,
                                     )
                                 } else {
                                     null
                                 },
-                            isError = viewModel.businessTime.isNotEmpty(),
+                            isError = infoUi.businessTime.isNotEmpty(),
                             onClearError = handleError,
                             imeAction = ImeAction.Next,
                             keyboardActions =

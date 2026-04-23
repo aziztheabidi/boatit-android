@@ -48,11 +48,11 @@ class RoleViewModelTest {
             viewModel.selectRole("user-1", "Captain")
             advanceUntilIdle()
 
-            assertTrue(viewModel.roleState.value is NetworkResponse.Success)
+            assertTrue(viewModel.uiState.value.roleState is NetworkResponse.Success)
             assertEquals("Captain", roleProvider.savedRole)
             assertEquals("new-access", tokenProvider.savedAccess)
             assertEquals("new-refresh", tokenProvider.savedRefresh)
-            assertEquals(false, viewModel.isLoading.value)
+            assertEquals(false, viewModel.uiState.value.isLoading)
         }
 
     @Test
@@ -75,11 +75,11 @@ class RoleViewModelTest {
             viewModel.selectRole("user-1", "Captain")
             advanceUntilIdle()
 
-            val state = viewModel.roleState.value
+            val state = viewModel.uiState.value.roleState
             assertTrue(state is NetworkResponse.Error)
             assertEquals("assign failed", (state as NetworkResponse.Error).message)
-            assertEquals("assign failed", viewModel.errorMessage.value)
-            assertEquals(false, viewModel.isLoading.value)
+            assertEquals("assign failed", viewModel.uiState.value.errorMessage)
+            assertEquals(false, viewModel.uiState.value.isLoading)
         }
 
     private class FakeRoleProvider : IRoleProvider {

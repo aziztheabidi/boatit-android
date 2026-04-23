@@ -48,15 +48,15 @@ object ApiConstants {
         const val VOYAGER_UNFOLLOW_BUSINESS = "/Voyager/UnFollowBusiness"
         const val COMPLETE_VOYAGE = "/Voyage/Complete"
         const val PAYMENT = "/Voyage/PaymentInitiate"
-        const val PAYMENT_COMFIRMATION = "/Voyage/PaymentConfirmation"
+        const val PAYMENT_CONFIRMATION = "/Voyage/PaymentConfirmation"
         const val SPONSOR_PAYMENT_CONFIRMATION = "/Voyage/SponserPaymentConfirmation"
         const val SPONSOR_PAYMENT_INITIATE = "/Voyage/SponserPaymentInitiate"
-        const val SPONSOR_PAYMENT_Decline = "/Voyage/Ignore"
+        const val SPONSOR_PAYMENT_DECLINE = "/Voyage/Ignore"
         const val GET_CAPTAIN_BOAT = "/CaptainBoat/GetByUserId"
         const val SAVE_CAPTAIN_DOCS = "/CaptainDocument/Save"
         const val GET_CAPTAIN_DOCS = "/CaptainDocument/GetByUserId"
         const val GET_CAPTAIN_VOYAGES = "/Captain/GetPastVoyages"
-        const val GET_Voyager_PAST_VOYAGES = "/VoyagerDashboard/GetPastVoyages"
+        const val GET_VOYAGER_PAST_VOYAGES = "/VoyagerDashboard/GetPastVoyages"
         const val GET_VOYAGERS_LIST = "/Voyager/GetRelationship"
         const val GET_ACTIVE_VOYAGES = "/VoyagerDashboard/GetActiveVoyage"
         const val GET_BUSINESS = "/Business/Get"
@@ -67,5 +67,14 @@ object ApiConstants {
         const val CANCEL_VOYAGE = "/Voyage/Cancel"
 
         const val GET_CAPTAIN_ACTIVE_VOYAGES = "/Captain/GetActiveVoyages"
+
+        @Deprecated("Typo kept for backward compatibility. Use PAYMENT_CONFIRMATION.")
+        const val PAYMENT_COMFIRMATION = PAYMENT_CONFIRMATION
+
+        @Deprecated("Use SPONSOR_PAYMENT_DECLINE.")
+        const val SPONSOR_PAYMENT_Decline = SPONSOR_PAYMENT_DECLINE
+
+        @Deprecated("Use GET_VOYAGER_PAST_VOYAGES.")
+        const val GET_Voyager_PAST_VOYAGES = GET_VOYAGER_PAST_VOYAGES
     }
 }

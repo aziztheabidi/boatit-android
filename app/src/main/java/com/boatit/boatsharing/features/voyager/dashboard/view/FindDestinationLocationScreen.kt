@@ -73,7 +73,8 @@ fun FindDestinationLocationScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    val nearbyPlacesState by viewModel.nearbyPlaces.collectAsState()
+    val nearbyVm by viewModel.uiState.collectAsState()
+    val nearbyPlacesState = nearbyVm.nearbyPlaces
     val dockOptions = (nearbyPlacesState as? NetworkResponse.Success)?.data.orEmpty()
 
     LaunchedEffect(Unit) {

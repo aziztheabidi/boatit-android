@@ -101,7 +101,7 @@ fun CreateVoyageSponsorScreen(
     }
 
     LaunchedEffect(viewModel) {
-        viewModel.uiEffects.collectLatest { effect ->
+        viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 is BookVoyageUiEffect.BookedSuccess -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
@@ -115,7 +115,7 @@ fun CreateVoyageSponsorScreen(
     }
 
     LaunchedEffect(viewModelFind) {
-        viewModelFind.uiEffects.collectLatest { effect ->
+        viewModelFind.uiEffect.collectLatest { effect ->
             when (effect) {
                 FindBoatUiEffect.NavigateCreateVoyage -> Unit
                 FindBoatUiEffect.NavigateDashboardAfterFindBoat -> {
@@ -429,10 +429,10 @@ fun CreateVoyageSponsorScreen(
                                         EndTime = sponsorUiState.endTime,
                                         PerHourRate = sponsorUiState.perHourRate,
                                         DurationInHours = sponsorUiState.durationInHours,
-                                        NoOfSponsers = sponsorUiState.sponsorEntries.size,
+                                        noOfSponsors = sponsorUiState.sponsorEntries.size,
                                         EstimatedCost = sponsorUiState.totalCostAmount,
                                         IndvidualAmount = sponsorUiState.individualFare.toDoubleOrNull() ?: 0.0,
-                                        Sponsers = sponsorUiState.sponsorEntries,
+                                        sponsors = sponsorUiState.sponsorEntries,
                                     ),
                                 ),
                             )

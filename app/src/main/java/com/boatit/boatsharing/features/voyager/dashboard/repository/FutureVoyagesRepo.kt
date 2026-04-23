@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.features.voyager.dashboard.repository
 
 import com.boatit.boatsharing.data.network.di.ApiConstants
+import com.boatit.boatsharing.data.network.di.executeGetRequest
 import com.boatit.boatsharing.data.network.di.networkFailure
 import com.boatit.boatsharing.data.network.di.toResult
 import com.boatit.boatsharing.features.voyager.dashboard.model.FutureBookedVoyages
@@ -16,23 +17,24 @@ class FutureVoyagesRepo(
     private val userSessionStore: UserSessionStore,
 ) {
     suspend fun voyages(): Result<FutureBookedVoyages> {
-        return try {
-            val userId = userSessionStore.currentUserId()
-            val response: HttpResponse =
-                httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.Endpoints.GET_FUTURE_BOOKED_VOYAGES}") {
-                    url {
-                        parameters.append("UserId", userId)
-                    }
+        val userId = userSessionStore.currentUserId()
+        return executeGetRequest(
+            httpClient = httpClient,
+            url = "${ApiConstants.BASE_URL}${ApiConstants.Endpoints.GET_FUTURE_BOOKED_VOYAGES}",
+            requestConfig = {
+                url {
+                    parameters.append("UserId", userId)
                 }
-
-            if (response.status == HttpStatusCode.OK) {
-                response.toResult<FutureBookedVoyages>(successStatus = HttpStatusCode.OK)
-            } else {
-                val result: FutureBookedVoyages = response.body()
-                Result.failure(Exception("API Error: ${result.Message}"))
-            }
-        } catch (e: Exception) {
-            networkFailure("Network Error", e)
-        }
+            },
+            handleResponse = { response ->
+                if (response.status == HttpStatusCode.OK) {
+                    response.toResult<FutureBookedVoyages>(successStatus = HttpStatusCode.OK)
+                } else {
+                    val result: FutureBookedVoyages = response.body()
+                    Result.failure(Exception("API Error: ${result.Message}"))
+                }
+            },
+            onException = { e -> networkFailure("Network Error", e) },
+        )
     }
 }

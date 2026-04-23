@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.features.login.data.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /** Wire / JSON DTO for `Account/Login` (field names match backend contract). */
 @Serializable
@@ -18,6 +19,8 @@ data class UserDataDto(
     val Username: String,
     var Role: String,
     val MissingStep: Int,
-    var Accesstoken: String,
-    var Refreshtoken: String,
+    @SerialName("Accesstoken")
+    var accessToken: String,
+    @SerialName("Refreshtoken")
+    var refreshToken: String,
 )

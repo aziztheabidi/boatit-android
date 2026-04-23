@@ -1,6 +1,8 @@
 package com.boatit.boatsharing.data.network.di
 
 import com.boatit.boatsharing.features.chat.repository.VoyagersRepository
+import com.boatit.boatsharing.features.voyager.dashboard.repository.GoogleDirectionsApi
+import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.TrackingLocationViewModel
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.BookVoyageUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.CalculateVoyageFareUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.CancelBookedVoyageUseCase
@@ -76,6 +78,9 @@ import org.koin.dsl.module
 
 val voyagerModule =
     module {
+        single { GoogleDirectionsApi() }
+        viewModel { TrackingLocationViewModel(get(), get(), get(), get()) }
+
         single { FetchNearByVoyagesRepo(get(), androidContext()) }
         single { FetchCategoryRepo(get(), androidContext()) }
         single {

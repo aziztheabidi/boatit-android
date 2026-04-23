@@ -95,7 +95,8 @@ fun AddBusinessLogo(
     val currentUserId = userSessionStore.currentUserId()
     var businesslogo by remember { mutableStateOf("") }
     var getingData by remember { mutableStateOf(true) }
-    val fetchState by viewModelfetch.registrationState.collectAsState()
+    val fetchVm by viewModelfetch.uiState.collectAsState()
+    val fetchState = fetchVm.registrationState
 
     if (triggerGallery) {
         PermissionsToAccessGallery(
@@ -112,7 +113,8 @@ fun AddBusinessLogo(
         )
     }
 
-    val registrationState by viewModel.registrationState.collectAsState()
+    val logoUi by viewModel.uiState.collectAsState()
+    val registrationState = logoUi.registrationState
 
     fun uriToFile(
         context: Context,
@@ -306,7 +308,7 @@ fun AddBusinessLogo(
                         isValidate = isValidate,
                         isLoading = isLoading,
                         onButtonClick = {
-                            val fileList = viewModel.imageList.map { uri -> uriToFile(context, uri) }
+                            val fileList = logoUi.imageList.map { uri -> uriToFile(context, uri) }
                             selectedImageUri?.let { uri ->
                                 val file = uriToFile(context, uri)
                                 if (file != null) {
@@ -419,7 +421,8 @@ fun ImagePickerBox(
 
 @Composable
 fun SelectMultipleImagesBox(viewModel: BusinessLogoViewModel = koinViewModel()) {
-    val imageList = viewModel.imageList
+    val logoUi by viewModel.uiState.collectAsState()
+    val imageList = logoUi.imageList
     val galleryLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetMultipleContents(),

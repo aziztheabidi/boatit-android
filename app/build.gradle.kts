@@ -27,15 +27,26 @@ fun boatitProp(
         ?: boatitLocalProperties.getProperty(name)?.takeIf { it.isNotBlank() }
         ?: default
 
+/**
+ * When true, detekt and ktlint fail the build on violations.
+ * Enable via Gradle: `-Pboatit.strictStaticAnalysis=true`, or in `local.properties`: `boatit.strictStaticAnalysis=true`.
+ * Default is false so existing issues do not block normal builds.
+ */
+val boatitStrictStaticAnalysis: Boolean =
+    (project.findProperty("boatit.strictStaticAnalysis") as? String)
+        ?.equals("true", ignoreCase = true) == true ||
+        boatitLocalProperties.getProperty("boatit.strictStaticAnalysis")
+            ?.equals("true", ignoreCase = true) == true
+
 detekt {
     buildUponDefaultConfig = true
     allRules = false
-    ignoreFailures = true
+    ignoreFailures = !boatitStrictStaticAnalysis
     parallel = true
 }
 
 ktlint {
-    ignoreFailures.set(true)
+    ignoreFailures.set(!boatitStrictStaticAnalysis)
     verbose.set(true)
 }
 
@@ -137,11 +148,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
 
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
     implementation(libs.gson)
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.gson)
 
     implementation(libs.ktor.core)
     implementation(libs.ktor.cio)

@@ -9,7 +9,7 @@ import com.boatit.boatsharing.features.voyager.dashboard.model.ConfirmBookedVoya
 import com.boatit.boatsharing.features.voyager.dashboard.model.DockRate
 import com.boatit.boatsharing.features.voyager.dashboard.model.FindBoatRequest
 import com.boatit.boatsharing.features.voyager.dashboard.model.FindBoatResponse
-import com.boatit.boatsharing.features.voyager.dashboard.model.Sponser
+import com.boatit.boatsharing.features.voyager.dashboard.model.Sponsor
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -117,10 +117,10 @@ class VoyageBookingUseCasesTest {
             EndTime = "11:00",
             PerHourRate = 20.0,
             DurationInHours = 1.0,
-            NoOfSponsers = 0,
+            noOfSponsors = 0,
             EstimatedCost = 20.0,
             IndvidualAmount = 20.0,
-            Sponsers = listOf(Sponser("u-1", "name", 20.0, "Pending")),
+            sponsors = listOf(Sponsor("u-1", "name", 20.0, "Pending")),
         )
     }
 }

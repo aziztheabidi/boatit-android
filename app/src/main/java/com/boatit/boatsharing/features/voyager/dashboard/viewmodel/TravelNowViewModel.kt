@@ -1,47 +1,67 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.FetchTravelNowVoyagesUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.TravelNowObj
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+data class TravelNowUiState(
+    val voyage: TravelNowObj? = null,
+    val isLoading: Boolean = false,
+    val toastMessage: String? = null,
+) : UiState
+
+sealed interface TravelNowUiEvent : UiEvent {
+    data object LoadVoyages : TravelNowUiEvent
+
+    data object ClearToast : TravelNowUiEvent
+}
+
+sealed interface TravelNowUiEffect : UiEffect {
+    data class ShowToast(val message: String) : TravelNowUiEffect
+}
 
 class TravelNowViewModel(
     private val fetchTravelNowVoyagesUseCase: FetchTravelNowVoyagesUseCase,
     private val cancelVM: CancelBookedVoyageViewModel,
     private val confirmVM: ConfirmBookedVoyageViewModel,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _state = MutableStateFlow(TravelNowUiState())
-    val state: StateFlow<TravelNowUiState> = _state
-
+) : BaseViewModel<TravelNowUiState, TravelNowUiEvent, TravelNowUiEffect>(TravelNowUiState()) {
     init {
-        loadVoyages()
+        onEvent(TravelNowUiEvent.LoadVoyages)
         observeCancelState()
         observeConfirmState()
     }
 
+    override fun onEvent(event: TravelNowUiEvent) {
+        when (event) {
+            TravelNowUiEvent.LoadVoyages -> loadVoyages()
+            TravelNowUiEvent.ClearToast -> updateState { copy(isLoading = false, toastMessage = null) }
+        }
+    }
+
     fun loadVoyages() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, toastMessage = null) }
+            updateState { copy(isLoading = true, toastMessage = null) }
 
             when (val result = fetchTravelNowVoyagesUseCase().toResource()) {
                 is Resource.Success -> {
                     val response = result.data
-                    _state.update {
+                    updateState {
                         if (response.Status == 200) {
-                            it.copy(
+                            copy(
                                 voyage = response.obj,
                                 isLoading = false,
                                 toastMessage = "Success",
                             )
                         } else {
-                            it.copy(
+                            copy(
                                 voyage = TravelNowObj(),
                                 isLoading = true,
                                 toastMessage = "No data found",
@@ -51,8 +71,8 @@ class TravelNowViewModel(
                 }
 
                 is Resource.Error -> {
-                    _state.update {
-                        it.copy(
+                    updateState {
+                        copy(
                             voyage = TravelNowObj(),
                             isLoading = true,
                             toastMessage = "No data found",
@@ -61,7 +81,7 @@ class TravelNowViewModel(
                 }
 
                 Resource.Loading -> {
-                    _state.update { it.copy(isLoading = true) }
+                    updateState { copy(isLoading = true) }
                 }
             }
         }
@@ -69,20 +89,18 @@ class TravelNowViewModel(
 
     private fun observeCancelState() {
         viewModelScope.launch {
-            cancelVM.nearbyPlaces.collect { cancelState ->
-                when (cancelState) {
+            cancelVM.uiState.collect { cancelStateHolder ->
+                when (val cancelState = cancelStateHolder.nearbyPlaces) {
                     is NetworkResponse.Success -> {
-                        _state.update {
-                            it.copy(toastMessage = "Cancelled")
-                        }
+                        emitEffect(TravelNowUiEffect.ShowToast("Cancelled"))
                         cancelVM.resetNearbyPlaces()
                         loadVoyages()
                     }
 
                     is NetworkResponse.Error -> {
-                        _state.update {
-                            it.copy(toastMessage = cancelState.message ?: "Cancel failed")
-                        }
+                        emitEffect(
+                            TravelNowUiEffect.ShowToast(cancelState.message ?: "Cancel failed"),
+                        )
                         cancelVM.resetNearbyPlaces()
                         loadVoyages()
                     }
@@ -95,20 +113,18 @@ class TravelNowViewModel(
 
     private fun observeConfirmState() {
         viewModelScope.launch {
-            confirmVM.confirmationState.collect { confirmState ->
-                when (confirmState) {
+            confirmVM.uiState.collect { holder ->
+                when (val confirmState = holder.confirmationState) {
                     is NetworkResponse.Success -> {
-                        _state.update {
-                            it.copy(toastMessage = "Voyage Confirmed")
-                        }
+                        emitEffect(TravelNowUiEffect.ShowToast("Voyage Confirmed"))
                         confirmVM.resetConfirmationState()
                         loadVoyages()
                     }
 
                     is NetworkResponse.Error -> {
-                        _state.update {
-                            it.copy(toastMessage = confirmState.message ?: "Confirmation failed")
-                        }
+                        emitEffect(
+                            TravelNowUiEffect.ShowToast(confirmState.message ?: "Confirmation failed"),
+                        )
                         confirmVM.resetConfirmationState()
                     }
 
@@ -119,12 +135,6 @@ class TravelNowViewModel(
     }
 
     fun clearToast() {
-        _state.update { it.copy(isLoading = false, toastMessage = null) }
+        onEvent(TravelNowUiEvent.ClearToast)
     }
 }
-
-data class TravelNowUiState(
-    val voyage: TravelNowObj? = null,
-    val isLoading: Boolean = false,
-    val toastMessage: String? = null,
-)

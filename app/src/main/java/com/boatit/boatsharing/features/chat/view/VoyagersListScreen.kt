@@ -66,15 +66,17 @@ fun VoyagersListScreen(
     viewModelF: FollowViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
-    val voyagesList by viewModel.loginState.collectAsState()
+    val listUi by viewModel.uiState.collectAsState()
+    val voyagesList = listUi.loginState
     var isLoading by remember { mutableStateOf(false) }
     var isNetworkError by remember { mutableStateOf(false) }
-    var followed = viewModel.filteredBoatListFollowed
-    var allusers = viewModel.filteredBoatList
+    val followed = listUi.filteredBoatListFollowed
+    val allusers = listUi.filteredBoatList
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("Followed", "All")
-    val followState by viewModelF.nearbyPlaces.collectAsState()
-    val searchQuery = viewModel.searchQuery
+    val followUi by viewModelF.uiState.collectAsState()
+    val followState = followUi.nearbyPlaces
+    val searchQuery = listUi.searchQuery
     val userSessionStore: UserSessionStore = get(UserSessionStore::class.java)
     val currentUserId = userSessionStore.currentUserId()
 

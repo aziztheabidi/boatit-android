@@ -7,7 +7,6 @@ import com.boatit.boatsharing.features.business.domain.usecase.SaveBusinessDashb
 import com.boatit.boatsharing.features.business.repository.BusinessDashboardRepository
 import com.boatit.boatsharing.features.business.repository.GetBusinessDocksRepo
 import com.boatit.boatsharing.features.business.repository.GetBusinessRepo
-import com.boatit.boatsharing.features.business.viewmodel.BusinessDashViewModel
 import com.boatit.boatsharing.features.business.viewmodel.BusinessDashboardViewModel
 import com.boatit.boatsharing.features.business.viewmodel.GetBusinessViewModel
 import com.boatit.boatsharing.features.signup.business.domain.usecase.FetchBusinessInfoUseCase
@@ -112,6 +111,5 @@ val businessModule =
                 get<BusinessDashboardRepository>().Delete(request)
             }
         }
-        viewModel { BusinessDashViewModel(get(), get()) }
         viewModel { BusinessDashboardViewModel(get(), get(), get(), get(), get()) }
     }

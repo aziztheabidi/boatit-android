@@ -32,7 +32,9 @@ import androidx.navigation.compose.rememberNavController
 import com.boatit.boatsharing.R
 import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.navigation.navigateWithClearStack
+import com.boatit.boatsharing.features.userroles.viewmodel.FCMTokenUiEvent
 import com.boatit.boatsharing.features.userroles.viewmodel.FCMTokenViewModel
+import com.boatit.boatsharing.features.userroles.viewmodel.RoleUiEvent
 import com.boatit.boatsharing.features.userroles.viewmodel.RoleViewModel
 import com.boatit.boatsharing.ui.components.ClickTopBarIcon
 import com.boatit.boatsharing.data.local.prefmanager.UserSessionStore
@@ -50,10 +52,10 @@ fun SelectRole(
     userSessionStore: UserSessionStore = get(UserSessionStore::class.java),
 ) {
     val context = LocalContext.current
-    val selectedRole by viewModel.selectedRole.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val roleState by viewModel.roleState.collectAsState()
+    val roleUi by viewModel.uiState.collectAsState()
+    val isLoading = roleUi.isLoading
+    val errorMessage = roleUi.errorMessage
+    val roleState = roleUi.roleState
 
     LaunchedEffect(roleState) {
         if (roleState is NetworkResponse.Success) {
@@ -63,7 +65,7 @@ fun SelectRole(
                     val token = task.result
                     val userId = userSessionStore.currentUserId()
                     if (userId.isNotBlank()) {
-                        viewModelFcm.updateFcmToken(userId, token)
+                        viewModelFcm.onEvent(FCMTokenUiEvent.UpdateFcmToken(userId, token))
                     }
                 }
             }
@@ -72,7 +74,7 @@ fun SelectRole(
             navController.navigateWithClearStack(loginRoute, clearStack = true)
 
             // Reset any state if needed
-            viewModel.resetRoleState()
+            viewModel.onEvent(RoleUiEvent.ResetRoleState)
         }
     }
 
@@ -118,7 +120,7 @@ fun SelectRole(
                 onClick = {
                     val userId = userSessionStore.currentUserId()
                     if (userId.isNotBlank()) {
-                        viewModel.selectRole(userId, "Voyager")
+                        viewModel.onEvent(RoleUiEvent.SelectRole(userId, "Voyager"))
                     }
                 },
             )
@@ -142,7 +144,7 @@ fun SelectRole(
                         onClick = {
                             val userId = userSessionStore.currentUserId()
                             if (userId.isNotBlank()) {
-                                viewModel.selectRole(userId, "Captain")
+                                viewModel.onEvent(RoleUiEvent.SelectRole(userId, "Captain"))
                             }
                         },
                     )
@@ -161,7 +163,7 @@ fun SelectRole(
                         onClick = {
                             val userId = userSessionStore.currentUserId()
                             if (userId.isNotBlank()) {
-                                viewModel.selectRole(userId, "Business")
+                                viewModel.onEvent(RoleUiEvent.SelectRole(userId, "Business"))
                             }
                         },
                     )

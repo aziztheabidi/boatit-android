@@ -38,6 +38,7 @@ import com.boatit.boatsharing.R
 import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.navigation.NavigationManager
 import com.boatit.boatsharing.ui.navigation.navigateWithClearStack
+import com.boatit.boatsharing.features.signup.captain.viewmodel.CaptainBoatUiEvent
 import com.boatit.boatsharing.features.signup.captain.viewmodel.CaptainBoatViewModel
 import com.boatit.boatsharing.features.signup.captain.viewmodel.GetCaptainBoatViewModel
 import com.boatit.boatsharing.ui.components.CustomButton
@@ -55,41 +56,45 @@ fun AddCaptainBoatInfoScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     var getingData by remember { mutableStateOf(true) }
-    val fetchState by viewModelfetch.registrationState.collectAsState()
-    val registrationState by viewModel.registrationState.collectAsState()
+    val boatUi by viewModel.uiState.collectAsState()
+    val registrationState = boatUi.registrationState
+    val fetchVm by viewModelfetch.uiState.collectAsState()
+    val fetchState = fetchVm.registrationState
 
-    when (fetchState) {
-        is NetworkResponse.Success -> {
-            if (getingData) {
-                viewModel.loadInitialData(fetchState.data)
+    LaunchedEffect(fetchState) {
+        when (fetchState) {
+            is NetworkResponse.Success -> {
+                if (getingData) {
+                    viewModel.onEvent(CaptainBoatUiEvent.LoadInitial(fetchState.data))
+                    getingData = false
+                }
+            }
+            is NetworkResponse.Error -> {
                 getingData = false
             }
+            else -> Unit
         }
-        is NetworkResponse.Error -> {
-            getingData = false
-        }
-        else -> {}
     }
 
     LaunchedEffect(getingData) {
-        viewModelfetch.GetCaptainBoat()
+        if (getingData) viewModelfetch.GetCaptainBoat()
     }
 
     LaunchedEffect(registrationState) {
-        if (viewModel.isButtonClicked) {
+        if (boatUi.isButtonClicked) {
             when (val state = registrationState) {
                 is NetworkResponse.Success -> {
                     Toast.makeText(context, state.data?.Message ?: "Saved", Toast.LENGTH_SHORT).show()
-                    viewModel.onRegistrationHandled()
+                    viewModel.onEvent(CaptainBoatUiEvent.RegistrationHandled)
                     navController.navigateWithClearStack(NavigationManager.CAPTAIN_OFFLINE_SCREEN, clearStack = true)
                 }
 
                 is NetworkResponse.Error -> {
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                    viewModel.onRegistrationHandled()
+                    viewModel.onEvent(CaptainBoatUiEvent.RegistrationHandled)
                 }
 
-                else -> {}
+                else -> Unit
             }
         }
     }
@@ -124,12 +129,12 @@ fun AddCaptainBoatInfoScreen(
             Spacer(Modifier.height(30.dp))
 
             listOf(
-                Triple(R.string.boat_name_label, R.string.boat_name_placeholder, viewModel.boatName),
-                Triple(R.string.boat_make_label, R.string.boat_make_placeholder, viewModel.boatMake),
-                Triple(R.string.boat_model_label, R.string.boat_model_placeholder, viewModel.boatModel),
-                Triple(R.string.boat_year_label, R.string.boat_year_placeholder, viewModel.boatYear),
-                Triple(R.string.boat_size_label, R.string.boat_size_placeholder, viewModel.boatSize),
-                Triple(R.string.boat_capacity_label, R.string.boat_capacity_placeholder, viewModel.boatCapacity),
+                Triple(R.string.boat_name_label, R.string.boat_name_placeholder, boatUi.boatName),
+                Triple(R.string.boat_make_label, R.string.boat_make_placeholder, boatUi.boatMake),
+                Triple(R.string.boat_model_label, R.string.boat_model_placeholder, boatUi.boatModel),
+                Triple(R.string.boat_year_label, R.string.boat_year_placeholder, boatUi.boatYear),
+                Triple(R.string.boat_size_label, R.string.boat_size_placeholder, boatUi.boatSize),
+                Triple(R.string.boat_capacity_label, R.string.boat_capacity_placeholder, boatUi.boatCapacity),
             ).forEachIndexed { index, (labelRes, placeholderRes, value) ->
                 Text(
                     text = stringResource(id = labelRes),
@@ -142,19 +147,19 @@ fun AddCaptainBoatInfoScreen(
                     placeholderText = stringResource(id = placeholderRes),
                     onTextChange = {
                         when (index) {
-                            0 -> viewModel.boatName = it
-                            1 -> viewModel.boatMake = it
-                            2 -> viewModel.boatModel = it
-                            3 -> viewModel.boatYear = it
-                            4 -> viewModel.boatSize = it
-                            5 -> viewModel.boatCapacity = it
+                            0 -> viewModel.onEvent(CaptainBoatUiEvent.BoatNameChanged(it))
+                            1 -> viewModel.onEvent(CaptainBoatUiEvent.BoatMakeChanged(it))
+                            2 -> viewModel.onEvent(CaptainBoatUiEvent.BoatModelChanged(it))
+                            3 -> viewModel.onEvent(CaptainBoatUiEvent.BoatYearChanged(it))
+                            4 -> viewModel.onEvent(CaptainBoatUiEvent.BoatSizeChanged(it))
+                            5 -> viewModel.onEvent(CaptainBoatUiEvent.BoatCapacityChanged(it))
                         }
                     },
                     keyboardType = KeyboardType.Text,
                     maxChars = 100,
                     errorMessage = null,
                     isError = false,
-                    onClearError = viewModel::onClearError,
+                    onClearError = { viewModel.onEvent(CaptainBoatUiEvent.ClearError) },
                     imeAction = if (index == 5) ImeAction.Done else ImeAction.Next,
                     keyboardActions =
                         KeyboardActions(onNext = {
@@ -170,12 +175,11 @@ fun AddCaptainBoatInfoScreen(
 
             CustomButton(
                 text = stringResource(R.string.save_button_label),
-                isValidate = viewModel.isValidate,
-                isLoading = viewModel.isLoading,
+                isValidate = boatUi.isValidate,
+                isLoading = boatUi.isLoading,
                 onButtonClick = {
                     focusManager.clearFocus()
-                    viewModel.isButtonClicked = true
-                    viewModel.saveProfile()
+                    viewModel.onEvent(CaptainBoatUiEvent.SaveProfile)
                 },
             )
         }

@@ -48,6 +48,8 @@ import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.ui.navigation.NavigationManager
 import com.boatit.boatsharing.ui.navigation.popBack
 import com.boatit.boatsharing.features.signup.business.model.SaveBusinessAboutRequest
+import com.boatit.boatsharing.features.signup.business.viewmodel.BusinessAboutUiEffect
+import com.boatit.boatsharing.features.signup.business.viewmodel.BusinessAboutUiEvent
 import com.boatit.boatsharing.features.signup.business.viewmodel.BusinessAboutViewModel
 import com.boatit.boatsharing.features.signup.business.viewmodel.GetBusinessInfoViewModel
 import com.boatit.boatsharing.ui.components.CustomButton
@@ -56,6 +58,7 @@ import com.boatit.boatsharing.ui.components.CustomTextField
 import com.boatit.boatsharing.ui.components.CustomTopBar
 import com.boatit.boatsharing.ui.components.FormStepsViews
 import com.boatit.boatsharing.data.local.prefmanager.UserSessionStore
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import org.koin.java.KoinJavaComponent.get
 
@@ -75,50 +78,28 @@ fun AddBusinessDescriptions(
     val context = LocalContext.current
     val userSessionStore: UserSessionStore = get(UserSessionStore::class.java)
     val currentUserId = userSessionStore.currentUserId()
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    var isNetworkError by remember { mutableStateOf(false) }
     var getingData by remember { mutableStateOf(true) }
-    val fetchState by viewModelfetch.registrationState.collectAsState()
+    val fetchVm by viewModelfetch.uiState.collectAsState()
+    val fetchState = fetchVm.registrationState
+    val aboutUi by viewModel.uiState.collectAsState()
     val isValidate = businessDescription.isNotEmpty() && selectedOption.isNotEmpty()
+    val showSaveProgress =
+        aboutUi.isSaving && aboutUi.registrationState is NetworkResponse.Loading
 
-    val handleError = {
-        errorMessage = null
-        isError = false
-    }
-
-    val registrationState by viewModel.registrationState.collectAsState()
-
-    fun performLogin() {
-        navController.navigate(NavigationManager.BUSINESS_LOGO_SCREEN)
-    }
-
-    when (registrationState) {
-        is NetworkResponse.Success -> {
-            if (isLoading) {
-                isLoading = false
-                isNetworkError = false
-                Toast.makeText(context, registrationState.data?.Message, Toast.LENGTH_SHORT).show()
-                performLogin()
+    LaunchedEffect(Unit) {
+        viewModel.uiEffect.collectLatest { effect ->
+            when (effect) {
+                is BusinessAboutUiEffect.ShowSuccessToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+                is BusinessAboutUiEffect.ShowErrorToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+                BusinessAboutUiEffect.NavigateToBusinessLogo -> {
+                    navController.navigate(NavigationManager.BUSINESS_LOGO_SCREEN)
+                }
             }
         }
-
-        is NetworkResponse.Error -> {
-            if (isLoading) {
-                isLoading = false
-                isNetworkError = true
-                errorMessage = "Network error, please try again."
-                Toast.makeText(
-                    context,
-                    (registrationState as NetworkResponse.Error).message,
-                    Toast.LENGTH_SHORT,
-                ).show()
-            }
-        }
-
-        else -> {}
     }
 
     LaunchedEffect(fetchState) {
@@ -149,7 +130,7 @@ fun AddBusinessDescriptions(
             )
         },
         content = { innerPadding ->
-            if (isLoading) {
+            if (showSaveProgress) {
                 Dialog(
                     onDismissRequest = {},
                     properties =
@@ -218,7 +199,7 @@ fun AddBusinessDescriptions(
                                 null
                             },
                         isError = businessDescription.isNotEmpty() && businessDescription.length <= 3,
-                        onClearError = handleError,
+                        onClearError = {},
                         imeAction = ImeAction.Done,
                         showTrailingIcon = false,
                         keyboardActions =
@@ -261,14 +242,15 @@ fun AddBusinessDescriptions(
                     CustomButton(
                         text = stringResource(R.string.save_button_label),
                         isValidate = isValidate,
-                        isLoading = isLoading,
+                        isLoading = showSaveProgress,
                         onButtonClick = {
-                            isLoading = true
-                            viewModel.saveBusinessAbout(
-                                SaveBusinessAboutRequest(
-                                    currentUserId,
-                                    Description = businessDescription,
-                                    IsDock = selectedOptionBolean,
+                            viewModel.onEvent(
+                                BusinessAboutUiEvent.Save(
+                                    SaveBusinessAboutRequest(
+                                        currentUserId,
+                                        Description = businessDescription,
+                                        IsDock = selectedOptionBolean,
+                                    ),
                                 ),
                             )
                             focusManager.clearFocus()

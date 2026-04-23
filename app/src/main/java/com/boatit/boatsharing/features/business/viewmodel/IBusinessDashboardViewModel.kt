@@ -7,20 +7,17 @@ import com.boatit.boatsharing.features.business.model.BusinessDashboardUiState
 import com.boatit.boatsharing.features.business.model.BusinessHour
 import com.boatit.boatsharing.features.business.model.DockData
 import com.boatit.boatsharing.features.business.model.LocationData
-import com.boatit.boatsharing.data.local.session.SessionEvent
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 
 interface IBusinessDashboardViewModel {
     val uiState: StateFlow<BusinessDashboardUiState>
-    val uiEffects: SharedFlow<BusinessDashboardUiEffect>
+    val uiEffect: Flow<BusinessDashboardUiEffect>
 
     fun onEvent(event: BusinessDashboardUiEvent)
 
     val dashboardState: StateFlow<BusinessDashboardState>
-
-    fun getSessionEvents(): SharedFlow<SessionEvent>
 
     fun checkAuthentication(): Boolean
 

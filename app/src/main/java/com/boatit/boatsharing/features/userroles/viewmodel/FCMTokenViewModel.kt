@@ -1,51 +1,67 @@
 package com.boatit.boatsharing.features.userroles.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
 import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
 import com.boatit.boatsharing.features.userroles.domain.model.DeviceTokenUpdateDomainModel
 import com.boatit.boatsharing.features.userroles.domain.usecase.UpdateDeviceTokenUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+data class FCMTokenUiState(
+    val tokenUpdateState: NetworkResponse<DeviceTokenUpdateDomainModel> = NetworkResponse.Loading(),
+) : UiState
+
+sealed interface FCMTokenUiEvent : UiEvent {
+    data class UpdateFcmToken(
+        val userId: String,
+        val token: String,
+    ) : FCMTokenUiEvent
+}
+
+sealed interface FCMTokenUiEffect : UiEffect {
+    data object NoOpEffect : FCMTokenUiEffect
+}
 
 class FCMTokenViewModel(
     private val updateDeviceTokenUseCase: UpdateDeviceTokenUseCase,
-) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _tokenUpdateState = MutableStateFlow<NetworkResponse<DeviceTokenUpdateDomainModel>>(NetworkResponse.Loading())
-    val tokenUpdateState: StateFlow<NetworkResponse<DeviceTokenUpdateDomainModel>> = _tokenUpdateState
-
-    @Deprecated("Use tokenUpdateState")
-    val loginState: StateFlow<NetworkResponse<DeviceTokenUpdateDomainModel>> = tokenUpdateState
+) : BaseViewModel<FCMTokenUiState, FCMTokenUiEvent, FCMTokenUiEffect>(FCMTokenUiState()) {
+    override fun onEvent(event: FCMTokenUiEvent) {
+        when (event) {
+            is FCMTokenUiEvent.UpdateFcmToken -> performUpdateFcmToken(event.userId, event.token)
+        }
+    }
 
     fun updateFcmToken(
         userId: String,
         token: String,
     ) {
+        onEvent(FCMTokenUiEvent.UpdateFcmToken(userId, token))
+    }
+
+    private fun performUpdateFcmToken(
+        userId: String,
+        token: String,
+    ) {
         viewModelScope.launch {
-            _tokenUpdateState.value = NetworkResponse.Loading()
+            updateState { copy(tokenUpdateState = NetworkResponse.Loading()) }
             when (val result = updateDeviceTokenUseCase(userId, token).toResource()) {
                 is Resource.Success -> {
-                    _tokenUpdateState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(tokenUpdateState = NetworkResponse.Success(result.data)) }
                 }
 
                 is Resource.Error -> {
-                    _tokenUpdateState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(tokenUpdateState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _tokenUpdateState.value = NetworkResponse.Loading()
+                    updateState { copy(tokenUpdateState = NetworkResponse.Loading()) }
                 }
             }
         }
-    }
-
-    @Deprecated("Use updateFcmToken")
-    fun fcm(
-        userid: String,
-        token: String,
-    ) {
-        updateFcmToken(userId = userid, token = token)
     }
 }

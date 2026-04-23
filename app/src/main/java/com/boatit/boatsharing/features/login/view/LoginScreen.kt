@@ -44,6 +44,7 @@ import com.boatit.boatsharing.features.login.viewmodel.LoginUiEffect
 import com.boatit.boatsharing.features.login.viewmodel.LoginUiEvent
 import com.boatit.boatsharing.features.login.viewmodel.LoginViewModel
 import com.boatit.boatsharing.features.login.viewmodel.PostLoginDestination
+import com.boatit.boatsharing.features.userroles.viewmodel.FCMTokenUiEvent
 import com.boatit.boatsharing.features.userroles.viewmodel.FCMTokenViewModel
 import com.boatit.boatsharing.ui.components.CustomButton
 import com.boatit.boatsharing.ui.components.CustomClickableSmallTextview
@@ -87,7 +88,7 @@ fun LoginScreen(
                                 val token = task.result
                                 val userId = userSessionStore.currentUserId()
                                 if (userId.isNotBlank()) {
-                                    viewModelFcm.updateFcmToken(userId, token)
+                                    viewModelFcm.onEvent(FCMTokenUiEvent.UpdateFcmToken(userId, token))
                                 }
                             }
                         }

@@ -1,6 +1,6 @@
 package com.boatit.boatsharing.features.forgotpassword.repository
 
-import com.boatit.boatsharing.testutils.apiExecutorReturningJson
+import com.boatit.boatsharing.testutils.httpClientReturningJson
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -18,7 +18,7 @@ class ForgotPassRepositoryHttpTest {
                   "obj": "ok"
                 }
                 """.trimIndent()
-            val repository = ForgotPassRepository(apiExecutorReturningJson(json))
+            val repository = ForgotPassRepository(httpClientReturningJson(json))
 
             val result = repository.forgotPassResp("user@example.com")
 

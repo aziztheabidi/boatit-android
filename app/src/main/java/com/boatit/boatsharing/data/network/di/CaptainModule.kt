@@ -1,5 +1,6 @@
 package com.boatit.boatsharing.data.network.di
 
+import com.boatit.boatsharing.features.captain.dashboard.viewmodel.LocationViewModel
 import com.boatit.boatsharing.features.captain.availabilitystatus.repository.UpdateStatusRepository
 import com.boatit.boatsharing.features.captain.availabilitystatus.viewmodel.UpdateStatusViewModel
 import com.boatit.boatsharing.features.captain.dashboard.repository.AcceptRequestRepository
@@ -50,6 +51,8 @@ import org.koin.dsl.module
 
 val captainModule =
     module {
+        viewModel { LocationViewModel(get(), get(), get(), get()) }
+
         single { CaptainProfileRepository(get()) }
         single {
             SaveCaptainProfileUseCase { request ->

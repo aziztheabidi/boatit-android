@@ -44,8 +44,10 @@ fun SponsorList(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-    val paymentState by viewModelP.loginState.collectAsState()
-    val declineState by viewModelStripe.declinePaymentState.collectAsState()
+    val paymentUi by viewModelP.uiState.collectAsState()
+    val paymentState = paymentUi.networkState
+    val sponsorUi by viewModelStripe.uiState.collectAsState()
+    val declineState = sponsorUi.declinePaymentState
 
     LaunchedEffect(Unit) {
         viewModel.uiEffect.collectLatest { effect ->

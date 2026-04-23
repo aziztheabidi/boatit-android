@@ -1,53 +1,65 @@
 package com.boatit.boatsharing.features.voyager.dashboard.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boatit.boatsharing.core.presentation.BaseViewModel
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
+import com.boatit.boatsharing.core.presentation.UiState
+import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.domain.core.Resource
 import com.boatit.boatsharing.domain.core.toResource
-import com.boatit.boatsharing.data.network.networkresponse.NetworkResponse
 import com.boatit.boatsharing.features.voyager.dashboard.domain.usecase.FetchPaymentSheetConfigUseCase
 import com.boatit.boatsharing.features.voyager.dashboard.model.PaymentSheetConfigResponse
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PaymentSheetConfigViewModel(private val fetchPaymentSheetConfigUseCase: FetchPaymentSheetConfigUseCase) : com.boatit.boatsharing.core.presentation.LegacyMviViewModel() {
-    private val _paymentSheetConfigState = MutableStateFlow<NetworkResponse<PaymentSheetConfigResponse>>(NetworkResponse.Loading())
-    val paymentSheetConfigState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = _paymentSheetConfigState
+data class PaymentSheetConfigUiState(
+    val paymentSheetConfigState: NetworkResponse<PaymentSheetConfigResponse> = NetworkResponse.Loading(),
+) : UiState
 
-    @Deprecated("Use paymentSheetConfigState")
-    val loginState: StateFlow<NetworkResponse<PaymentSheetConfigResponse>> = paymentSheetConfigState
+sealed interface PaymentSheetConfigUiEvent : UiEvent {
+    data class LoadPaymentSheetConfig(
+        val id: String,
+    ) : PaymentSheetConfigUiEvent
 
-    fun loadPaymentSheetConfig(id: String) {
+    data object ResetPaymentSheetState : PaymentSheetConfigUiEvent
+}
+
+sealed interface PaymentSheetConfigUiEffect : UiEffect {
+    data object NoOpEffect : PaymentSheetConfigUiEffect
+}
+
+class PaymentSheetConfigViewModel(
+    private val fetchPaymentSheetConfigUseCase: FetchPaymentSheetConfigUseCase,
+) : BaseViewModel<PaymentSheetConfigUiState, PaymentSheetConfigUiEvent, PaymentSheetConfigUiEffect>(
+        PaymentSheetConfigUiState(),
+    ) {
+    override fun onEvent(event: PaymentSheetConfigUiEvent) {
+        when (event) {
+            is PaymentSheetConfigUiEvent.LoadPaymentSheetConfig -> loadPaymentSheetConfig(event.id)
+            PaymentSheetConfigUiEvent.ResetPaymentSheetState -> resetPaymentSheetState()
+        }
+    }
+
+    private fun loadPaymentSheetConfig(id: String) {
         viewModelScope.launch {
-            _paymentSheetConfigState.value = NetworkResponse.Loading()
+            updateState { copy(paymentSheetConfigState = NetworkResponse.Loading()) }
             when (val result = fetchPaymentSheetConfigUseCase(id).toResource()) {
                 is Resource.Success -> {
-                    _paymentSheetConfigState.value = NetworkResponse.Success(result.data)
+                    updateState { copy(paymentSheetConfigState = NetworkResponse.Success(result.data)) }
                 }
 
                 is Resource.Error -> {
-                    _paymentSheetConfigState.value = NetworkResponse.Error(result.error)
+                    updateState { copy(paymentSheetConfigState = NetworkResponse.Error(result.error)) }
                 }
 
                 Resource.Loading -> {
-                    _paymentSheetConfigState.value = NetworkResponse.Loading()
+                    updateState { copy(paymentSheetConfigState = NetworkResponse.Loading()) }
                 }
             }
         }
     }
 
-    @Deprecated("Use loadPaymentSheetConfig")
-    fun paymentConfig(id: String) {
-        loadPaymentSheetConfig(id)
-    }
-
-    fun resetPaymentSheetState() {
-        _paymentSheetConfigState.value = NetworkResponse.Loading()
-    }
-
-    @Deprecated("Use resetPaymentSheetState")
-    fun resetNearbyPlaces() {
-        resetPaymentSheetState()
+    private fun resetPaymentSheetState() {
+        updateState { copy(paymentSheetConfigState = NetworkResponse.Loading()) }
     }
 }

@@ -74,10 +74,12 @@ fun ChatScreen(
     viewModel: ChatViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
-    val messages by viewModel.messages.collectAsState(initial = emptyList())
+    val chatUi by viewModel.uiState.collectAsState()
+    val messages = chatUi.messages
     val messageText = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
-    val followState by viewModelF.nearbyPlaces.collectAsState()
+    val followUi by viewModelF.uiState.collectAsState()
+    val followState = followUi.nearbyPlaces
 
     when (followState) {
         is NetworkResponse.Success -> {

@@ -1,6 +1,7 @@
 package com.boatit.boatsharing.features.userroles.data.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /** Wire / JSON DTOs for user-role and device-token endpoints (not domain models). */
 @Serializable
@@ -18,8 +19,10 @@ data class RoleResponseDto(
 
 @Serializable
 data class RoleTokenDataDto(
-    val Accesstoken: String? = null,
-    val Refreshtoken: String? = null,
+    @SerialName("Accesstoken")
+    val accessToken: String? = null,
+    @SerialName("Refreshtoken")
+    val refreshToken: String? = null,
 )
 
 @Serializable

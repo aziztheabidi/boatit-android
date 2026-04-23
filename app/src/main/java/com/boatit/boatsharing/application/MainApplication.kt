@@ -33,8 +33,8 @@ class MainApplication : Application() {
         }
 
         startKoin {
-            modules(Modules)
             androidContext(this@MainApplication)
+            modules(Modules)
         }
     }
 }

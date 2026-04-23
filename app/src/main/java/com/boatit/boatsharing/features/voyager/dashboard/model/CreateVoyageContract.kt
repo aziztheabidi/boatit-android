@@ -1,8 +1,10 @@
 package com.boatit.boatsharing.features.voyager.dashboard.model
 
+import com.boatit.boatsharing.core.presentation.UiEffect
+import com.boatit.boatsharing.core.presentation.UiEvent
 import com.boatit.boatsharing.features.voyager.dashboard.viewmodel.CreateVoyageUiState
 
-sealed interface CreateVoyageUiEvent {
+sealed interface CreateVoyageUiEvent : UiEvent {
     data class DobChanged(val value: String) : CreateVoyageUiEvent
 
     data class StartTimeChanged(val value: String) : CreateVoyageUiEvent
@@ -26,7 +28,7 @@ sealed interface CreateVoyageUiEvent {
     data object ResetRequestState : CreateVoyageUiEvent
 }
 
-sealed interface CreateVoyageUiEffect {
+sealed interface CreateVoyageUiEffect : UiEffect {
     data object NavigateToRateCalculation : CreateVoyageUiEffect
 }
 

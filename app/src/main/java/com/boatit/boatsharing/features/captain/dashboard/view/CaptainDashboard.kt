@@ -98,8 +98,10 @@ fun CaptainDashboard(
     var notification by remember { mutableStateOf<VoyageNotification?>(null) }
     var showVoyagerRequest by rememberSaveable { mutableStateOf(false) }
 
-    val notificationState by viewModelN.notificationState.collectAsStateWithLifecycle()
-    val userLocation by viewModel.userLocation.collectAsState()
+    val notificationVm by viewModelN.uiState.collectAsStateWithLifecycle()
+    val notificationState = notificationVm.notification
+    val captainLoc by viewModel.uiState.collectAsState()
+    val userLocation = captainLoc.userLocation
 
     LaunchedEffect(viewModelR) {
         viewModelR.uiEffect.collectLatest { effect ->
