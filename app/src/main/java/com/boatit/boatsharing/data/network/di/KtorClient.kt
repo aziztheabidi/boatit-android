@@ -35,26 +35,30 @@ import java.io.IOException
 fun createKtorClient(
     tokenProvider: ITokenProvider,
     unauthorizedSessionHandler: UnauthorizedSessionHandler,
+    /** True for debuggable builds only; release must not log bodies/headers at verbose levels. */
+    enableVerboseNetworkLogging: Boolean,
 ): HttpClient {
     return HttpClient(CIO) {
         install(ContentNegotiation) {
             json(
                 Json {
                     ignoreUnknownKeys = true
-                    prettyPrint = true
+                    prettyPrint = enableVerboseNetworkLogging
                 },
             )
         }
 
-        install(Logging) {
-            logger =
-                object : Logger {
-                    override fun log(message: String) {
-                        Log.v("KTOR_HTTP", message)
+        if (enableVerboseNetworkLogging) {
+            install(Logging) {
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            Log.v("KTOR_HTTP", message)
+                        }
                     }
-                }
 
-            level = LogLevel.ALL
+                level = LogLevel.ALL
+            }
         }
 
         HttpResponseValidator {

@@ -1,9 +1,11 @@
 package com.boatit.boatsharing.data.network.di
 
+import android.content.pm.ApplicationInfo
 import com.boatit.boatsharing.data.local.session.ClearSessionUseCase
 import com.boatit.boatsharing.data.local.session.SessionController
 import com.boatit.boatsharing.data.network.session.UnauthorizedSessionHandler
 import io.ktor.client.HttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 /**
@@ -15,7 +17,11 @@ import org.koin.dsl.module
 val networkModule =
     module {
         single { UnauthorizedSessionHandler(get()) { get<HttpClient>() } }
-        single { createKtorClient(get(), get()) }
+        single {
+            val debuggable =
+                (androidContext().applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            createKtorClient(get(), get(), debuggable)
+        }
         single { ClearSessionUseCase(get()) { get<HttpClient>() } }
         single { SessionController(get()) }
     }

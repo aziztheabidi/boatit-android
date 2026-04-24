@@ -28,25 +28,26 @@ fun boatitProp(
         ?: default
 
 /**
- * When true, detekt and ktlint fail the build on violations.
- * Enable via Gradle: `-Pboatit.strictStaticAnalysis=true`, or in `local.properties`: `boatit.strictStaticAnalysis=true`.
- * Default is false so existing issues do not block normal builds.
+ * When true, detekt and ktlint violations do not fail the build (local escape hatch only).
+ * Set in `local.properties` or `-Pboatit.relaxStaticAnalysis=true`.
+ *
+ * Default is false so CI and `./gradlew build` enforce static analysis like a production pipeline.
  */
-val boatitStrictStaticAnalysis: Boolean =
-    (project.findProperty("boatit.strictStaticAnalysis") as? String)
+val boatitRelaxStaticAnalysis: Boolean =
+    (project.findProperty("boatit.relaxStaticAnalysis") as? String)
         ?.equals("true", ignoreCase = true) == true ||
-        boatitLocalProperties.getProperty("boatit.strictStaticAnalysis")
+        boatitLocalProperties.getProperty("boatit.relaxStaticAnalysis")
             ?.equals("true", ignoreCase = true) == true
 
 detekt {
     buildUponDefaultConfig = true
     allRules = false
-    ignoreFailures = !boatitStrictStaticAnalysis
+    ignoreFailures = boatitRelaxStaticAnalysis
     parallel = true
 }
 
 ktlint {
-    ignoreFailures.set(!boatitStrictStaticAnalysis)
+    ignoreFailures.set(boatitRelaxStaticAnalysis)
     verbose.set(true)
 }
 

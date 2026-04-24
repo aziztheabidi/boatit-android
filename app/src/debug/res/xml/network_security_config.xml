@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only: allow cleartext so emulator/local HTTP API URLs in
+  boatit.debug.api.baseUrl / boatit.api.baseUrl keep working.
+  Release uses main/res/xml/network_security_config.xml (cleartext off).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
